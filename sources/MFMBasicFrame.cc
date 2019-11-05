@@ -104,8 +104,12 @@ string MFMBasicFrame::GetHeaderDisplay(char* infotext) {
 	stringstream ss;
 	ss.str("");
 	string display("");
-	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   HeaderSize = " << GetHeaderSize();
+	
+	if (infotext == NULL)
+		ss << MFMCommonFrame::GetHeaderDisplay((char*)(WhichFrame().data()));
+	else
+		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
+	ss << "  HeaderSize = " << GetHeaderSize();
 	ss << "  ItemSize = " << GetItemSize();
 	ss << "  NbItems = " << GetNbItems();
 	ss << "\n";

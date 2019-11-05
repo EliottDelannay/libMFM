@@ -50,7 +50,10 @@ MFMVamosPDFrame::~MFMVamosPDFrame() {
 		delete[] fNbLabels;
 		fNbLabels = NULL;
 	};
-
+	if (fCountNbEventCard){	
+		delete[] fCountNbEventCard;
+		fCountNbEventCard=NULL;
+	}
 }
 //_______________________________________________________________________________
 void MFMVamosPDFrame::SetBufferSize(int size, bool ifinferior) {
@@ -334,12 +337,12 @@ void MFMVamosPDFrame::InitStat() {
 	int i = 0;
 	int max = MaxTrace;
 	if (fLabelIndice == NULL)
-		fLabelIndice = new int[max + 3];// MaxTrace + count of 0xDEF0 +count of 0xFFFF count of overlabel.
+		fLabelIndice = new int[max + 3];// MaxTrace + count of 0xDEF0 +count of 0xFFFF + count of overlabel.
 	if (fIndiceLabel == NULL)
 		fIndiceLabel = new int[max + 3];
 	if (fNbLabels == NULL)
 		fNbLabels = new int[max + 3];
-	for (i = 0; i < max + 2; i++) {
+	for (i = 0; i < max + 3; i++) {
 		fNbLabels[i] = 0;
 		fLabelIndice[i] = -1;
 		fIndiceLabel[i] = 0;
@@ -423,7 +426,7 @@ string MFMVamosPDFrame::GetStat(string info) {
 		total1 += fNbLabels[i];
 	}
 	ss << " Total  label/data couples = " << total1 << endl;
-	ss << " Count of labels  DEF0 = " << fNbLabels[MaxTrace] << endl;
+	ss << " Count of labels  DEF0 = " << fNbLabels[MaxTrace]     << endl;
 	ss << " Count of labels  FFFF = " << fNbLabels[MaxTrace + 1] << endl;
 	ss << " Count of OverLabel    = " << fNbLabels[MaxTrace + 2] << endl;
 	display = ss.str();

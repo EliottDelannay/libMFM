@@ -20,9 +20,9 @@
 #define MFM_S3_RUTH_FRAME_TYPE  0x19 /// for detector S3 Rutherford Frame
 #define MFM_S3_EGUN_FRAME_TYPE  0x1A /// for detector S3 eGUN
 #define MFM_S3_SYNC_FRAME_TYPE  0x1B /// for detector S3 Synchro
+#define MFM_REA_GENE_FRAME_TYPE 0x1C /// Generic Rea Frame
 #define MFM_VAMOSTAC_FRAME_TYPE 0x1D /// Vamos Time  Frame
 #define MFM_BOX_DIAG_FRAME_TYPE 0x1E /// Box Diagnostic
-
 
 
 #define MFM_EBY_EN_FRAME_TYPE   0x20 /// Ganil data frame with event number
@@ -36,6 +36,8 @@
 #define MFM_FAZIA_DATA_FRAME_TYPE   0x40 /// FAZIA data frame
 
 #define MFM_CHIMERA_DATA_FRAME_TYPE 0x60 /// CHIMERA data frame
+
+#define MFM_REA_SCOPE_FRAME_TYPE    0x71 /// Generic Rea Frame
 
 #define MFM_HELLO_FRAME_TYPE  0xFF00     /// Hello Frame
 #define MFM_MERGE_EN_FRAME_TYPE  0xFF01  /// Merge frame in envent number

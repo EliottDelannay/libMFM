@@ -7,6 +7,8 @@
 	Class for  frames based on Numexo2 cards.
     Author : Luc Legeard
 */
+#include "MFMBlobFrame.h"
+
 
 #define NUMEXO_FRAMESIZE 32
 #define NUMEXO_HEADERFRAMESIZE 18
@@ -14,8 +16,8 @@
 #define NUMEXO_BOARD_ID_MASK 0x07ff
 #define NUMEXO_NUMBER_CRISTAL_ID 2
 #define NUMEXO_STD_UNIT_BLOCK_SIZE 4
+#define NUMEXO_NB_CHANNELS 16
 
-#include "MFMBlobFrame.h"
 
 #pragma pack(push, 1) // force alignment
 
@@ -59,8 +61,8 @@ MFMNumExoFrame();
 MFMNumExoFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMNumExoFrame();
-virtual void SetPointers(void * pt =NULL);
 
+virtual void SetPointers(void * pt =NULL);
 
 virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);

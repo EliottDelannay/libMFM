@@ -381,6 +381,7 @@ string MFMCommonFrame::GetHeaderDisplay(char* infotext) {
 		blob = true;
 	int unitBlockSize = GetUnitBlockSize();
 	GetFrameType();
+
 	if (infotext == NULL)
 		ss << "MFM header, Type :" << WhichFrame() << " ";
 	if (infotext != NULL)
@@ -689,7 +690,7 @@ int MFMCommonFrame::FillBigBufferFromFile(int fLun, char* vector,
 //____________________________________________________________________
 int MFMCommonFrame::ReadInFile(int *fLun, char** vector, int * vectorsize) {
 	/// Get data from a file, and fill current frame and initialize its attributs and its pointer
-	/// if size of actual frame is not enough, and new size is reallocated
+	/// if size of actual frame is not enough, a new size is reallocated
 	///      fLun   : descriptor of file (given by a previous open)
 	///      vector : pointer on pointer will contain frame . if size isn't big, a new value of pointer
 	///      vectorsize of this pointer
@@ -812,46 +813,46 @@ uint64_t MFMCommonFrame::GetTimeStamp() {
 }
 //____________________________________________________________________
 string MFMCommonFrame::WhichFrame(uint16_t type) {
+
 	string tempos = "UNKNOWN_TYPE";
-	uint16_t testype = type;
 	if (type == 0) {
-		testype = fFrameType;
+		type = fFrameType;
 	}
-	if (testype == MFM_COBO_FRAME_TYPE)
+	if (type == MFM_COBO_FRAME_TYPE)
 		tempos = "MFM_COBO_FRAME_TYPE";
-	if (testype == MFM_COBOF_FRAME_TYPE)
+	if (type == MFM_COBOF_FRAME_TYPE)
 		tempos = "MFM_COBOF_FRAME_TYPE";
-	if (testype == MFM_COBOT_FRAME_TYPE)
+	if (type == MFM_COBOT_FRAME_TYPE)
 		tempos = "MFM_COBOT_FRAME_TYPE";
-	if (testype == MFM_EXO2_FRAME_TYPE)
+	if (type == MFM_EXO2_FRAME_TYPE)
 		tempos = "MFM_EXO2_FRAME_TYPE";
-	if (testype == MFM_OSCI_FRAME_TYPE)
+	if (type == MFM_OSCI_FRAME_TYPE)
 		tempos = "MFM_OSCI_FRAME_TYPE";
-	if (testype == MFM_NEDA_FRAME_TYPE)
+	if (type == MFM_NEDA_FRAME_TYPE)
 		tempos = "MFM_NEDA_FRAME_TYPE";
-	if (testype == MFM_NEDACOMP_FRAME_TYPE)
+	if (type == MFM_NEDACOMP_FRAME_TYPE)
 		tempos = "MFM_NEDACOMP_FRAME_TYPE";
-	if (testype == MFM_EBY_EN_FRAME_TYPE)
+	if (type == MFM_EBY_EN_FRAME_TYPE)
 		tempos = "MFM_EBY_EN_FRAME_TYPE";
-	if (testype == MFM_EBY_TS_FRAME_TYPE)
+	if (type == MFM_EBY_TS_FRAME_TYPE)
 		tempos = "MFM_EBY_TS_FRAME_TYPE";
-	if (testype == MFM_EBY_EN_TS_FRAME_TYPE)
+	if (type == MFM_EBY_EN_TS_FRAME_TYPE)
 		tempos = "MFM_EBY_EN_TS_FRAME_TYPE";
-	if (testype == MFM_SCALER_DATA_FRAME_TYPE)
+	if (type == MFM_SCALER_DATA_FRAME_TYPE)
 		tempos = "MFM_SCALER_DATA_FRAME_TYPE";
-	if (testype == MFM_MERGE_EN_FRAME_TYPE)
+	if (type == MFM_MERGE_EN_FRAME_TYPE)
 		tempos = "MFM_MERGE_EN_FRAME_TYPE";
-	if (testype == MFM_XML_DATA_DESCRIPTION_FRAME_TYPE)
+	if (type == MFM_XML_DATA_DESCRIPTION_FRAME_TYPE)
 		tempos = "MFM_XML_DATA_DESCRIPTION_FRAME_TYPE";
-	if (testype == MFM_RIBF_DATA_FRAME_TYPE)
+	if (type == MFM_RIBF_DATA_FRAME_TYPE)
 		tempos = "MFM_RIBF_DATA_FRAME_TYPE";
-	if (testype == MFM_MUTANT_FRAME_TYPE)
+	if (type == MFM_MUTANT_FRAME_TYPE)
 		tempos = "MFM_MUTANT_FRAME_TYPE";
-	if (testype == MFM_CHIMERA_DATA_FRAME_TYPE)
+	if (type == MFM_CHIMERA_DATA_FRAME_TYPE)
 		tempos = "MFM_CHIMERA_DATA_FRAME_TYPE";
-	if (testype == MFM_HELLO_FRAME_TYPE)
+	if (type == MFM_HELLO_FRAME_TYPE)
 		tempos = "MFM_HELLO_FRAME_TYPE";
-	if (testype == MFM_XML_FILE_HEADER_FRAME_TYPE)
+	if (type == MFM_XML_FILE_HEADER_FRAME_TYPE)
 		tempos = "MFM_XML_FILE_HEADER_FRAME_TYPE";
 	if (type == MFM_VAMOSIC_FRAME_TYPE)
 		tempos = "MFM_VAMOSIC_FRAME_TYPE";
@@ -869,6 +870,10 @@ string MFMCommonFrame::WhichFrame(uint16_t type) {
 		tempos = "MFM_S3_EGUN_FRAME_TYPE";
 	if (type == MFM_S3_SYNC_FRAME_TYPE)
 		tempos = "MFM_S3_SYNC_FRAME_TYPE";
+	if (type == MFM_REA_GENE_FRAME_TYPE)
+		tempos = "MFM_REA_GENE_FRAME_TYPE";
+	if (type == MFM_REA_SCOPE_FRAME_TYPE)
+		tempos = "MFM_REA_SCOPE_FRAME_TYPE";
 	return tempos;
 }
 //____________________________________________________________________

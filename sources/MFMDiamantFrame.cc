@@ -14,22 +14,6 @@ using namespace std;
 
 #include "MFMDiamantFrame.h"
 
-//_______________________________________________________________________________
-MFMDiamantFrame::MFMDiamantFrame(int unitBlock_size, int dataSource,
-		int frameType, int revision, int frameSize, int headerSize) {
-	/// Constructor for a diagam frame . the header is filled with unitblock_size, data source , frame type , revision , frame, size and header size value
-	SetPointers();
-}
-
-//_______________________________________________________________________________
-MFMDiamantFrame::MFMDiamantFrame() {
-	/// Constructor for a empty diagam frame
-
-}
-//_______________________________________________________________________________
-MFMDiamantFrame::~MFMDiamantFrame() {
-/// destructor of Diagam frame
-}
 
 //_______________________________________________________________________________
 
@@ -108,22 +92,17 @@ void MFMDiamantFrame::FillEventRandomConst(uint64_t timestamp,
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
+	MFMNumExoFrame::FillEventRandomConst(timestamp,eventnumber);
 	float maxuint16 = pow(2,16);
 	float maxuint32 = pow(2,32);
 	float value = random();
-
 	uint16_t uivalue16 = (uint16_t) (maxuint16 * (float)(value / RAND_MAX));
 	uint32_t uivalue32 = (uint32_t) (maxuint32 * (float)(value / RAND_MAX));
-
 	SetStatus(0,1);
 	SetStatus(1,1);
 	SetEnergy(uivalue32);
 	SetTop(uivalue32 +1);
 	SetChecksum(uivalue16);
-
-	SetEventNumber(eventnumber);
-	SetTimeStamp(timestamp);
-	MFMNumExoFrame::FillEventRandomConst(timestamp,eventnumber);
 	SetFrameType (MFM_DIAMANT_FRAME_TYPE);
 }
 

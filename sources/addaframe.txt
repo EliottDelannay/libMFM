@@ -11,7 +11,7 @@ the heritage came from a other  Frame which elseself inherits from MFMBasicFrame
 
 in GRU
 
- -add type of frame in IsAEventBuffer();
+ - int GBuffer.C add type of frame in IsAEventBuffer() if is not a event buffer
  - in GEventMFM.h add declaration of the frame pointer.
  
  -in GEventMFM.C  

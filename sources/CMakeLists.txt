@@ -2,9 +2,35 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(MFMlib)
 
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
-configure_file(MFMlib.config MFMlib.h)
+macro(DATE RESULT)
+	if(UNIX)
+		execute_process(COMMAND "date" "+%y.%m.%d" OUTPUT_VARIABLE ${RESULT})
+		string(REGEX REPLACE "\n" "" ${RESULT} ${${RESULT}})
+	else()
+		message(SEND_ERROR "Unable to detect date")
+		SET(${RESULT} 00.00.00)
+	endif()
+endmacro()
+
+macro(TIME RESULT)
+	if(UNIX)
+		execute_process(COMMAND "date" "+%H:%M:%S" OUTPUT_VARIABLE ${RESULT})
+		string(REGEX REPLACE "\n" "" ${RESULT} ${${RESULT}})
+	else()
+		message(SEND_ERROR "Unable to detect time")
+		set(${RESULT} UNKNOWN)
+	endif()
+endmacro()
+
+DATE(BUILD_MFM_DATE)
+TIME(BUILD_MFM_TIME)
+
+message(STATUS "Compilation date = ${BUILD_MFM_DATE} ${BUILD_MFM_TIME}")
+
+configure_file(MFMlib.in MFMlib.in.h)
 
 # force -fPIC option n even in .a library
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) 
@@ -40,6 +66,7 @@ endif()
 
 include_directories(${CMAKE_BINARY_DIR})
 message("-- CMAKE_CXX_FLAGS_RELEASE =  ${CMAKE_CXX_FLAGS_RELEASE}")
+message("-- CMAKE_CXX_FLAGS_DEBUG =  ${CMAKE_CXX_FLAGS_DEBUG}")
 
 # Créé des variables avec les fichiers à compiler
 set(SRCSlib
@@ -48,8 +75,8 @@ DataParameters.cc     MFMBoxDiagFrame.cc   MFMExogamFrame.cc    MFMNumExoFrame.c
 DataPar.cc            MFMChimeraFrame.cc   MFMOscilloFrame.cc   MFMScalerDataFrame.cc
 DataScal.cc           MFMCoboFrame.cc      MFMHelloFrame.cc     MFMRibfFrame.cc     DataScalers.cc
 MFMCoboTopoFrame.cc   MFMMergeFrame.cc     MFMS3AlphaFrame.cc   MFMVamosICFrame.cc
-MError.cc             MFMCommonFrame.cc    MFMMutantFrame.cc    MFMS3BaF2Frame.cc   MFMVamosPDFrame.cc
-MFMBasicFrame.cc      MFMDiamantFrame.cc   MFMNedaCompFrame.cc  MFMS3eGUNFrame.cc   MFMVamosTACFrame.cc
+MError.cc             MFMCommonFrame.cc    MFMMutantFrame.cc    MFMS3BaF2Frame.cc   MFMVamosPDFrame.cc    MFMReaGenericFrame.cc
+MFMBasicFrame.cc      MFMDiamantFrame.cc   MFMNedaCompFrame.cc  MFMS3eGUNFrame.cc   MFMVamosTACFrame.cc   MFMReaScopeFrame.cc
 )
 	
 set(HEADERSlib
@@ -57,8 +84,8 @@ Cobo.h               MError.h           MFMCoboFrame.h      MFMHelloFrame.h     
 DataGenParameters.h  MFMAllFrames.h     MFMCoboTopoFrame.h  MFMMergeFrame.h     MFMOscilloFrame.h  MFMS3SynchroFrame.h   MFMXmlDataDescriptionFrame.h
 DataParameters.h     MFMBasicFrame.h    MFMCommonFrame.h    MFMMutantFrame.h    MFMRibfFrame.h     MFMScalerDataFrame.h  MFMXmlFileHeaderFrame.h
 DataPar.h            MFMBlobFrame.h     MFMDiamantFrame.h   MFMNedaCompFrame.h  MFMS3AlphaFrame.h  MFMTypes.h            XmlTags.h
-DataScalers.h        MFMBoxDiagFrame.h  MFMEbyedatFrame.h   MFMNedaFrame.h      MFMS3BaF2Frame.h   MFMVamosICFrame.h
-DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMNedaFrame_old.h  MFMS3eGUNFrame.h   MFMVamosPDFrame.h
+DataScalers.h        MFMBoxDiagFrame.h  MFMEbyedatFrame.h   MFMNedaFrame.h      MFMS3BaF2Frame.h   MFMVamosICFrame.h     MFMReaScopeFrame.h
+DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMNedaFrame_old.h  MFMS3eGUNFrame.h   MFMVamosPDFrame.h     MFMReaGenericFrame.h
 )
 	
 

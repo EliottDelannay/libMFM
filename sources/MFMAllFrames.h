@@ -30,6 +30,7 @@
 #include "MFMS3RuthFrame.h"
 #include "MFMS3eGUNFrame.h"
 #include "MFMS3SynchroFrame.h"
-
+#include "MFMReaGenericFrame.h"
+#include "MFMReaScopeFrame.h"
 
 #endif

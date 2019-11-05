@@ -18,7 +18,7 @@ struct MFM_dia_data{
   unsigned CristalId : 16;
   unsigned Status1   : 8;
   unsigned Status2   : 8;
-  unsigned Energy	 : 32;
+  unsigned Energy    : 32;
   unsigned Top       : 32;
   unsigned Checksum  : 16;
 };
@@ -40,11 +40,6 @@ class MFMDiamantFrame:public MFMNumExoFrame
 
 
 public :
-
-MFMDiamantFrame();
-MFMDiamantFrame(int unitBlock_size, int dataSource,
-	 		 int frameType, int revision, int frameSize,int headerSize);
-virtual ~MFMDiamantFrame();
 
 // DIAMANT
 

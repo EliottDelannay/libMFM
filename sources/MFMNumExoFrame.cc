@@ -153,11 +153,23 @@ void MFMNumExoFrame::SetChecksum(uint16_t checksum){
 uint16_t MFMNumExoFrame::ComputeChecksum(){
 	int i = 0;
 	uint16_t *pt;
+	uint16_t value=0;
 	uint32_t sum=0;
 	uint16_t check;
 	pt=	(uint16_t*) pHeader;
-	for (i =0;i <NUMEXO_FRAMESIZE/2 -1;i++){
-		sum+=(uint16_t)pt[i];
+	cout <<hex;
+	// we jump time stamps and event number
+	for (i =0;i <4 ;i++){
+		value=(uint16_t)pt[i];
+		if (fLocalIsBigEndian != fFrameIsBigEndian)
+			SwapInt16((&value));
+		sum+= value ;
+	}
+	for (i =9;i <(NUMEXO_FRAMESIZE/2) -1;i++){
+		value=(uint16_t)pt[i];
+		if (fLocalIsBigEndian != fFrameIsBigEndian)
+			SwapInt16((&value));
+		sum+= value ;
 	}
 	sum = sum&0x0000FFFF;
 	check = (uint16_t) sum;
@@ -226,8 +238,8 @@ void MFMNumExoFrame::FillEventRandomConst(uint64_t timestamp,
 	//SetFrameType (0);
 	SetCristalId(8, 112);
 	SetEventNumber(enventnumber);
-	((MFM_numexo_frame*) pHeader)->Data.Data2 = 0;
-	((MFM_numexo_frame*) pHeader)->Data.Data3 = 0;
+	//((MFM_numexo_frame*) pHeader)->Data.Data2 = 0;
+	//((MFM_numexo_frame*) pHeader)->Data.Data3 = 0;
 	SetTimeStamp(timestamp);
 	SetChecksum(ComputeChecksum());
 }
@@ -244,7 +256,8 @@ string MFMNumExoFrame::GetHeaderDisplay(char* infotext) {
 	ss << "   TS = " << GetTimeStamp();
 	ss << "   BoardId =" << GetBoardId();
 	ss << "   Cristal Id =" << GetTGCristalId();
-	ss << "   Checksum =" << VerifyChecksum();
+	ss << "   test Checksum =" << VerifyChecksum();
+	ss << endl;
 	display = ss.str();
 	return display;
 }

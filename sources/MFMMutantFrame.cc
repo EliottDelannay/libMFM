@@ -45,7 +45,7 @@ void MFMMutantFrame::SetPointers(void * pt) {
 void MFMMutantFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
-	pUserData_char = (char*) &(((MFM_mut_header*) pHeader)->MutData);
+	pUserData_char = (char*) &(((MFM_mut_frame*) pHeader)->MutData);
 }
 //_______________________________________________________________________________
 
@@ -54,7 +54,7 @@ uint64_t MFMMutantFrame::GetTimeStamp() {
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
 	memcpy(((char*) (&fTimeStamp)),
-			((MFM_mut_header*) pHeader)->MutEventInfo.EventTime, 6);
+			((MFM_mut_frame*) pHeader)->MutEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 	return fTimeStamp;
@@ -71,8 +71,8 @@ uint32_t MFMMutantFrame::GetEventNumber() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
-	//memcpy(&fEventNumber,((char*)((MFM_mut_header*)pHeader)->mutEvtInfo.eventIdx),4);
-	fEventNumber = ((MFM_mut_header*) pHeader)->MutEventInfo.EventIdx;
+	//memcpy(&fEventNumber,((char*)((MFM_mut_frame*)pHeader)->mutEvtInfo.eventIdx),4);
+	fEventNumber = ((MFM_mut_frame*) pHeader)->MutEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
 	return fEventNumber;
@@ -89,22 +89,22 @@ void MFMMutantFrame::SetTimeStamp(uint64_t timestamp) {
 
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
-	memcpy(((MFM_mut_header*) pHeader)->MutEventInfo.EventTime, pts, 6);
+	memcpy(((MFM_mut_frame*) pHeader)->MutEventInfo.EventTime, pts, 6);
 }
 //_______________________________________________________________________________
 void MFMMutantFrame::SetEventNumber(uint32_t eventnumber) {
 	/// Set Event Number of frame
-	((MFM_mut_header*) pHeader)->MutEventInfo.EventIdx = eventnumber;
+	((MFM_mut_frame*) pHeader)->MutEventInfo.EventIdx = eventnumber;
 }
 
 //_______________________________________________________________________________
 void MFMMutantFrame::SetTriggerInfo(uint16_t trig) {
-	(((MFM_mut_header*) pHeader)->MutData.TriggerInfo) = trig;
+	(((MFM_mut_frame*) pHeader)->MutData.TriggerInfo) = trig;
 }
 //_______________________________________________________________________________
 uint16_t MFMMutantFrame::GetTriggerInfo() {
 	uint16_t trig;
-	trig = (((MFM_mut_header*) pHeader)->MutData.TriggerInfo);
+	trig = (((MFM_mut_frame*) pHeader)->MutData.TriggerInfo);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt16(&trig);
 	return trig;
@@ -116,7 +116,7 @@ void MFMMutantFrame::SetMultiplicity(int i, uint16_t mult) {
 		cout << "MFMMutantFrame::SetMultiplicity Error of index\n";
 	} else {
 
-		(((MFM_mut_header*) pHeader)->MutData.Mutiplicity[i]) = mult;
+		(((MFM_mut_frame*) pHeader)->MutData.Mutiplicity[i]) = mult;
 	}
 }
 //_______________________________________________________________________________
@@ -127,7 +127,7 @@ uint16_t MFMMutantFrame::GetMultiplicity(int i) {
 		cout << "MFMMutantFrame::GetMultiplicity Error of index\n";
 		return 0;
 	} else {
-		mutiblicity = (((MFM_mut_header*) pHeader)->MutData.EvtCount[i]);
+		mutiblicity = (((MFM_mut_frame*) pHeader)->MutData.EvtCount[i]);
 	}
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt16(&mutiblicity);
@@ -139,7 +139,7 @@ void MFMMutantFrame::SetEvtCount(int i, uint32_t count) {
 	if (i < 0 and i > MUT_NB_EVTCOUNT)
 		cout << "MFMMutantFrame::SetEvtCount Error of status index\n";
 	else
-		((MFM_mut_header*) pHeader)->MutData.EvtCount[i] = count;
+		((MFM_mut_frame*) pHeader)->MutData.EvtCount[i] = count;
 }
 //_______________________________________________________________________________
 uint32_t MFMMutantFrame::GetEvtCount(int i) {
@@ -148,7 +148,7 @@ uint32_t MFMMutantFrame::GetEvtCount(int i) {
 		cout << "MFMMutantFrame::GetEvtCount Error of index\n";
 		return 0;
 	} else {
-		count = (((MFM_mut_header*) pHeader)->MutData.EvtCount[i]);
+		count = (((MFM_mut_frame*) pHeader)->MutData.EvtCount[i]);
 	}
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32(&count);
@@ -159,7 +159,7 @@ void MFMMutantFrame::SetScaler(int i, uint32_t scaler) {
 	if (i < 0 and i > MUT_NB_SCALER)
 		cout << "MFMMutantFrame::SetScaler Error of index\n";
 	else
-		((MFM_mut_header*) pHeader)->MutData.Scaler[i] = scaler;
+		((MFM_mut_frame*) pHeader)->MutData.Scaler[i] = scaler;
 }
 //_______________________________________________________________________________
 uint32_t MFMMutantFrame::GetScaler(int i) {
@@ -168,7 +168,7 @@ uint32_t MFMMutantFrame::GetScaler(int i) {
 		cout << "MFMMutantFrame::GetScaler Error of index\n";
 		return 0;
 	} else {
-		scaler = (((MFM_mut_header*) pHeader)->MutData.Scaler[i]);
+		scaler = (((MFM_mut_frame*) pHeader)->MutData.Scaler[i]);
 	}
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32(&scaler);
@@ -177,13 +177,13 @@ uint32_t MFMMutantFrame::GetScaler(int i) {
 
 //_______________________________________________________________________________
 void MFMMutantFrame::SetD2pTime(uint32_t d2ptime) {
-	((MFM_mut_header*) pHeader)->MutData.D2pTime = d2ptime;
+	((MFM_mut_frame*) pHeader)->MutData.D2pTime = d2ptime;
 }
 
 //_______________________________________________________________________________
 uint32_t MFMMutantFrame::GetD2pTime() {
 	uint32_t d2ptime = 0;
-	d2ptime = (((MFM_mut_header*) pHeader)->MutData.D2pTime);
+	d2ptime = (((MFM_mut_frame*) pHeader)->MutData.D2pTime);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32(&d2ptime);
 	return d2ptime;

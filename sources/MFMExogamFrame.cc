@@ -31,7 +31,7 @@ MFMExogamFrame::MFMExogamFrame() {
 MFMExogamFrame::~MFMExogamFrame() {
 /// destructor of Exogam frame
 	if (fCountNbEventCard){
-	//	delete [] fCountNbEventCard;
+		delete [] fCountNbEventCard;
 		fCountNbEventCard =NULL;
 	}
 }

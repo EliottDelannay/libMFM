@@ -16,12 +16,12 @@ using namespace std;
 //_______________________________________________________________________________
 MFMBlobFrame::MFMBlobFrame(int unitBlock_size, int dataSource,
 		int frameType, int revision, int frameSize){
-
     MFMCommonFrame::MFM_make_header(unitBlock_size, dataSource, frameType,
 			revision ,frameSize);
 }
 //_______________________________________________________________________________
 MFMBlobFrame::MFMBlobFrame() {
+
 
 }
 //_______________________________________________________________________________

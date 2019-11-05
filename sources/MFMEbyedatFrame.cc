@@ -37,6 +37,9 @@ MFMEbyedatFrame::MFMEbyedatFrame() {
 //_______________________________________________________________________________
 MFMEbyedatFrame::~MFMEbyedatFrame() {
 	///Destructor
+	if (fLabelIndice) delete [] fLabelIndice;
+	if (fIndiceLabel) delete [] fIndiceLabel;
+	if (fNbLabels) delete [] fNbLabels;
 }
 //_______________________________________________________________________________
 void MFMEbyedatFrame::SetBufferSize(int size, bool ifinferior) {

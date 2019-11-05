@@ -6,9 +6,10 @@
 */
 
 #define MUT_HEADERFRAMESIZE 18
-#define MUT_FRAMESIZE 60
+#define MUT_FRAMESIZE 64
 #define MUT_NB_EVTCOUNT 4
 #define MUT_NB_SCALER 5
+#define MUT_UNIT_BLOCK_SIZE 2
 #define MUT_NB_MULTIPLICITY 2
 
 #include "MFMBlobFrame.h"
@@ -28,7 +29,7 @@ struct MFM_mut_data{
 };
 
 
-struct MFM_mut_header{
+struct MFM_mut_frame{
 	 MFM_common_header  MutBlobHeader;
 	 MFM_mut_eventInfo  MutEventInfo;
 	 MFM_mut_data       MutData;
