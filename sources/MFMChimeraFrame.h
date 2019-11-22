@@ -31,9 +31,6 @@ struct MFM_CHI_header{
 
 class MFMChimeraFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int32_t fEventNumber ;
 
 public :
 
@@ -42,18 +39,13 @@ MFMChimeraFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMChimeraFrame();
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
-
+ void SetTimeStampFromFrameData();
+ void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
 virtual string GetHeaderDisplay(char* infotext=NULL);
-// Hello
+
 virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
 virtual string    DumpData(char mode ='d', bool nozero=0);
 };

@@ -33,9 +33,6 @@ struct MFM_Ribf_header{
 
 class MFMRibfFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-uint32_t fEventNumber ;
 
 public :
 
@@ -44,14 +41,11 @@ MFMRibfFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMRibfFrame();
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
 
+void	SetTimeStampFromFrameData();
+void	SetEventNumberFromFrameData();
+	
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
 virtual string GetHeaderDisplay(char* infotext=NULL);

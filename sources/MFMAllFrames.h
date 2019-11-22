@@ -23,7 +23,7 @@
 #include "MFMXmlFileHeaderFrame.h"
 #include "MFMXmlDataDescriptionFrame.h"
 #include "MFMNedaCompFrame.h"
-#include "MFMNedaFrame_old.h"
+#include "MFMNedaFrame.h"
 #include "MFMNumExoFrame.h"
 #include "MFMS3BaF2Frame.h"
 #include "MFMS3AlphaFrame.h"

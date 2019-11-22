@@ -40,9 +40,6 @@ struct MFM_mut_frame{
 
 class MFMMutantFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int32_t fEventNumber ;
 
 public :
 
@@ -51,13 +48,10 @@ MFMMutantFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMMutantFrame();
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
+
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);

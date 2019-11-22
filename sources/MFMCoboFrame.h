@@ -13,6 +13,8 @@
 #define COBO_STD_UNIT_BLOCK_SIZE 64
 #define COBO_HEADERSIZE 128
 
+#define MFM_COBO_FRAME_TYPE_TXT  "MFM_COBO_FRAME_TYPE"
+#define MFM_COBOF_FRAME_TYPE_TXT "MFM_COBOF_FRAME_TYPE"
 #include "MFMBasicFrame.h"
 #include <vector>
 #include "Cobo.h"
@@ -83,11 +85,11 @@ public:
 private:
 
 int fNbMaxItem;
-int  nbentries[COBO_NB_AGET][COBO_NB_AGET_CHANNEL];
-int  coef[COBO_NB_AGET][COBO_NB_AGET_CHANNEL];
+int  fNbentries[COBO_NB_AGET][COBO_NB_AGET_CHANNEL];
+int  fCoef[COBO_NB_AGET][COBO_NB_AGET_CHANNEL];
 
-int  channelcount[COBO_NB_AGET];
-int  bucketcount[COBO_NB_AGET];
+int  fChannelcount[COBO_NB_AGET];
+int  fBucketcount[COBO_NB_AGET];
 
 vector<int> fCountCoboFrame; // vector to make statistic
 vector<int> fCountEmptyCoboFrame;// vector to make statistic
@@ -103,31 +105,29 @@ virtual void SetPointers(void * pt =NULL);
 
 
 //virtual void SetHeaderBasic(MFM_basic_header* header) ;
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t  GetEventNumber();
-virtual uint32_t  GetEventNumberAttribut();
-
+void	SetTimeStampFromFrameData();
+void	SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
-virtual string  GetHeaderDisplay(char* infotext=NULL);
+virtual string  GetHeaderDisplay(char* infotext=NULL) const;
+void ExtracInfoFrame(int verbose,int dumpsize);
 virtual void FillStat();
 virtual void InitStat();
 virtual string GetStat(string info );
 virtual void PrintStat(string info );
 // COBO
-
+virtual const char * GetTypeText()const {if (GetFrameType() == MFM_COBO_FRAME_TYPE) return  MFM_COBO_FRAME_TYPE_TXT;
+else return  MFM_COBOF_FRAME_TYPE_TXT;} 
 virtual void CoboRazCounts();
-virtual int CoboGetCoboIdx();
-virtual int CoboGetAsaIdx();
-virtual int CoboGetReadOffset();
-virtual int CoboGetStatus();
-virtual char* CoboGetHitPat(int i);
-virtual char* CoboGetMultip(int i);
-virtual uint32_t CoboGetWindowOut();
-virtual char* CoboGetLastCell(int i);
+virtual int CoboGetCoboIdx()const;
+virtual int CoboGetAsaIdx()const;
+virtual int CoboGetReadOffset()const;
+virtual int CoboGetStatus()const;
+virtual char* CoboGetHitPat(int i)const;
+virtual char* CoboGetMultip(int i)const;
+virtual uint32_t CoboGetWindowOut()const;
+virtual char* CoboGetLastCell(int i)const;
 
 virtual void CoboSetCoboIdx(int coboidx);
 virtual void CoboSetAsaIdx(int asaidx);
@@ -148,6 +148,7 @@ virtual void CoboGetParameters(int i,uint32_t *sample, uint32_t *buckidx,uint32_
 
 virtual void FillEventWithRamp(uint32_t samplemax,uint32_t channelmax,uint32_t agetmax,uint64_t timestamp=0,uint32_t enventnumber=0,uint32_t type= MFM_COBO_FRAME_TYPE);
 virtual void GenerateACoboExample(int type, int eventnumber,int asadnumber);
+void WriteRandomFrame(int lun, int nbframe,int verbose, int dumsize, bool full);
 };
 #pragma pack(pop) // free alignment
 #endif

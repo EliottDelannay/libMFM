@@ -40,13 +40,6 @@ MFMNedaCompFrame::~MFMNedaCompFrame() {
 
 }
 //_______________________________________________________________________________
-void MFMNedaCompFrame::SetBufferSize(int size, bool ifinferior) {
-	/// Do memory allocation or a reallacation for frame\n
-	/// if ifinferior==true the allocaton is forced to size event if the acutal size is bigger\n
-	MFMCommonFrame::SetBufferSize(size, ifinferior);
-	MFMNedaCompFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMNedaCompFrame::SetPointers(void * pt) {
 	/// Initialize pointers of frame\n
 	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
@@ -61,6 +54,8 @@ void MFMNedaCompFrame::SetPointers(void * pt) {
 void MFMNedaCompFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMCommonFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 }
 //_______________________________________________________________________________
 string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) {
@@ -70,8 +65,6 @@ string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) {
 
 
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
 	ss << endl;
 	ss << "   Board = " << GetBoardId() << " | Channel = " << GetChannelId()
 			<< " | TdcCorValue = " << (int) GetTdcCorValue()<< " | Time = " << (int) GetTime()<< " | IntRaiseTime =  " << GetIntRaiseTime() << endl;
@@ -85,8 +78,7 @@ string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) {
 	return display;
 }
 //_______________________________________________________________________________
-
-uint64_t MFMNedaCompFrame::GetTimeStamp() {
+void  MFMNedaCompFrame::SetTimeStampFromFrameData() {
 	/// Compute time stamp and fill fTimeStamp attribut. return value of TimeStamp
 	fTimeStamp = 0;
 	uint64_t* timeStamp = &(fTimeStamp);
@@ -95,18 +87,9 @@ uint64_t MFMNedaCompFrame::GetTimeStamp() {
 			((MFM_NedaComp_Header*) pHeader)->NedaCompEvtInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-
-	return fTimeStamp;
 }
 //_______________________________________________________________________________
-uint64_t MFMNedaCompFrame::GetTimeStampAttribut() {
-	/// return time stamp without computing it
-	return fTimeStamp;
-}
-
-//_______________________________________________________________________________
-
-uint32_t MFMNedaCompFrame::GetEventNumber() {
+void  MFMNedaCompFrame::SetEventNumberFromFrameData() {
 	/// Compute and return envent number
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -114,14 +97,8 @@ uint32_t MFMNedaCompFrame::GetEventNumber() {
 	fEventNumber = ((MFM_NedaComp_Header*) pHeader)->NedaCompEvtInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
+}
 
-	return fEventNumber;
-}
-//_______________________________________________________________________________
-uint32_t MFMNedaCompFrame::GetEventNumberAttibut() {
-	/// Return event number without computing it
-	return fEventNumber;
-}
 
 //_______________________________________________________________________________
 void MFMNedaCompFrame::SetTimeStamp(uint64_t timestamp) {

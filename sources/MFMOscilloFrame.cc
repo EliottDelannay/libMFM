@@ -36,11 +36,6 @@ MFMOscilloFrame::~MFMOscilloFrame() {
 
 }
 //_______________________________________________________________________________
-void MFMOscilloFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBasicFrame::SetBufferSize(size, ifinferior);
-	MFMOscilloFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMOscilloFrame::SetPointers(void * pt) {
 	MFMBasicFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;

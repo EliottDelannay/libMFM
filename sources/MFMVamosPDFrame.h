@@ -49,9 +49,6 @@ struct MFM_vamosPD_frame{
 
 class MFMVamosPDFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int fEventNumber ;
 long long * fCountNbEventCard;
 int * fLabelIndice; // vector to make statistic
 int * fIndiceLabel; // vector to make statistic
@@ -67,14 +64,10 @@ MFMVamosPDFrame(int unitBlock_size, int dataSource,
 virtual ~MFMVamosPDFrame();
 virtual void SetPointers(void * pt =NULL);
 
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
 
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
 virtual string GetHeaderDisplay(char* infotext=NULL);
@@ -84,6 +77,7 @@ void     SetCristalId(uint16_t tgRequest, uint16_t idBoard);
 uint16_t GetCristalId();
 uint16_t GetTGCristalId();
 uint16_t GetBoardId();
+bool     HasBoardId(){return true;};
 
 virtual void      SetLabel(int i, uint16_t Label);
 virtual uint16_t  GetLabel(int i);

@@ -42,18 +42,12 @@ struct MFM_numexo_frame{
 	 MFM_numexo_data       Data;
 };
 
-
-
 //____________MFMNumExoFrame___________________________________________________________
 
 class MFMNumExoFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int      fEventNumber ;
-
+public :
 long long * fCountNbEventCard;
-
 
 public :
 
@@ -63,32 +57,28 @@ MFMNumExoFrame(int unitBlock_size, int dataSource,
 virtual ~MFMNumExoFrame();
 
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
-
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL);
-
-
+virtual string GetHeaderDisplay(char* infotext=NULL)const;
+bool HasBoardId() const{return true;};
 virtual void      SetCristalId(uint16_t cristalId);
 virtual void      SetCristalId(uint16_t tgRequest, uint16_t idBoard);
-virtual uint16_t  GetCristalId();
-virtual uint16_t  GetTGCristalId();
-virtual uint16_t  GetBoardId();
+virtual uint16_t  GetCristalId()const;
+virtual uint16_t  GetTGCristalId()const;
+virtual uint16_t  GetBoardId()const;
 virtual void      SetChecksum(uint16_t cristalId);;
-virtual uint16_t  GetChecksum();
-virtual uint16_t  ComputeChecksum();
-virtual bool      VerifyChecksum();
+virtual uint16_t  GetChecksum()const;
+virtual uint16_t  ComputeChecksum() const;
+virtual bool      VerifyChecksum()const;
 virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
 virtual void 	  InitStat();
 virtual void 	  FillStat();
 virtual string    GetStat(string info);
+
+
 };
 #pragma pack(pop) // free aligment
 #endif

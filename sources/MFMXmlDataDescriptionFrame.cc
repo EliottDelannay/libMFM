@@ -34,11 +34,6 @@ MFMXmlDataDescriptionFrame::~MFMXmlDataDescriptionFrame() {
 /// destructor of Exogam frame
 }
 //_______________________________________________________________________________
-void MFMXmlDataDescriptionFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMXmlDataDescriptionFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMXmlDataDescriptionFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -48,42 +43,9 @@ void MFMXmlDataDescriptionFrame::SetPointers(void * pt) {
 void MFMXmlDataDescriptionFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
-		pUserData_char = (char*) &(((MFM_XmlDataDescription_frame*) pHeader)->XmlData);
+	pUserData_char = (char*) &(((MFM_XmlDataDescription_frame*) pHeader)->XmlData);
 }
 
-//_______________________________________________________________________________
-
-uint64_t MFMXmlDataDescriptionFrame::GetTimeStamp() {
-	/// do nothing and return 0;
-	return 0;
-}
-//_______________________________________________________________________________
-uint64_t MFMXmlDataDescriptionFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return 0;
-}
-
-//_______________________________________________________________________________
-
-uint32_t MFMXmlDataDescriptionFrame::GetEventNumber() {
-	/// dp nothing and return 0
-	return 0;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMXmlDataDescriptionFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return 0;
-}
-//_______________________________________________________________________________
-void MFMXmlDataDescriptionFrame::SetTimeStamp(uint64_t timestamp) {
-	/// Set value of Time Stamp in frame
-
-}
-//_______________________________________________________________________________
-void MFMXmlDataDescriptionFrame::SetEventNumber(uint32_t eventnumber) {
-	/// Set Event Number of frame
-}
 
 //_______________________________________________________________________________
 string MFMXmlDataDescriptionFrame::FillExampleOfText() {

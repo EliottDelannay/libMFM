@@ -12,12 +12,7 @@
 #define REA_GENERIC_NB_STATUS 2
 #define REA_GENERIC_STD_UNIT_BLOCK_SIZE 4
 
-
-
-
-
 #pragma pack(push, 1) // force alignment
-
 
 struct MFM_ReaGeneric_data{
   unsigned CristalId : 16;
@@ -29,7 +24,6 @@ struct MFM_ReaGeneric_data{
   unsigned Checksum  : 16;
 };
 
-
 struct MFM_ReaGeneric_frame{
 	 MFM_common_header         Header;
 	 MFM_numexo_eventInfo      EventInfo;
@@ -37,27 +31,22 @@ struct MFM_ReaGeneric_frame{
 };
 enum ReaTnsType {REA_GENERIC_ENERGY_TYPE =0x00,REA_GENERIC_ENERGY_TIME_TYPE=0x01,REA_GENERIC_TIME_TYPE=0x02,REA_GENERIC_CHARGE_TYPE=0x04};
 
-
 //____________MFMReaGenericFrame___________________________________________________________
 
 class MFMReaGenericFrame : public MFMNumExoFrame
 {
 
-
-
 public :
 
-
 virtual void      SetStatus(int i, uint16_t status);
-virtual uint16_t  GetStatus(int i);
+virtual uint16_t  GetStatus(int i)const;
 virtual void      SetTypeTns(enum ReaTnsType type);
-virtual enum ReaTnsType  GetTypeTns();
+virtual enum ReaTnsType  GetTypeTns()const;
 virtual void      SetEnergy(uint16_t energie);
-virtual uint16_t  GetEnergy();
+virtual uint16_t  GetEnergy()const;
 virtual void      SetTime(uint16_t time);
-virtual uint16_t  GetTime();
+virtual uint16_t  GetTime()const;
 virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
 
 };
 #pragma pack(pop) // free aligment

@@ -55,8 +55,6 @@ class MFMNedaCompFrame : public MFMBlobFrame
 private:
  MFM_NedaComp_Frame* pNedaCompFrame;
 long long * fCountNbEventCard;
-uint64_t fTimeStamp;
-uint32_t fEventNumber;
 
 public :
 
@@ -69,16 +67,15 @@ virtual void SetPointers(void * pt =NULL);
 
 
 //virtual void SetHeaderBasic(MFM_basic_header* header) ;
-virtual void SetBufferSize(int size, bool ifinferior) ;
+
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStampAttribut();
-virtual uint64_t GetTimeStamp();
-virtual uint32_t GetEventNumber();
-virtual uint32_t GetEventNumberAttibut();
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
 
 virtual uint16_t GetBoardId();
+bool HasBoardId() const { return true; }
 virtual uint16_t GetChannelId();
 virtual void SetLocationId(uint16_t Id);
 virtual void SetLocationId(uint16_t ChannelId, uint16_t BoardId);

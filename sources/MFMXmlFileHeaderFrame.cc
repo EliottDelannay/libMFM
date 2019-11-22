@@ -32,11 +32,6 @@ MFMXmlFileHeaderFrame::~MFMXmlFileHeaderFrame() {
 	/// destructor of Exogam frame
 }
 //_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMXmlFileHeaderFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMXmlFileHeaderFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;

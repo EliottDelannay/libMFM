@@ -21,8 +21,6 @@ struct MFM_Merge_TSeventInfo {
 	  char     eventTime[6];
 	  uint32_t deltaTime;
 	};
-
-
 // Merge
 
 struct MFM_Merge_ENheader{
@@ -43,28 +41,20 @@ class MFMMergeFrame : public MFMBasicFrame
 
 private:
 
-uint32_t	fDeltaTime;
-
 public :
 
 MFMMergeFrame();
 MFMMergeFrame(int unitBlock_size, int dataSource,
-	 		 int frameType, int revision, int frameSize,int headerSize,
+	 	int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMMergeFrame();
 
-virtual string GetHeaderDisplay(char* infotext =NULL);
+virtual string GetHeaderDisplay(char* infotext =NULL)const;
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStampAttribut();
-virtual uint64_t GetTimeStamp();
-virtual uint32_t GetDeltaTimeAttribut();
+void	SetTimeStampFromFrameData();
+void	SetEventNumberFromFrameData();
 virtual uint32_t GetDeltaTime();
-virtual uint32_t GetEventNumber();
-virtual uint32_t GetEventNumberAttibut();
-
 virtual void SetDeltaTime(uint32_t deltatule);
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
@@ -72,7 +62,8 @@ virtual void AddFrame(MFMCommonFrame* frame);
 virtual void ReadInFrame(MFMCommonFrame* frame);
 virtual void ResetAdd();
 virtual void ResetReadInMem();
-
+bool HasTimeStamp()const ;
+bool HasEventNumber() const;
 
 };
 #pragma pack(pop) // free alignment

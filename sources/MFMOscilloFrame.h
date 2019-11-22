@@ -54,8 +54,6 @@ MFMOscilloFrame(int unitBlock_size, int dataSource,
 virtual ~MFMOscilloFrame();
 virtual void SetPointers(void * pt =NULL);
 
-//virtual void SetHeaderBasic(MFM_basic_header* header) ;
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
 virtual string GetHeaderDisplay(char* infotext=NULL);
 virtual void SetConfig(uint16_t value);
@@ -83,6 +81,7 @@ virtual uint16_t GetConfigChannelIdx();
 virtual uint16_t GetChannelIdx();
 virtual uint16_t GetChannelIdxNumber();
 virtual uint16_t GetChannelIdxBoard();
+bool HasBoardId() const { return true; }
 
 virtual void OscilloGetParametersByItem(MFM_OscilloItem *item,uint16_t *value);
 virtual void OscilloSetParametersByItem(MFM_OscilloItem *item,uint16_t  value);

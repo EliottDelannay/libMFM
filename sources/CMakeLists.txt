@@ -85,7 +85,7 @@ DataGenParameters.h  MFMAllFrames.h     MFMCoboTopoFrame.h  MFMMergeFrame.h     
 DataParameters.h     MFMBasicFrame.h    MFMCommonFrame.h    MFMMutantFrame.h    MFMRibfFrame.h     MFMScalerDataFrame.h  MFMXmlFileHeaderFrame.h
 DataPar.h            MFMBlobFrame.h     MFMDiamantFrame.h   MFMNedaCompFrame.h  MFMS3AlphaFrame.h  MFMTypes.h            XmlTags.h
 DataScalers.h        MFMBoxDiagFrame.h  MFMEbyedatFrame.h   MFMNedaFrame.h      MFMS3BaF2Frame.h   MFMVamosICFrame.h     MFMReaScopeFrame.h
-DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMNedaFrame_old.h  MFMS3eGUNFrame.h   MFMVamosPDFrame.h     MFMReaGenericFrame.h
+DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMS3eGUNFrame.h   MFMVamosPDFrame.h     MFMReaGenericFrame.h
 )
 	
 

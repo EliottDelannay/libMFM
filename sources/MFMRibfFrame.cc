@@ -30,11 +30,7 @@ MFMRibfFrame::MFMRibfFrame() {
 MFMRibfFrame::~MFMRibfFrame() {
 /// destructor of Ribf frame
 }
-//_______________________________________________________________________________
-void MFMRibfFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMRibfFrame::SetPointers();
-}
+
 //_______________________________________________________________________________
 void MFMRibfFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
@@ -45,11 +41,13 @@ void MFMRibfFrame::SetPointers(void * pt) {
 void MFMRibfFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char=(char*)&(((MFM_Ribf_header*) pHeader)->RibfData);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMRibfFrame::GetTimeStamp() {
+void MFMRibfFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -57,16 +55,11 @@ uint64_t MFMRibfFrame::GetTimeStamp() {
 			((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
-//_______________________________________________________________________________
-uint64_t MFMRibfFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
-}
+
 //_______________________________________________________________________________
 
-uint32_t MFMRibfFrame::GetEventNumber() {
+void MFMRibfFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -74,14 +67,9 @@ uint32_t MFMRibfFrame::GetEventNumber() {
 	fEventNumber = ((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
+
 }
 
-//_______________________________________________________________________________
-uint32_t MFMRibfFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
-}
 //_______________________________________________________________________________
 void MFMRibfFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame
@@ -103,7 +91,7 @@ void MFMRibfFrame::FillEventRandomConst(uint64_t timestamp,
 	/// And report time stamp and event number
 	char i = 0;
 	int usersize =0;
-	usersize = GetFrameSizeAttribut()- (sizeof( MFM_common_header) + sizeof(MFM_Ribf_eventInfo));
+	usersize = GetFrameSize()- (sizeof( MFM_common_header) + sizeof(MFM_Ribf_eventInfo));
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 	for (i=0;i< usersize;i++)

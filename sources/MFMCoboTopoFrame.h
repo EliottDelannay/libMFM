@@ -23,15 +23,12 @@ struct MFM_CoboTopo_header{
 	 MFM_CoboTopo_Data  CoboTopoData;
 };
 
-
+#define MFM_COBOT_FRAME_TYPE_TXT "MFM_EXO2_FRAME_TYPE"
 
 //____________MFMCoboTopoFrame___________________________________________________________
 
 class MFMCoboTopoFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int fEventNumber ;
 
 TiXmlDocument * MyTinyDoc;
 
@@ -42,22 +39,18 @@ MFMCoboTopoFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMCoboTopoFrame();
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
-
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(int eventnumber);
-virtual uint16_t CoboGetIdx();
+virtual uint16_t CoboGetIdx()const ;
 virtual void CoboSetIdx(uint16_t idx);
-virtual uint16_t CoboGetAsadMask();
+virtual uint16_t CoboGetAsadMask() const;
 virtual void CoboSetAsadMask(uint16_t asadmask);
-virtual uint16_t CoboGetTpMode ();
+virtual uint16_t CoboGetTpMode () const;
 virtual void CoboSetTpMode (uint16_t mode);
+virtual bool HasTimeStamp()   const { return false; }
+virtual bool HasEventNumber() const { return false; }
+ const char * GetTypeText()const {return MFM_COBOT_FRAME_TYPE_TXT;} 
+ string GetHeaderDisplay(char* infotext) const;
+ void ExtracInfoFrame(int verbose,int dumpsize);
 };
 #pragma pack(pop) // free aligment
 #endif

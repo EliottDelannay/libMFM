@@ -44,13 +44,7 @@ MFMReaScopeFrame::~MFMReaScopeFrame() {
 		fCountNbEventCard = NULL;
 	}
 }
-//_______________________________________________________________________________
-void MFMReaScopeFrame::SetBufferSize(int size, bool ifinferior) {
-	/// Do memory allocation or a reallacation for frame\n
-	/// if ifinferior==true the allocaton is forced to size event if the acutal size is bigger\n
-	MFMBasicFrame::SetBufferSize(size, ifinferior);
-	MFMReaScopeFrame::SetPointers();
-}
+
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetPointers(void * pt) {
 	/// Initialize pointers of frame\n
@@ -68,7 +62,7 @@ void MFMReaScopeFrame::SetAttributs(void * pt) {
 	MFMBasicFrame::SetAttributs(pt);
 }
 //_______________________________________________________________________________
-string MFMReaScopeFrame::GetHeaderDisplay(char* infotext) {
+string MFMReaScopeFrame::GetHeaderDisplay(char* infotext) const{
 	stringstream ss;
 	string display("");
 	display = ss.str();
@@ -86,11 +80,10 @@ string MFMReaScopeFrame::GetHeaderDisplay(char* infotext) {
 }
 //_______________________________________________________________________________
 
-uint64_t MFMReaScopeFrame::GetTimeStamp() {
+void MFMReaScopeFrame::SetTimeStampFromFrameData() {
 	/// Compute time stamp and fill fTimeStamp attribut. return value of TimeStamp
 	fTimeStamp = 0;
 	uint64_t* timeStamp = &(fTimeStamp);
-
 	if (GetRevision() == 0) {
 		int byte_numexo[6] = { 1, 0, 5, 4, 3, 2 };
 		for (int j = 0; j < 6; j++)
@@ -105,17 +98,11 @@ uint64_t MFMReaScopeFrame::GetTimeStamp() {
 	}
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
 
-//_______________________________________________________________________________
-uint64_t MFMReaScopeFrame::GetTimeStampAttribut() {
-	/// return time stamp without computing it
-	return fTimeStamp;
-}
 
 //_______________________________________________________________________________
-uint32_t MFMReaScopeFrame::GetEventNumber() {
+void MFMReaScopeFrame::SetEventNumberFromFrameData() {
 	/// Compute and return envent number
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -125,12 +112,6 @@ uint32_t MFMReaScopeFrame::GetEventNumber() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
 		}
-	return fEventNumber;
-}
-//_______________________________________________________________________________
-uint32_t MFMReaScopeFrame::GetEventNumberAttibut() {
-	/// Return event number without computing it
-	return fEventNumber;
 }
 
 //_______________________________________________________________________________
@@ -168,7 +149,7 @@ void MFMReaScopeFrame::SetLocationId(uint16_t ChannelId, uint16_t BoardId) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMReaScopeFrame::GetLocationId() {
+uint16_t MFMReaScopeFrame::GetLocationId() const{
 	uint16_t Id = 0;
 	/// Compute and return the 2 bytes of LocationId()
 	Id = ((MFM_ReaScope_Header*) pHeader)->ReaScopeEvtInfo.LocationId;
@@ -177,18 +158,18 @@ uint16_t MFMReaScopeFrame::GetLocationId() {
 	return ((Id));
 }
 //_______________________________________________________________________________
-uint16_t MFMReaScopeFrame::GetChannelId() {
+uint16_t MFMReaScopeFrame::GetChannelId() const{
 	/// Compute and return extracted ChannelId
 	return (GetLocationId() & REA_SCOPE_CHANNEL_ID_MASK);
 }
 
 //_______________________________________________________________________________
-uint16_t MFMReaScopeFrame::GetBoardId() {
+uint16_t MFMReaScopeFrame::GetBoardId()const {
 	/// Compute and return id value of Board
 	return (((GetLocationId() >> 4) & REA_SCOPE_BOARD_ID_MASK));
 }
 //_______________________________________________________________________________
-uint16_t MFMReaScopeFrame::GetSetupScope() {
+uint16_t MFMReaScopeFrame::GetSetupScope()const {
 
 	uint16_t integral = 0;
 	char * pintegral = (char*) &(integral);
@@ -204,12 +185,12 @@ void MFMReaScopeFrame::SetSetupScope(uint16_t setup) {
 	((MFM_ReaScope_Header*) pHeader)->ReaScopeEvtInfo.SetupScope = setup;
 }
 //_______________________________________________________________________________
-void MFMReaScopeFrame::ReaScopeGetParameters(int i, uint16_t *value) {
+void MFMReaScopeFrame::ReaScopeGetParameters(int i, uint16_t *value) const {
 	/// Compute and return the couple information of  value of the i-th item
 	ReaScopeGetParametersByItem((MFM_ReaScope_Item *) GetItem(i), value);
 }
 //_______________________________________________________________________________
-void MFMReaScopeFrame::ReaScopeGetParametersByItem(MFM_ReaScope_Item *item, uint16_t *value) {
+void MFMReaScopeFrame::ReaScopeGetParametersByItem(MFM_ReaScope_Item *item, uint16_t *value)const {
 	/// Compute and return the couple information of value of  item
 
 	if (fLocalIsBigEndian != fFrameIsBigEndian) {
@@ -238,7 +219,7 @@ void MFMReaScopeFrame::SetCheckSum(uint16_t checksum) {
 	((MFM_ReaScope_Frame*) pHeader)->CheckSum.CheckSum = checksum;
 }
 //_______________________________________________________________________________
-uint16_t MFMReaScopeFrame::GetCheckSum() {
+uint16_t MFMReaScopeFrame::GetCheckSum()const {
 
 	uint16_t checksum = 0;
 	char * pchecksum = (char*) &(checksum);
@@ -324,7 +305,7 @@ void MFMReaScopeFrame::GenerateAReaScopeExample(int type, int eventnumber) {
 	SetCheckSum(66);
 }
 //_______________________________________________________________________________
-string MFMReaScopeFrame::DumpData(char mode, bool nozero) {
+string MFMReaScopeFrame::DumpData(char mode, bool nozero) const {
 	// Dump  values of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -346,7 +327,7 @@ string MFMReaScopeFrame::DumpData(char mode, bool nozero) {
 	if (GetEventNumber() == 0xFFFFFFFF) {
 		ss << "No Event , so no event dump. Get a new event frame";
 	} else {
-		for (i = 0; i < GetNbItemsAttribut(); i++) {
+		for (i = 0; i < GetNbItems(); i++) {
 
 			uint16_t value = 0;
 			ReaScopeGetParameters(i, &value);

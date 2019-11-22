@@ -26,7 +26,6 @@ MFMEbyedatFrame::MFMEbyedatFrame(int unitBlock_size, int dataSource,
 	fNbLabels=NULL;
 	fIndiceLabel=NULL;
 }
-
 //_______________________________________________________________________________
 MFMEbyedatFrame::MFMEbyedatFrame() {
 	/// Constructor of a empty frame object
@@ -42,13 +41,6 @@ MFMEbyedatFrame::~MFMEbyedatFrame() {
 	if (fNbLabels) delete [] fNbLabels;
 }
 //_______________________________________________________________________________
-void MFMEbyedatFrame::SetBufferSize(int size, bool ifinferior) {
-	/// Do memory allocation or a reallacation for frame\n
-	/// if ifinferior==true the allocaton is forced to size event if the acutal size is bigger\n
-	MFMBasicFrame::SetBufferSize(size, ifinferior);
-	MFMEbyedatFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMEbyedatFrame::SetPointers(void * pt) {
 	/// Initialize pointers of frame\n
 	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
@@ -62,88 +54,121 @@ void MFMEbyedatFrame::SetPointers(void * pt) {
 void MFMEbyedatFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
+	SetEventNumberFromFrameData();
+	SetTimeStampFromFrameData();
+}
+//________________________________________________________________________________
+void MFMEbyedatFrame::ExtractInfoFrame(int verbose,int dumpsize) {
+// Print info form frame
+	int framesize = GetFrameSize();
+	if (verbose > 1) {
+		HeaderDisplay();
+		int dump = dumpsize;
+		if (framesize < dump)
+			dump = framesize;
+		if (verbose > 3)
+			DumpRaw(dump, 0);
+	}
 }
 //_______________________________________________________________________________
-string MFMEbyedatFrame::GetHeaderDisplay(char* infotext) {
+string MFMEbyedatFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
-	uint16_t type = GetFrameType();
-	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	if ((type == MFM_EBY_EN_FRAME_TYPE) || (type == MFM_EBY_EN_TS_FRAME_TYPE)) {
-		ss << "   EN = " << GetEventNumber();
-	}
-	if ((type == MFM_EBY_TS_FRAME_TYPE) || (type == MFM_EBY_EN_TS_FRAME_TYPE)) {
-		ss << "   TS = " << GetTimeStamp();
-	}
-	ss << endl;
+	if (infotext==NULL)
+	ss << MFMBasicFrame::GetHeaderDisplay((char*)GetTypeText());
+	else
+	ss << MFMBasicFrame::GetHeaderDisplay(infotext);
+   	 if(IsParameterPresent("TIMEH")){
+   	 //    ss << MFMCommonFrame::indentation << "   CENTRUM-TS = " << GetCENTRUMTimestamp() << " (0x" << hex << GetCENTRUMTimestamp() << ")";
+   	 }
 	display = ss.str();
 	return display;
 }
+
+//_______________________________________________________________________________________________________________________
+ void MFMEbyedatFrame::WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize,int type){
+	uint32_t framesize = 0;
+	uint64_t timestamp = 0;
+	int verif;
+        
+	for (int i = 0; i <nbframes; i++) {
+		GenerateAEbyedatExample(type, i);
+		SetAttributs();
+		framesize =GetFrameSize();
+		FillStat();
+		if (verbose > 1)
+			HeaderDisplay();
+		int dump = dumpsize;
+		if (framesize < dump)
+			dump = framesize;
+		if (verbose > 3)
+			DumpRaw(dump, 0);
+
+		verif = write(lun, GetPointHeader(), framesize);
+		if (verif != framesize)
+			fError.TreatError(2, 0, "Error of write");
+	}
+}
+//_______________________________________________________________________________ 
+  bool MFMEbyedatFrame::IsParameterPresent(const string & name) const {
+      // if(!fParamMapInitialised) MapDataParameters();
+      // return (fData.find(name)!=fData.end());
+      return false;
+   }
 //_______________________________________________________________________________
 
-uint64_t MFMEbyedatFrame::GetTimeStamp() {
+void MFMEbyedatFrame::SetTimeStampFromFrameData() {
 	/// Compute time stamp and fill fTimeStamp attribut. return value of TimeStamp
 	fTimeStamp = 0;
 	uint64_t* timeStamp = &(fTimeStamp);
 
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_TS_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE) {
 		memcpy(((char*) (&fTimeStamp)),
 				((MFM_Ebyedat_ENTSheader*) pHeader)->EbyedatEvtInfo.eventTime,
 				6);
 		if (fLocalIsBigEndian != fFrameIsBigEndian)
 			SwapInt64((timeStamp), 6);
 	}
-	if (GetFrameTypeAttribut() == MFM_EBY_TS_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE) {
 		memcpy(((char*) (&fTimeStamp)),
 				((MFM_Ebyedat_TSheader*) pHeader)->EbyedatEvtInfo.eventTime, 6);
 		if (fLocalIsBigEndian != fFrameIsBigEndian)
 			SwapInt64((timeStamp), 6);
 	}
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE) {
 		//nothing to do and we leave fTimeStamp to 0
 		fTimeStamp = 0;
 	}
-	return fTimeStamp;
-}
-//_______________________________________________________________________________
-uint64_t MFMEbyedatFrame::GetTimeStampAttribut() {
-	/// return time stamp without computing it
-	return fTimeStamp;
 }
 
 //_______________________________________________________________________________
 
-uint32_t MFMEbyedatFrame::GetEventNumber() {
+void  MFMEbyedatFrame::SetEventNumberFromFrameData() {
 	/// Compute and return envent number
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
 
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_TS_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE) {
 		fEventNumber
 				= ((MFM_Ebyedat_ENTSheader*) pHeader)->EbyedatEvtInfo.eventIdx;
 		if (fLocalIsBigEndian != fFrameIsBigEndian)
 			SwapInt32((uint32_t *) (eventNumber), 4);
 	}
 
-	if (GetFrameTypeAttribut() == MFM_EBY_TS_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE) {
 		//nothing to do and we leave fEventNumber to 0
 		fEventNumber = 0;
 	}
 
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_FRAME_TYPE) {
+	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE) {
 		fEventNumber
 				= ((MFM_Ebyedat_ENheader*) pHeader)->EbyedatEvtInfo.eventIdx;
 		if (fLocalIsBigEndian != fFrameIsBigEndian)
 			SwapInt32((uint32_t *) (eventNumber), 4);
 
 	}
-	return fEventNumber;
-}
-//_______________________________________________________________________________
-uint32_t MFMEbyedatFrame::GetEventNumberAttibut() {
-	/// Return event number without computing it
-	return fEventNumber;
+
 }
 
 //_______________________________________________________________________________
@@ -151,40 +176,40 @@ void MFMEbyedatFrame::SetTimeStamp(uint64_t timestamp) {
 	// Set frame timestamp
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_TS_FRAME_TYPE)
+	if (GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE)
 		memcpy(((MFM_Ebyedat_ENTSheader*) pHeader)->EbyedatEvtInfo.eventTime,
 				pts, 6);
-	if (GetFrameTypeAttribut() == MFM_EBY_TS_FRAME_TYPE)
+	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE)
 		memcpy(((MFM_Ebyedat_TSheader*) pHeader)->EbyedatEvtInfo.eventTime,
 				pts, 6);
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_FRAME_TYPE) {//do nothing
+	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE) {//do nothing
 	}
 }
 
 //_______________________________________________________________________________
 void MFMEbyedatFrame::SetEventNumber(uint32_t eventnumber) {
 	/// set frame event number
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_TS_FRAME_TYPE)
+	if (GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE)
 		((MFM_Ebyedat_ENTSheader*) pHeader)->EbyedatEvtInfo.eventIdx
 				= eventnumber;
 
-	if (GetFrameTypeAttribut() == MFM_EBY_TS_FRAME_TYPE) {//do nothing
+	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE) {//do nothing
 
 	}
-	if (GetFrameTypeAttribut() == MFM_EBY_EN_FRAME_TYPE)
+	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE)
 		((MFM_Ebyedat_ENheader*) pHeader)->EbyedatEvtInfo.eventIdx
 				= eventnumber;
 }
 
 //_______________________________________________________________________________
 void MFMEbyedatFrame::EbyedatGetParameters(int i, uint16_t *label,
-		uint16_t *value) {
+		uint16_t *value) const {
 	/// Compute and return the couple information of label /value of the i-th item
 	EbyedatGetParametersByItem((MFM_EbyedatItem *) GetItem(i), label, value);
 }
 //_______________________________________________________________________________
 void MFMEbyedatFrame::EbyedatGetParametersByItem(MFM_EbyedatItem *item,
-		uint16_t * label, uint16_t *value) {
+		uint16_t * label, uint16_t *value)const {
 	/// Compute and return the couple information of label /value of  item
 
 	if (fLocalIsBigEndian != fFrameIsBigEndian) {
@@ -218,11 +243,9 @@ void MFMEbyedatFrame::FillEventWithRamdomConst(uint64_t timestamp,
 		uint32_t enventnumber) {
 	/// Fill frame items with random values
 	//  in this case the nume
+ 	int  nbitem =GetNbItems();
 
-
-	int  nbitem =GetNbItems();
-
-    int max_value = 16384; // nous nous basons sur 14 bits comme beaucoup de cartes electoniques
+    	int max_value = 16384; // nous nous basons sur 14 bits comme beaucoup de cartes electoniques
 	float randval;
 	uint16_t i = 0;
 	if (nbitem > 0)
@@ -231,7 +254,6 @@ void MFMEbyedatFrame::FillEventWithRamdomConst(uint64_t timestamp,
 	for (i = 1; i < nbitem; i++) {
 		randval = random();
 		uint16_t uivalue = (uint16_t) (max_value * randval / RAND_MAX);
-
 		EbyedatSetParameters(i, i + 1, uivalue);
 	}
 	SetEventNumber(enventnumber);
@@ -277,7 +299,7 @@ void MFMEbyedatFrame::GenerateAEbyedatExample(int type, int eventnumber) {
 }
 //____________________________________________________________________________
 
-string MFMEbyedatFrame::DumpData(char mode, bool nozero) {
+string MFMEbyedatFrame::DumpData(char mode, bool nozero) const {
 	// Dump parameter Label and parameter value of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -300,7 +322,7 @@ string MFMEbyedatFrame::DumpData(char mode, bool nozero) {
 	if (GetEventNumber() == 0xFFFFFFFF) {
 		ss << "No Event , so no event dump. Get a new event frame";
 	} else {
-		for (i = 0; i < GetNbItemsAttribut(); i++) {
+		for (i = 0; i < GetNbItems(); i++) {
 			label = 0;
 			value = 0;
 			EbyedatGetParameters(i, &label, &value);
@@ -392,7 +414,7 @@ void MFMEbyedatFrame::FillStat() {
 	}
 }
 //____________________________________________________________________
-string MFMEbyedatFrame::GetStat(string info) {
+string MFMEbyedatFrame::GetStat(string info) const {
 	string display("");
 	stringstream ss;
 	ss << MFMCommonFrame::GetStat(info);

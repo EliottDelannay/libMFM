@@ -26,7 +26,7 @@ void MFMReaGenericFrame::SetStatus(int i, uint16_t status) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMReaGenericFrame::GetStatus(int i) {
+uint16_t MFMReaGenericFrame::GetStatus(int i)const {
 	/// Set Status (0,1 or 2)
 	uint16_t status;
 	if (i < 0 and i > REA_GENERIC_NB_STATUS) {
@@ -50,7 +50,7 @@ void MFMReaGenericFrame::SetTypeTns(enum ReaTnsType type) {
 }
 //_______________________________________________________________________________
 
-enum ReaTnsType MFMReaGenericFrame::GetTypeTns() {
+enum ReaTnsType MFMReaGenericFrame::GetTypeTns()const {
 	/// Get TypeTns
 	uint16_t  type;
 	type = (((MFM_ReaGeneric_frame*) pHeader)->Data.Type_Tns);
@@ -66,7 +66,7 @@ void MFMReaGenericFrame::SetEnergy(uint16_t energy) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMReaGenericFrame::GetEnergy() {
+uint16_t MFMReaGenericFrame::GetEnergy() const{
 	/// Get Energy
 	uint16_t energy;
 	energy = (((MFM_ReaGeneric_frame*) pHeader)->Data.Energy);
@@ -82,7 +82,7 @@ void MFMReaGenericFrame::SetTime(uint16_t time) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMReaGenericFrame::GetTime() {
+uint16_t MFMReaGenericFrame::GetTime() const{
 	/// Get Time
 	uint16_t time;
 	time = (((MFM_ReaGeneric_frame*) pHeader)->Data.Time);

@@ -66,38 +66,34 @@ class MFMReaScopeFrame : public MFMBasicFrame
   virtual ~MFMReaScopeFrame();
   virtual void SetPointers(void * pt =NULL);
 
-
-  //virtual void SetHeaderBasic(MFM_basic_header* header) ;
-  virtual void SetBufferSize(int size, bool ifinferior) ;
   virtual void SetAttributs(void * pt =NULL);
-  virtual uint64_t GetTimeStampAttribut();
-  virtual uint64_t GetTimeStamp();
-  virtual uint32_t GetEventNumber();
-  virtual uint32_t GetEventNumberAttibut();
+  void SetTimeStampFromFrameData();
+  void SetEventNumberFromFrameData();
   virtual void SetTimeStamp(uint64_t timestamp);
   virtual void SetEventNumber(uint32_t eventnumber);
 
-  virtual uint16_t GetBoardId();
-  virtual uint16_t GetChannelId();
+  virtual uint16_t GetBoardId()const;
+  virtual uint16_t GetChannelId()const ;
+  bool HasBoardId () const{ return true;};
   virtual void SetLocationId(uint16_t Id);
   virtual void SetLocationId(uint16_t ChannelId, uint16_t BoardId);
-  virtual uint16_t GetLocationId();
+  virtual uint16_t GetLocationId()const;
 
-  virtual uint16_t GetSetupScope();
+  virtual uint16_t GetSetupScope()const;
   virtual void SetSetupScope(uint16_t setup);
   
-  virtual void ReaScopeGetParametersByItem(MFM_ReaScope_Item *item,uint16_t *value);
+  virtual void ReaScopeGetParametersByItem(MFM_ReaScope_Item *item,uint16_t *value)const;
   virtual void ReaScopeSetParametersByItem(MFM_ReaScope_Item *item,uint16_t value);
-  virtual void ReaScopeGetParameters(int i, uint16_t *value);
+  virtual void ReaScopeGetParameters(int i, uint16_t *value)const;
   virtual void ReaScopeSetParameters(int i, uint16_t value);
-  virtual uint16_t GetCheckSum();
+  virtual uint16_t GetCheckSum()const;
   virtual void SetCheckSum(uint16_t checksum); 
   
   
   virtual void FillEventWithRamdomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
   virtual void GenerateAReaScopeExample(int type,int32_t eventnumber);
-  virtual string GetHeaderDisplay(char* infotext) ;
-  virtual string DumpData(char mode='d', bool nozero=false);
+  virtual string GetHeaderDisplay(char* infotext)const ;
+  virtual string DumpData(char mode='d', bool nozero=false)const;
   virtual void InitStat() ;
   virtual void FillStat();
   virtual string  GetStat(string info);

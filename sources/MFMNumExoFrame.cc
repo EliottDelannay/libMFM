@@ -35,11 +35,7 @@ MFMNumExoFrame::~MFMNumExoFrame() {
 		fCountNbEventCard = NULL;
 	}
 }
-//_______________________________________________________________________________
-void MFMNumExoFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMNumExoFrame::SetPointers();
-}
+
 //_______________________________________________________________________________
 void MFMNumExoFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
@@ -50,11 +46,13 @@ void MFMNumExoFrame::SetPointers(void * pt) {
 void MFMNumExoFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char = (char*) &(((MFM_numexo_frame*) pHeader)->Data);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMNumExoFrame::GetTimeStamp() {
+void MFMNumExoFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -62,17 +60,10 @@ uint64_t MFMNumExoFrame::GetTimeStamp() {
 			((MFM_numexo_frame*) pHeader)->EventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
 //_______________________________________________________________________________
-uint64_t MFMNumExoFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
-}
 
-//_______________________________________________________________________________
-
-uint32_t MFMNumExoFrame::GetEventNumber() {
+void MFMNumExoFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -80,13 +71,6 @@ uint32_t MFMNumExoFrame::GetEventNumber() {
 	fEventNumber = ((MFM_numexo_frame*) pHeader)->EventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMNumExoFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
 }
 //_______________________________________________________________________________
 void MFMNumExoFrame::SetTimeStamp(uint64_t timestamp) {
@@ -121,10 +105,8 @@ void MFMNumExoFrame::SetCristalId(uint16_t tgRequest, uint16_t idBoard) {
 	ui2 = ui2 | ui;
 	SetCristalId(ui2);
 }
-
 //_______________________________________________________________________________
-
-uint16_t MFMNumExoFrame::GetCristalId() {
+uint16_t MFMNumExoFrame::GetCristalId() const {
 	uint16_t cristal = 0;
 	/// Compute and return the 2 bytes of CristalId()
 	cristal = ((MFM_numexo_frame*) pHeader)->Data.CristalId;
@@ -134,13 +116,12 @@ uint16_t MFMNumExoFrame::GetCristalId() {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMNumExoFrame::GetTGCristalId() {
+uint16_t MFMNumExoFrame::GetTGCristalId() const{
 	/// Compute and return extracted Trigger Request value of CristalId
 	return (GetCristalId() & NUMEXO_CRYS_MASK);
 }
-
 //_______________________________________________________________________________
-uint16_t MFMNumExoFrame::GetBoardId() {
+uint16_t MFMNumExoFrame::GetBoardId()const {
 	/// Compute and return id value of Board
 	return ((GetCristalId() >> 5) & NUMEXO_BOARD_ID_MASK);
 }
@@ -150,7 +131,7 @@ void MFMNumExoFrame::SetChecksum(uint16_t checksum){
 	((MFM_numexo_frame*) pHeader)->Data.Checksum = checksum;
 }
 //_______________________________________________________________________________
-uint16_t MFMNumExoFrame::ComputeChecksum(){
+uint16_t MFMNumExoFrame::ComputeChecksum()const{
 	int i = 0;
 	uint16_t *pt;
 	uint16_t value=0;
@@ -176,7 +157,7 @@ uint16_t MFMNumExoFrame::ComputeChecksum(){
 	return check;
 }
 //_______________________________________________________________________________
-uint16_t MFMNumExoFrame::GetChecksum(){
+uint16_t MFMNumExoFrame::GetChecksum()const{
 	uint16_t check = 0;
 	/// Compute and return the 2 bytes of CristalId()
 	check = ((MFM_numexo_frame*) pHeader)->Data.Checksum;
@@ -185,7 +166,7 @@ uint16_t MFMNumExoFrame::GetChecksum(){
 	return ((check));
 }
 //_______________________________________________________________________________
- bool MFMNumExoFrame::VerifyChecksum(){
+ bool MFMNumExoFrame::VerifyChecksum()const{
 	return(ComputeChecksum() == GetChecksum());
 }
 //_______________________________________________________________________________
@@ -244,7 +225,7 @@ void MFMNumExoFrame::FillEventRandomConst(uint64_t timestamp,
 	SetChecksum(ComputeChecksum());
 }
 //_______________________________________________________________________________
-string MFMNumExoFrame::GetHeaderDisplay(char* infotext) {
+string MFMNumExoFrame::GetHeaderDisplay(char* infotext) const{
 	stringstream ss;
 	string display("");
 	display = ss.str();
@@ -252,11 +233,8 @@ string MFMNumExoFrame::GetHeaderDisplay(char* infotext) {
 		ss << MFMCommonFrame::GetHeaderDisplay((char*)(WhichFrame(MFMCommonFrame::GetFrameType())).data());
 	else
 		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
-	ss << "   BoardId =" << GetBoardId();
 	ss << "   Cristal Id =" << GetTGCristalId();
-	ss << "   test Checksum =" << VerifyChecksum();
+	ss << "   Test Checksum =" << VerifyChecksum();
 	ss << endl;
 	display = ss.str();
 	return display;

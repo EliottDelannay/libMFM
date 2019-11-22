@@ -31,11 +31,6 @@ MFMHelloFrame::~MFMHelloFrame() {
 	/// destructor of Hello frame
 }
 //_______________________________________________________________________________
-void MFMHelloFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMHelloFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMHelloFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -44,12 +39,14 @@ void MFMHelloFrame::SetPointers(void * pt) {
 //_______________________________________________________________________________
 void MFMHelloFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	MFMBlobFrame::SetAttributs(pt);
 	pUserData_char = (char*) &(((MFM_hel_header*) pHeader)->HelData);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMHelloFrame::GetTimeStamp() {
+void  MFMHelloFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -57,18 +54,10 @@ uint64_t MFMHelloFrame::GetTimeStamp() {
 			((MFM_hel_header*) pHeader)->HelEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
-
-//_______________________________________________________________________________
-uint64_t MFMHelloFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
-}
-
 //_______________________________________________________________________________
 
-uint32_t MFMHelloFrame::GetEventNumber() {
+void  MFMHelloFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -76,13 +65,6 @@ uint32_t MFMHelloFrame::GetEventNumber() {
 	fEventNumber = ((MFM_hel_header*) pHeader)->HelEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMHelloFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
 }
 //_______________________________________________________________________________
 void MFMHelloFrame::SetTimeStamp(uint64_t timestamp) {
@@ -128,3 +110,4 @@ string MFMHelloFrame::DumpData(char mode, bool nozero) {
 	display = ss.str();
 	return display;
 }
+//_______________________________________________________________________________

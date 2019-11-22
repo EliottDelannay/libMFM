@@ -56,11 +56,6 @@ MFMVamosPDFrame::~MFMVamosPDFrame() {
 	}
 }
 //_______________________________________________________________________________
-void MFMVamosPDFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMVamosPDFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMVamosPDFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -70,11 +65,13 @@ void MFMVamosPDFrame::SetPointers(void * pt) {
 void MFMVamosPDFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char = (char*) &(((MFM_vamosPD_frame*) pHeader)->VamosPDData);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMVamosPDFrame::GetTimeStamp() {
+void MFMVamosPDFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -82,17 +79,11 @@ uint64_t MFMVamosPDFrame::GetTimeStamp() {
 			((MFM_vamosPD_frame*) pHeader)->VamosPDEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
-}
-//_______________________________________________________________________________
-uint64_t MFMVamosPDFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
 }
 
 //_______________________________________________________________________________
 
-uint32_t MFMVamosPDFrame::GetEventNumber() {
+void MFMVamosPDFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -100,14 +91,9 @@ uint32_t MFMVamosPDFrame::GetEventNumber() {
 	fEventNumber = ((MFM_vamosPD_frame*) pHeader)->VamosPDEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
 }
 
-//_______________________________________________________________________________
-uint32_t MFMVamosPDFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
-}
+
 //_______________________________________________________________________________
 void MFMVamosPDFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame

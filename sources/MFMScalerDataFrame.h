@@ -13,6 +13,7 @@ using namespace std;
 
 #define SCALER_DATA_HEADERSIZE 28;
 #define SCALER_STD_UNIT_BLOCK_SIZE 4;
+#define	MFM_SCALER_DATA_FRAME_TYPE_TXT	"MFM_SCALER_DATA_FRAME_TYPE"
 #pragma pack(push, 1) // force alignment
 
 struct MFM_ScalerData_Info {
@@ -42,7 +43,6 @@ struct MFM_ScalerData_header{
 class MFMScalerDataFrame : public MFMBasicFrame
 {
 
-
 public :
 
 MFMScalerDataFrame();
@@ -50,16 +50,14 @@ MFMScalerDataFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMScalerDataFrame();
+
 virtual void SetPointers(void * pt =NULL);
-
-
-//virtual void SetHeaderBasic(MFM_basic_header* header) ;
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint32_t  GetEventNumber();
-virtual uint32_t  GetEventNumberAttibut();
+uint32_t  GetEventNumber() const;
+uint32_t  GetEventFrom() const;
 virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
 virtual void GetValuesByItem(MFM_ScalerData_Item *item,uint32_t * label,
@@ -74,7 +72,10 @@ virtual void FillScalerWithRamdomConst2(int nbitem, uint64_t timestamp=0,uint32_
 virtual void FillScalerWithRamdomConst(uint64_t timestamp,uint32_t enventnumber);
 virtual void FillScalerWithVector(uint64_t timestamp,uint32_t EventCounter,int64_t * fVector, int sizeofvector);
 virtual void GenerateAScalerExample(uint64_t timestamp,uint32_t eventnumber,int nbChannels);
-virtual string GetHeaderDisplay(char* infotext) ;
+virtual string GetHeaderDisplay(char* infotext)const ;
+void WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize);
+const char * GetTypeText()const {return MFM_SCALER_DATA_FRAME_TYPE_TXT;}
+void ExtracInfoFrame(int verbose,int dumpsize);
 virtual string GetDumpData(char mode='d', bool nozero=false);
 virtual void DumpData(char mode='d', bool nozero=false);
 virtual string GetDumpTextData() ;

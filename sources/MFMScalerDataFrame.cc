@@ -35,19 +35,14 @@ MFMScalerDataFrame::~MFMScalerDataFrame() {
 	///Destructor
 }
 //_______________________________________________________________________________
-void MFMScalerDataFrame::SetBufferSize(int size, bool ifinferior) {
-	/// Do memory allocation or a reallacation for frame\n
-	/// if ifinferior==true the allocaton is forced to size event if the acutal size is bigger\n
-	MFMBasicFrame::SetBufferSize(size, ifinferior);
-	MFMScalerDataFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMScalerDataFrame::SetPointers(void * pt) {
 	/// Initialize pointers of frame\n
 	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
 	/// else initialization is done with pData = pt\n
 	/// pData must be the reference;
 	MFMBasicFrame::SetPointers(pt);
+	SetTimeStampFromFrameData();
+        SetEventNumberFromFrameData();
 	pHeader = (MFM_topcommon_header*) pData;
 	pData_char = (char*) pData;
 }
@@ -58,19 +53,7 @@ void MFMScalerDataFrame::SetAttributs(void * pt) {
 
 }
 //_______________________________________________________________________________
-string MFMScalerDataFrame::GetHeaderDisplay(char* infotext) {
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	ss << MFMBasicFrame::GetHeaderDisplay(infotext);
-	ss << "   TS = " << GetTimeStamp();ss << "   EN = " << GetEventNumber();
-	ss << endl;
-	display = ss.str();
-	return display;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMScalerDataFrame::GetEventNumber() {
+void MFMScalerDataFrame::SetEventNumberFromFrameData() {
 	/// Compute and return scaker number
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -78,11 +61,9 @@ uint32_t MFMScalerDataFrame::GetEventNumber() {
 			= ((MFM_ScalerData_header*) pHeader)->ScalerData_Info.eventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-
-	return fEventNumber;
 }
 //_______________________________________________________________________________
-uint32_t MFMScalerDataFrame::GetEventNumberAttibut() {
+uint32_t MFMScalerDataFrame::GetEventNumber() const{
 	/// Return scaker number without computing it
 	return fEventNumber;
 }
@@ -95,18 +76,17 @@ void MFMScalerDataFrame::SetEventNumber(uint32_t eventnumber) {
 }
 //_______________________________________________________________________________
 
-uint64_t MFMScalerDataFrame::GetTimeStamp() {
-	// Compute and return Time Stamp
+void MFMScalerDataFrame::SetTimeStampFromFrameData() {
+	// Compute  Time Stamp
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
 	memcpy(((char*) (&fTimeStamp)),
 			((MFM_ScalerData_header*) pHeader)->ScalerData_Info.eventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
 //_______________________________________________________________________________
-uint64_t MFMScalerDataFrame::GetTimeStampAttribut() {
+uint64_t MFMScalerDataFrame::GetTimeStamp() {
 	// return Time Stamp attribut without computing
 	return fTimeStamp;
 }
@@ -238,7 +218,7 @@ void MFMScalerDataFrame::FillScalerWithVector(uint64_t timestamp,uint32_t EventC
 	uint32_t nbitem=0;
  	int64_t value=0;
 	if (sizeofvector%nbOfParaInItem !=0) cout <<" error de taille de vecteur\n";
-	int oldframesize = GetFrameSizeAttribut();
+	int oldframesize = GetFrameSize();
 	 nbitem = (uint32_t)(sizeofvector/nbOfParaInItem);
 	int framesize = nbitem*sizeof(MFM_ScalerData_Item)+SCALER_DATA_HEADERSIZE ;
 ;
@@ -408,7 +388,70 @@ string MFMScalerDataFrame::GetDumpData(char mode, bool nozero) {
 	display = ss.str();
 	return display;
 }
-//____________________________________________________________________________
+//______________________________________________________________________________
+void MFMScalerDataFrame::ExtracInfoFrame(int verbose,int dumpsize){
+	int framesize = GetFrameSize();
+	if ((verbose > 1) ) {
+		HeaderDisplay();
+		if (verbose > 3) {
+			int dump = dumpsize;
+			if (framesize < dump)
+				dump = framesize;
+			DumpRaw(dump, 0);
+		}
+	if (verbose > 5)
+		cout << GetDumpTextData()<< (GetDumpData());
+	}
+}
+//_______________________________________________________________________________
+string MFMScalerDataFrame::GetHeaderDisplay(char* infotext) const{
+	stringstream ss;
+	string display("");
+	display = ss.str();
+	
+	if (infotext==NULL)
+	ss << MFMBasicFrame::GetHeaderDisplay((char*)GetTypeText());
+	else
+	ss << MFMBasicFrame::GetHeaderDisplay(infotext);	
+	display = ss.str();
+	return display;
+}
+
+//_______________________________________________________________________________
+void MFMScalerDataFrame::WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize){
+
+	int type = MFM_SCALER_DATA_FRAME_TYPE;	
+	time_t seconds_past_epoch;
+	uint64_t ts;
+	uint32_t eventnum;
+	uint32_t itemsize = 0;
+	uint32_t nbitem = 0;
+	uint32_t framesize = 0;
+	uint32_t revision = 0;
+	uint32_t headersize = 0;
+	uint64_t timestamp = 0;
+	int verif;
+	MError Error;
+	int nb_item = 20;
+	for (int i = 0; i < nbframe; i++) {
+		seconds_past_epoch = time(0);
+		ts = (uint64_t) seconds_past_epoch;
+		GenerateAScalerExample(ts, i, nb_item);
+		framesize = GetFrameSize();
+		SetAttributs();
+		FillStat();
+		if (verbose > 1)
+			HeaderDisplay();
+		int dump = dumsize;
+		if (framesize < dump)
+			dump = framesize;
+		if (verbose > 3)
+			DumpRaw(dump, 0);
+		verif = write(lun, GetPointHeader(), framesize);
+		if (verif != framesize)
+			Error.TreatError(2, 0, "Error of write");
+	}
+}
 //______________________________________________________________________________
 /*
 class GParaCaliXml :public GBase{

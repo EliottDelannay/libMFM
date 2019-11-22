@@ -17,7 +17,8 @@
 #define EXO_BOARD_ID_MASK 0x07ff
 #define EXO_NUMBER_CRISTAL_ID 2
 #define EXO_STD_UNIT_BLOCK_SIZE 4
-
+//#define MFM_EXO2_FRAME_TYPE     0x10 /// numexo2 card frame
+#define MFM_EXO2_FRAME_TYPE_TXT "MFM_EXO2_FRAME_TYPE"
 #include "MFMBlobFrame.h"
 
 
@@ -61,10 +62,6 @@ struct MFM_exo_header{
 
 class MFMExogamFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int      fEventNumber ;
-
 long long * fCountNbEventCard;
 
 
@@ -76,43 +73,43 @@ MFMExogamFrame(int unitBlock_size, int dataSource,
 virtual ~MFMExogamFrame();
 virtual void SetPointers(void * pt =NULL);
 
-
-virtual void SetBufferSize(int size, bool ifinferior) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
-
+ void SetTimeStampFromFrameData();
+ void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL);
+virtual string GetHeaderDisplay(char* infotext=NULL)const;
+virtual const char * GetTypeText()const {return MFM_EXO2_FRAME_TYPE_TXT;} 
 // EXO
 
 virtual void      ExoSetCristalId(uint16_t cristalId);
 virtual void      ExoSetCristalId(uint16_t tgRequest, uint16_t idBoard);
-virtual uint16_t  ExoGetCristalId();
-virtual uint16_t  ExoGetTGCristalId();
-virtual uint16_t  ExoGetBoardId();
+virtual uint16_t  ExoGetCristalId() const;
+virtual uint16_t  ExoGetTGCristalId()const;
+virtual uint16_t  ExoGetBoardId()const;
+bool HasBoardId () const{ return true;};
+
 virtual void      ExoSetStatus(int i, uint16_t status);
-virtual uint16_t  ExoGetStatus(int i);
+virtual uint16_t  ExoGetStatus(int i)const;
 virtual void      ExoSetDetaT(uint16_t detaT);
-virtual uint16_t  ExoGetDeltaT();
+virtual uint16_t  ExoGetDeltaT()const;
 virtual void      ExoSetInnerM(int i, uint16_t innner);
-virtual uint16_t  ExoGetInnerM(int i);
+virtual uint16_t  ExoGetInnerM(int i)const;
 virtual void      ExoSetOuter(int i, uint16_t outer);
-virtual uint16_t  ExoGetOuter(int i);
+virtual uint16_t  ExoGetOuter(int i)const;
 virtual void      ExoSetBGO(uint16_t bgo);
-virtual uint16_t  ExoGetBGO();
+virtual uint16_t  ExoGetBGO()const;
 virtual void      ExoSetCsi(uint16_t Csi);
-virtual uint16_t  ExoGetCsi();
+virtual uint16_t  ExoGetCsi()const;
 virtual void      ExoSetInnerT(int i, uint16_t inner);
-virtual uint16_t  ExoGetInnerT(int i);
+virtual uint16_t  ExoGetInnerT(int i)const;
 virtual void      ExoSetPara(int i, uint16_t value);
-virtual uint16_t  ExoGetPara(int i);
+virtual uint16_t  ExoGetPara(int i)const;
 virtual void      ExoSetPadding(uint16_t padding);
-virtual uint16_t  ExoGetPadding();
+virtual uint16_t  ExoGetPadding()const;
 virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
+virtual void      WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize);
+virtual void      ExtractInfoFrame(int verbose,int dumpsize);
 virtual void 	  InitStat();
 virtual void 	  FillStat();
 virtual string    GetStat(string info);

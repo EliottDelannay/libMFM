@@ -34,11 +34,6 @@ MFMChimeraFrame::~MFMChimeraFrame() {
 	/// destructor of Chimera frame
 }
 //_______________________________________________________________________________
-void MFMChimeraFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMChimeraFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMChimeraFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -48,11 +43,13 @@ void MFMChimeraFrame::SetPointers(void * pt) {
 void MFMChimeraFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char = (char*) &(((MFM_CHI_header*) pHeader)->CHIData);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMChimeraFrame::GetTimeStamp() {
+void MFMChimeraFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -60,18 +57,12 @@ uint64_t MFMChimeraFrame::GetTimeStamp() {
 			((MFM_CHI_header*) pHeader)->CHIEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
-}
 
-//_______________________________________________________________________________
-uint64_t MFMChimeraFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
 }
 
 //_______________________________________________________________________________
 
-uint32_t MFMChimeraFrame::GetEventNumber() {
+void MFMChimeraFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -79,14 +70,8 @@ uint32_t MFMChimeraFrame::GetEventNumber() {
 	fEventNumber = ((MFM_CHI_header*) pHeader)->CHIEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
 }
 
-//_______________________________________________________________________________
-uint32_t MFMChimeraFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
-}
 //_______________________________________________________________________________
 void MFMChimeraFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame

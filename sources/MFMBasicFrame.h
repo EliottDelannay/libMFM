@@ -8,7 +8,7 @@
 */
 #include "MFMCommonFrame.h"
 #pragma pack(push, 1) // force alignment
-
+#define MFM_BASIC_TYPE_TXT "MFM_BASIC_FRAME" 
 //____________MFMBasicFrame___________________________________________________________
 
 class MFMBasicFrame : public MFMCommonFrame
@@ -16,11 +16,12 @@ class MFMBasicFrame : public MFMCommonFrame
 protected:
 MFM_basic_header * pBasicHeader;//< pointer on header
 
-uint64_t           fTimeStamp;//<Time Stamp
-uint32_t           fEventNumber; //<Event Number
 uint32_t           fItemSize; //<Item Size
 uint32_t           fNumberItems;//Number of items
-void              * pCurrentItem; // current pointer on item
+mutable void       * pCurrentItem; // current pointer on item
+void  SetHeaderSizeFromFrameData();
+void  SetItemSizeFromFrameData();
+void  SetNbItemsFromFrameData();
 public :
 
 MFMBasicFrame();
@@ -28,27 +29,17 @@ MFMBasicFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMBasicFrame();
-virtual void SetPointers(void * pt =NULL);
-virtual int  GetHeaderSize();
-virtual int  GetHeaderSizeAttribut();
-virtual int  GetItemSize();
-virtual int  GetItemSizeAttribut();
-virtual int  GetNbItems();
-virtual int  GetNbItemsAttribut();
+virtual int  GetItemSize() const;
+virtual int  GetNbItems()  const;
 
-virtual void SetHeaderBasic(MFM_basic_header* header) ;
-virtual void SetHeaderSize(int headersize);
-virtual void SetItemSize(int itemsize);
-virtual void SetNbItem(int nbitem);
-virtual void SetBufferSize(int size,bool ifinferior=true);
+ void SetHeaderBasic(MFM_basic_header* header) ;
+ void SetHeaderSize(int headersize);
+ void SetItemSize(int itemsize);
+ void SetNbItem(int nbitem);
 virtual void SetAttributs(void * pt=NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttibut();
-virtual uint32_t GetEventNumber();
-virtual uint32_t GetEventNumberAttribut();
-virtual void *GetItem(int i);
-virtual void *GetCurrentItem(){return pCurrentItem;};
-virtual string GetHeaderDisplay(char* infotext=NULL);
+ void *GetItem(int i) const ;
+ void *GetCurrentItem()const{return pCurrentItem;} ;
+virtual string GetHeaderDisplay(char* infotext=NULL) const;
 virtual void MFM_make_header(int unitBlock_size, int dataSource,
 			    int frameType, int revision, int frameSize,int headerSize,
 			       int itemSize, int nItems);
@@ -57,6 +48,7 @@ virtual void MFM_fill_header(int unitBlock_size,
 				   int dataSource, int frameType, int revision,
 				   int frameSize,int headerSize,
 			       int itemSize, int nItems);
+virtual const char * GetTypeText()const {return MFM_BASIC_TYPE_TXT;} 
 };
 #pragma pack(pop) // free aligment
 #endif

@@ -1,3 +1,6 @@
+#ifndef _MFM_ALL_TYPES_
+#define _MFM_ALL_TYPES_
+
 #define MFM_MIN_TYPE  0x01
 
 #define MFM_COBO_FRAME_TYPE     0x01 /// Cobo card frame
@@ -45,4 +48,7 @@
 
 #define MFM_XML_DATA_DESCRIPTION_FRAME_TYPE 0xFF10  /// Data description of few data
 #define MFM_XML_FILE_HEADER_FRAME_TYPE      0xFF11  /// Frame of run description
-#define MFM_MAX_TYPE  						0xFF11
+#define MFM_MAX_TYPE  			    0xFF11
+
+#endif
+    

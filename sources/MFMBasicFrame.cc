@@ -42,17 +42,16 @@ MFMBasicFrame::~MFMBasicFrame() {
 
 }
 //_______________________________________________________________________________
-int MFMBasicFrame::GetItemSize() {
+void MFMBasicFrame::SetItemSizeFromFrameData() {
 	// compute and set fItemSize attibut. Return fItemSize
 	uint16_t tmp;
 	tmp = ((MFM_basic_header*)pHeader)->ext.itemSize;
 	if (fLocalIsBigEndian!=fFrameIsBigEndian)
 	SwapInt16(&tmp);
 	fItemSize =tmp;
-	return fItemSize;
 }
 //_______________________________________________________________________________
-int MFMBasicFrame::GetItemSizeAttribut() {
+int MFMBasicFrame::GetItemSize() const{
 	/// Return value of Item size without computing it
 	return fItemSize;
 
@@ -63,17 +62,16 @@ void MFMBasicFrame::SetHeaderBasic(MFM_basic_header* header) {
 	pHeader = (MFM_topcommon_header*)header;
 }
 //_______________________________________________________________________________
-int MFMBasicFrame::GetNbItems() {
-	/// Compute and return number of items
+void MFMBasicFrame::SetNbItemsFromFrameData() {
+	/// Compute number of items
 	unsigned int tmp;
 	tmp = (int)(((MFM_basic_header*)pHeader)->ext.nItems);
 	if (fLocalIsBigEndian!=fFrameIsBigEndian)
 	SwapInt32(&tmp);
 	fNumberItems=tmp;
-	return fNumberItems;
 }
 //_______________________________________________________________________________
-int MFMBasicFrame::GetNbItemsAttribut(){
+int MFMBasicFrame::GetNbItems()const{
 	/// Return value of fNumberItems without computing it
 	return fNumberItems;
 }
@@ -98,28 +96,24 @@ void MFMBasicFrame::SetNbItem(int nbitems) {
 }
 
 //_______________________________________________________________________________
-string MFMBasicFrame::GetHeaderDisplay(char* infotext) {
+string MFMBasicFrame::GetHeaderDisplay(char* infotext) const {
 /// Return a string containing infomation of MFM Header\n
 	/// if infotext is not NULL replace the standart "MFM header" title
 	stringstream ss;
 	ss.str("");
 	string display("");
-	
 	if (infotext == NULL)
-		ss << MFMCommonFrame::GetHeaderDisplay((char*)(WhichFrame().data()));
+		ss << MFMCommonFrame::GetHeaderDisplay((char*)GetTypeText());
 	else
 		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
 	ss << "  HeaderSize = " << GetHeaderSize();
-	ss << "  ItemSize = " << GetItemSize();
-	ss << "  NbItems = " << GetNbItems();
-	ss << "\n";
-
+	ss << "  ItemSize = "   << GetItemSize();
+	ss << "  NbItems = "    << GetNbItems();
 	display = ss.str();
 	return display;
 }
 
 //_______________________________________________________________________________
-
 void MFMBasicFrame::MFM_fill_header(int unitBlock_size, int dataSource,
 		int frameType, int revision, int frameSize, int headerSize,
 		int itemSize, int nItems) {
@@ -146,25 +140,9 @@ void MFMBasicFrame::MFM_make_header(int unitBlock_size, int dataSource,
 	SetPointers();
 
 }
+
 //_______________________________________________________________________________
-void MFMBasicFrame::SetBufferSize(int size, bool ifinferior) {
-	/// Do memory allocation or a reallacation for frame\n
-	/// if ifinferior==true the allocaton is forced to size event if the acutal size is bigger\n
-	MFMCommonFrame::SetBufferSize(size, ifinferior);
-	MFMBasicFrame::SetPointers();
-}
-//_______________________________________________________________________________
-void MFMBasicFrame::SetPointers(void * pt){
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMCommonFrame::SetPointers(pt);
-	(pHeader) = (MFM_topcommon_header*)pData;
-	pData_char = (char*) pData;
-}
-//_______________________________________________________________________________
-void * MFMBasicFrame::GetItem(int i) {
+void * MFMBasicFrame::GetItem(int i) const {
     /// return pointer on i item
 	pCurrentItem = (MFMBasicFrame *)(pData_char + (fHeaderSize) + (fItemSize*i));
 	return  pCurrentItem;
@@ -177,44 +155,17 @@ void MFMBasicFrame::SetAttributs(void * pt){
 	/// else initialization is done with pData = pt
 	SetPointers( pt);
 	MFMCommonFrame::SetAttributs( pt);
-	GetNbItems();
-	GetHeaderSize();
-	GetItemSize();
-	pUserData_char=pData_char+fHeaderSize;
+	SetNbItemsFromFrameData();
+	SetHeaderSizeFromFrameData();
+	SetItemSizeFromFrameData();
 }
 //_______________________________________________________________________________
-int  MFMBasicFrame::GetHeaderSize(){
-	/// Compute and set value fHeaderSize, return fHeaderSize
+void MFMBasicFrame::SetHeaderSizeFromFrameData(){
+	/// Compute and set value fHeaderSize
 	uint16_t tmp=
 			((MFM_basic_header*)pHeader)->ext.headerSize;
 	if (fLocalIsBigEndian!=fFrameIsBigEndian)
 	SwapInt16(&tmp);
 	fHeaderSize = (int)tmp*fSizeOfUnitBlock;
-	return fHeaderSize;
-}
-//_______________________________________________________________________________
-int MFMBasicFrame::GetHeaderSizeAttribut(){
-	///Return value of HeaderSize without computing
-	return fHeaderSize;
-}
-//_______________________________________________________________________________
-uint32_t MFMBasicFrame::GetEventNumberAttribut() {
-	///Return value of EventNumber without computing
-	return fEventNumber;
-}
-//_______________________________________________________________________________
-uint32_t MFMBasicFrame::GetEventNumber() {
-	/// Return value of EventNumber without computing
-	return fEventNumber;
-}
-//_______________________________________________________________________________
-uint64_t MFMBasicFrame::GetTimeStampAttibut(){
-	/// Return value of TimeStamp Attibut without computing
-	return fTimeStamp;
-}
-//_______________________________________________________________________________
-uint64_t MFMBasicFrame::GetTimeStamp(){
-	/// Return value of TimeStamp Attibut without computing
-	return fTimeStamp;
 }
 //_______________________________________________________________________________

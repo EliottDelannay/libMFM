@@ -31,11 +31,6 @@ MFMMutantFrame::~MFMMutantFrame() {
 	/// destructor of Mutant frame
 }
 //_______________________________________________________________________________
-void MFMMutantFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMMutantFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMMutantFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -45,11 +40,13 @@ void MFMMutantFrame::SetPointers(void * pt) {
 void MFMMutantFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char = (char*) &(((MFM_mut_frame*) pHeader)->MutData);
 }
 //_______________________________________________________________________________
 
-uint64_t MFMMutantFrame::GetTimeStamp() {
+void MFMMutantFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -57,17 +54,11 @@ uint64_t MFMMutantFrame::GetTimeStamp() {
 			((MFM_mut_frame*) pHeader)->MutEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
-}
-//_______________________________________________________________________________
-uint64_t MFMMutantFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
 }
 
 //_______________________________________________________________________________
 
-uint32_t MFMMutantFrame::GetEventNumber() {
+void MFMMutantFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -75,14 +66,8 @@ uint32_t MFMMutantFrame::GetEventNumber() {
 	fEventNumber = ((MFM_mut_frame*) pHeader)->MutEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
 }
 
-//_______________________________________________________________________________
-uint32_t MFMMutantFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
-}
 //_______________________________________________________________________________
 void MFMMutantFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame

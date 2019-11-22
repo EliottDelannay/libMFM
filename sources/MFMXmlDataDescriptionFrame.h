@@ -27,9 +27,7 @@ struct MFM_XmlDataDescription_frame{
 
 class MFMXmlDataDescriptionFrame : public MFMBlobFrame
 {
-private:
-uint64_t fTimeStamp;
-int fEventNumber ;
+
 #ifndef NO_MFMXML
 TiXmlDocument * MyTinyDoc;
 #endif 
@@ -40,21 +38,13 @@ MFMXmlDataDescriptionFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMXmlDataDescriptionFrame();
 virtual void SetPointers(void * pt =NULL);
-
-virtual void SetBufferSize(int size, bool ifinferior=true) ;
 virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
 virtual char * GetText();
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-
 virtual string FillExampleOfText();
 virtual void   FillEventRandomConst();
 virtual int    InitXml(bool write_or_read, string commentaire);
-
+bool HasTimeStamp()   const { return false; };
+bool HasEventNumber() const { return false; };
 void dump_to_stdout(const char* pFilename);
 #ifndef NO_MFMXML 
 void dump_to_stdout( TiXmlNode* pParent, unsigned int indent = 0 );

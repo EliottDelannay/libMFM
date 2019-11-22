@@ -36,11 +36,6 @@ MFMExogamFrame::~MFMExogamFrame() {
 	}
 }
 //_______________________________________________________________________________
-void MFMExogamFrame::SetBufferSize(int size, bool ifinferior) {
-	MFMBlobFrame::SetBufferSize(size, ifinferior);
-	MFMExogamFrame::SetPointers();
-}
-//_______________________________________________________________________________
 void MFMExogamFrame::SetPointers(void * pt) {
 	MFMBlobFrame::SetPointers(pt);
 	pHeader = (MFM_topcommon_header*) pData;
@@ -50,11 +45,12 @@ void MFMExogamFrame::SetPointers(void * pt) {
 void MFMExogamFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	pUserData_char=(char*)&(((MFM_exo_header*) pHeader)->ExoData);
 }
 //_______________________________________________________________________________
-
-uint64_t MFMExogamFrame::GetTimeStamp() {
+void MFMExogamFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
@@ -62,17 +58,10 @@ uint64_t MFMExogamFrame::GetTimeStamp() {
 			((MFM_exo_header*) pHeader)->ExoEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
-	return fTimeStamp;
 }
 //_______________________________________________________________________________
-uint64_t MFMExogamFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return fTimeStamp;
-}
 
-//_______________________________________________________________________________
-
-uint32_t MFMExogamFrame::GetEventNumber() {
+void MFMExogamFrame::SetEventNumberFromFrameData() {
 	/// Computer, set attibut and return value of event number from  frame
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
@@ -80,13 +69,6 @@ uint32_t MFMExogamFrame::GetEventNumber() {
 	fEventNumber = ((MFM_exo_header*) pHeader)->ExoEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-	return fEventNumber;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMExogamFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return fEventNumber;
 }
 //_______________________________________________________________________________
 void MFMExogamFrame::SetTimeStamp(uint64_t timestamp) {
@@ -126,7 +108,7 @@ void MFMExogamFrame::ExoSetCristalId(uint16_t tgRequest, uint16_t idBoard) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetCristalId() {
+uint16_t MFMExogamFrame::ExoGetCristalId() const{
 	uint16_t cristal = 0;
 /// Compute and return the 2 bytes of CristalId()
 	cristal = ((MFM_exo_header*) pHeader)->ExoData.CristalId;
@@ -136,13 +118,13 @@ uint16_t MFMExogamFrame::ExoGetCristalId() {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMExogamFrame::ExoGetTGCristalId() {
+uint16_t MFMExogamFrame::ExoGetTGCristalId()const {
 /// Compute and return extracted Trigger Request value of CristalId
 	return (ExoGetCristalId() & EXO_TRIG_REQ_CRYS_ID_MASK);
 }
 
 //_______________________________________________________________________________
-uint16_t MFMExogamFrame::ExoGetBoardId() {
+uint16_t MFMExogamFrame::ExoGetBoardId()const {
 /// Compute and return id value of Board
 	return ((ExoGetCristalId()>>5) & EXO_BOARD_ID_MASK);
 }
@@ -161,7 +143,7 @@ void MFMExogamFrame::ExoSetStatus(int i, uint16_t status) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetStatus(int i) {
+uint16_t MFMExogamFrame::ExoGetStatus(int i) const{
 	/// Set Status (0,1 or 2)
 	uint16_t status;
 	if (i < 0 and i > EXO_NB_STATUS) {
@@ -189,7 +171,7 @@ void MFMExogamFrame::ExoSetDetaT(uint16_t deltaT) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetDeltaT() {
+uint16_t MFMExogamFrame::ExoGetDeltaT() const{
 	/// Compute and Return Deta Time from frame header
 	uint16_t deltat;
 	deltat = (((MFM_exo_header*) pHeader)->ExoData.DeltaT);
@@ -213,7 +195,7 @@ void MFMExogamFrame::ExoSetInnerM(int i, uint16_t inner) {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMExogamFrame::ExoGetInnerM(int i) {
+uint16_t MFMExogamFrame::ExoGetInnerM(int i)const {
 	/// Compute and return Inner data , 6 MeV (i=0) or inner 20 MeV (i=1)
 	uint16_t inner;
 	if (i < 0 and i >= EXO_NB_INNER_M) {
@@ -247,7 +229,7 @@ void MFMExogamFrame::ExoSetOuter(int i, uint16_t outer) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetOuter(int i) {
+uint16_t MFMExogamFrame::ExoGetOuter(int i)const {
 	/// Compute and return  Outer (6 Mev) data  (6 Mev)  (Outer 1 if i=0 .... outer 4 if i=3))
 	uint16_t outer;
 	if (i < 0 and i >= EXO_NB_OUTER) {
@@ -275,7 +257,7 @@ void MFMExogamFrame::ExoSetBGO(uint16_t bgo) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetBGO() {
+uint16_t MFMExogamFrame::ExoGetBGO()const {
 	/// computer and return  BGO value from frame
 	uint16_t bgo;
 	bgo = (((MFM_exo_header*) pHeader)->ExoData.BGO);
@@ -292,7 +274,7 @@ void MFMExogamFrame::ExoSetCsi(uint16_t csi) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetCsi() {
+uint16_t MFMExogamFrame::ExoGetCsi() const{
 	/// Compute and return Csi data from frame
 	uint16_t csi;
 	csi = (((MFM_exo_header*) pHeader)->ExoData.Csi);
@@ -320,7 +302,7 @@ void MFMExogamFrame::ExoSetInnerT(int i, uint16_t inner) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetInnerT(int i) {
+uint16_t MFMExogamFrame::ExoGetInnerT(int i) const{
 	/// Compute and return Innet time data from frame ( i=0 for T=30%,  i=1 for T=60%,  i=2 for T=90%)
 	uint16_t innerT;
 	if (i < 0 and i >= EXO_NB_INNER_T) {
@@ -357,7 +339,7 @@ void MFMExogamFrame::ExoSetPara(int i, uint16_t value) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetPara(int i) {
+uint16_t MFMExogamFrame::ExoGetPara(int i) const{
 	/// Generic method to get data in frame
 	uint16_t value;
 
@@ -382,7 +364,7 @@ void MFMExogamFrame::ExoSetPadding(uint16_t padding) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMExogamFrame::ExoGetPadding() {
+uint16_t MFMExogamFrame::ExoGetPadding() const{
 	/// Compute and return value of Padding
 	uint16_t padding;
 	padding = (((MFM_exo_header*) pHeader)->ExoData.Padding);
@@ -398,7 +380,6 @@ void MFMExogamFrame::InitStat() {
 	for ( i = 0;i<65536;i++){
 		fCountNbEventCard[i]=0;
 	}
-
 }
 //____________________________________________________________________
 void MFMExogamFrame::FillStat() {
@@ -447,21 +428,69 @@ void MFMExogamFrame::FillEventRandomConst(uint64_t timestamp,
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 }
+//____________________________________________________________________________
+void  MFMExogamFrame::WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize){
+// write in file random frame
+	uint32_t unitBlock_size = 0;
+	uint32_t framesize = 0;
+	uint32_t revision = 0;
+	uint32_t headersize = 0;
+	uint64_t timestamp = 0;
+	int verif;
+        uint32_t eventNumber=0;
+        MError Error;
+	unitBlock_size = EXO_STD_UNIT_BLOCK_SIZE;
+	framesize = EXO_FRAMESIZE;
+	revision = 1;
+
+	// generation of MFM header , in this case, MFM is same for all MFM frames
+	MFM_make_header(unitBlock_size, 0, MFM_EXO2_FRAME_TYPE,
+			revision, (int) (framesize / unitBlock_size), true);
+
+	// generation of fNbFrames frame
+	for (int i = 0; i < nbframes; i++) {
+		timestamp = i;
+		eventNumber = i;
+		FillEventRandomConst(timestamp, eventNumber);
+		SetAttributs();
+		FillStat();
+		if (verbose > 1) HeaderDisplay();
+		int dump = dumpsize;
+		if (framesize < dump)
+			dump = framesize;
+		if (verbose > 3) DumpRaw(dump, 0);
+		if (lun>0)
+		verif = write(lun, GetPointHeader(), framesize);
+
+		if (verif != framesize)
+			Error.TreatError(2, 0, "Error of write");
+
+	}
+}
+//_______________________________________________________________________________________________________________________
+void MFMExogamFrame::ExtractInfoFrame(int verbose,int dumpsize){
+// extract information Frames form a file
+        int framesize =GetFrameSize();
+	if ((verbose > 1) ) {
+		HeaderDisplay();
+		int dump = dumpsize;
+		if (framesize < dump)
+			dump = framesize;
+		if (verbose > 3)
+			DumpRaw(dump, 0);
+	}
+}
 //_______________________________________________________________________________
-string MFMExogamFrame::GetHeaderDisplay(char* infotext) {
+string MFMExogamFrame::GetHeaderDisplay(char* infotext)const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
 	if (infotext==NULL)
-	ss << MFMCommonFrame::GetHeaderDisplay((char*)"--Exogam Frame--");
+	ss << MFMCommonFrame::GetHeaderDisplay((char*)GetTypeText());
 	else
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
-	ss << "   BoardId ="<< ExoGetBoardId();
+
 	ss << "   Cristal Id ="<<ExoGetTGCristalId();
-
-
 	display = ss.str();
 	return display;
 }
