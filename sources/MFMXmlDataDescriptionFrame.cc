@@ -34,19 +34,14 @@ MFMXmlDataDescriptionFrame::~MFMXmlDataDescriptionFrame() {
 /// destructor of Exogam frame
 }
 //_______________________________________________________________________________
-void MFMXmlDataDescriptionFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMXmlDataDescriptionFrame::SetUserDataPointer(){
+pUserData_char = (char*) &(((MFM_XmlDataDescription_frame*) pHeader)->XmlData);
 }
 //_______________________________________________________________________________
 void MFMXmlDataDescriptionFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
-	pUserData_char = (char*) &(((MFM_XmlDataDescription_frame*) pHeader)->XmlData);
 }
-
-
 //_______________________________________________________________________________
 string MFMXmlDataDescriptionFrame::FillExampleOfText() {
 
@@ -169,18 +164,21 @@ text.append("/<data_description>\n");
 return text;
 }
 //_______________________________________________________________________________
-char*  MFMXmlDataDescriptionFrame::GetText(){
-return ((char*)  &(((MFM_XmlDataDescription_frame*) pHeader)->XmlData));
+char*  MFMXmlDataDescriptionFrame::GetText()const{
+	return GetPointUserData();
 }
 //_______________________________________________________________________________
-void MFMXmlDataDescriptionFrame::FillEventRandomConst() {
+void MFMXmlDataDescriptionFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 	// fill frame with example given in FillExampleOfText()
 	string text;
 	text =  FillExampleOfText() ;
 	int size = text.size();
-	cout << " size of xml text"<<size<<"\n";
-	SetBufferSize(size + MFM_BLOB_HEADER_SIZE );
-	strcpy((char*)(text.data()),(const char*)GetText());
+	int framesize = size +1+MFM_BLOB_HEADER_SIZE ;
+	SetBufferSize(framesize );
+	//strcpy((char*)(text.data()),(const char*)GetText());
+	strcpy(GetText(),(const char*)(text.data()));
+	
+	SetFrameSize(framesize); 
 }
 //_______________________________________________________________________________
 

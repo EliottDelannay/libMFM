@@ -9,6 +9,8 @@
 #include "MFMCommonFrame.h"
 #pragma pack(push, 1) // force alignment
 #define MFM_BASIC_TYPE_TXT "MFM_BASIC_FRAME" 
+#define MFM_BASIC_DEFAULT_HEADERSIZE 16
+#define MFM_DEFAULT_NB_ITEMS 20
 //____________MFMBasicFrame___________________________________________________________
 
 class MFMBasicFrame : public MFMCommonFrame
@@ -29,9 +31,9 @@ MFMBasicFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMBasicFrame();
-virtual int  GetItemSize() const;
-virtual int  GetNbItems()  const;
+int  GetItemSize(int type=0) const;
 
+virtual int  GetNbItems()  const;
  void SetHeaderBasic(MFM_basic_header* header) ;
  void SetHeaderSize(int headersize);
  void SetItemSize(int itemsize);
@@ -43,12 +45,18 @@ virtual string GetHeaderDisplay(char* infotext=NULL) const;
 virtual void MFM_make_header(int unitBlock_size, int dataSource,
 			    int frameType, int revision, int frameSize,int headerSize,
 			       int itemSize, int nItems);
-
 virtual void MFM_fill_header(int unitBlock_size,
 				   int dataSource, int frameType, int revision,
 				   int frameSize,int headerSize,
 			       int itemSize, int nItems);
+virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber,int nbitem ){fError.TreatError(2,0,"MFMBasicFrame:FillDataWithRamdomValue should never be here----------\n");};
+virtual void GenerateAFrameExample(uint64_t timestamp,uint32_t eventnumber);
+
+virtual int  GetItemSizeFromStructure(int type=0) const{fError.TreatError(2,0,"MFMBasicFrame:GetItemSizeFromStructure should never be here----------\n");};
 virtual const char * GetTypeText()const {return MFM_BASIC_TYPE_TXT;} 
+virtual int GetDefinedUnitBlockSize()const {return MFM_UNIT_BLOCK_DEFAULT_SIZE;};
+virtual int GetDefinedHeaderSize()const {return MFM_BASIC_DEFAULT_HEADERSIZE;};
+virtual int GetDefinedNbItems()const{ return MFM_DEFAULT_NB_ITEMS;};
 };
 #pragma pack(pop) // free aligment
 #endif

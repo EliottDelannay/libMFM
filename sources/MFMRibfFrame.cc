@@ -30,12 +30,9 @@ MFMRibfFrame::MFMRibfFrame() {
 MFMRibfFrame::~MFMRibfFrame() {
 /// destructor of Ribf frame
 }
-
 //_______________________________________________________________________________
-void MFMRibfFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMRibfFrame::SetUserDataPointer(){
+	pUserData_char=(char*)&(((MFM_Ribf_header*) pHeader)->Data);
 }
 //_______________________________________________________________________________
 void MFMRibfFrame::SetAttributs(void * pt) {
@@ -43,7 +40,6 @@ void MFMRibfFrame::SetAttributs(void * pt) {
 	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
-	pUserData_char=(char*)&(((MFM_Ribf_header*) pHeader)->RibfData);
 }
 //_______________________________________________________________________________
 
@@ -52,11 +48,10 @@ void MFMRibfFrame::SetTimeStampFromFrameData() {
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
 	memcpy(((char*) (&fTimeStamp)),
-			((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventTime, 6);
+			((MFM_Ribf_header*) pHeader)->EventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 }
-
 //_______________________________________________________________________________
 
 void MFMRibfFrame::SetEventNumberFromFrameData() {
@@ -64,48 +59,43 @@ void MFMRibfFrame::SetEventNumberFromFrameData() {
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
 	//memcpy(&fEventNumber,((char*)((MFM_Ribf_header*)pHeader)->mutEvtInfo.eventIdx),4);
-	fEventNumber = ((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventIdx;
+	fEventNumber = ((MFM_Ribf_header*) pHeader)->EventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
-
 }
-
 //_______________________________________________________________________________
 void MFMRibfFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame
 
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
-	memcpy(((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventTime, pts, 6);
+	memcpy(((MFM_Ribf_header*) pHeader)->EventInfo.EventTime, pts, 6);
 }
 //_______________________________________________________________________________
 void MFMRibfFrame::SetEventNumber(uint32_t eventnumber) {
 	/// Set Event Number of frame
-	((MFM_Ribf_header*) pHeader)->RibfEventInfo.EventIdx = eventnumber;
+	((MFM_Ribf_header*) pHeader)->EventInfo.EventIdx = eventnumber;
 }
 //_______________________________________________________________________________
-void MFMRibfFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMRibfFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
 	char i = 0;
-	int usersize =0;
-	usersize = GetFrameSize()- (sizeof( MFM_common_header) + sizeof(MFM_Ribf_eventInfo));
+	char * pchar =(char*)&(((MFM_Ribf_header*) pHeader)->Data);
+	int usersize =RIBF_USERSIZE;
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 	for (i=0;i< usersize;i++)
-		*(GetPointUserData()+i) =i;
-
+		*(pchar+i) =i;
 }
 //_______________________________________________________________________________
-string MFMRibfFrame::GetHeaderDisplay(char* infotext) {
+string MFMRibfFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
 	display = ss.str();
 	return display;
 }

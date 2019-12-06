@@ -56,17 +56,14 @@ MFMVamosPDFrame::~MFMVamosPDFrame() {
 	}
 }
 //_______________________________________________________________________________
-void MFMVamosPDFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
-//_______________________________________________________________________________
 void MFMVamosPDFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
+}
+//_______________________________________________________________________________
+void  MFMVamosPDFrame::SetUserDataPointer() { 
 	pUserData_char = (char*) &(((MFM_vamosPD_frame*) pHeader)->VamosPDData);
 }
 //_______________________________________________________________________________
@@ -80,7 +77,6 @@ void MFMVamosPDFrame::SetTimeStampFromFrameData() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 }
-
 //_______________________________________________________________________________
 
 void MFMVamosPDFrame::SetEventNumberFromFrameData() {
@@ -92,12 +88,9 @@ void MFMVamosPDFrame::SetEventNumberFromFrameData() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
 }
-
-
 //_______________________________________________________________________________
 void MFMVamosPDFrame::SetTimeStamp(uint64_t timestamp) {
 	/// Set value of Time Stamp in frame
-
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
 	memcpy(((MFM_vamosPD_frame*) pHeader)->VamosPDEventInfo.EventTime, pts, 6);
@@ -129,10 +122,9 @@ void MFMVamosPDFrame::SetCristalId(uint16_t tgRequest, uint16_t idBoard) {
 	ui2 = ui2 | ui;
 	SetCristalId(ui2);
 }
-
 //_______________________________________________________________________________
 
-uint16_t MFMVamosPDFrame::GetCristalId() {
+uint16_t MFMVamosPDFrame::GetCristalId() const{
 	uint16_t cristal = 0;
 	/// Compute and return the 2 bytes of CristalId()
 	cristal = ((MFM_vamosPD_frame*) pHeader)->VamosPDData.CristalId;
@@ -142,13 +134,13 @@ uint16_t MFMVamosPDFrame::GetCristalId() {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMVamosPDFrame::GetTGCristalId() {
+uint16_t MFMVamosPDFrame::GetTGCristalId()const {
 	/// Compute and return extracted Trigger Request value of CristalId
 	return (GetCristalId() & VAMOSPD_TRIG_REQ_CRYS_ID_MASK);
 }
 
 //_______________________________________________________________________________
-uint16_t MFMVamosPDFrame::GetBoardId() {
+uint16_t MFMVamosPDFrame::GetBoardId() const{
 	/// Compute and return id value of Board
 	return ((GetCristalId() >> 5) & VAMOSPD_BOARD_ID_MASK);
 }
@@ -163,7 +155,7 @@ void MFMVamosPDFrame::SetEnergy(int i, uint16_t energy) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMVamosPDFrame::GetEnergy(int i) {
+uint16_t MFMVamosPDFrame::GetEnergy(int i) const{
 	uint16_t energy;
 	if (i < 0 and i > VAMOSPD_NB_VALUE) {
 		cout << "MFMVamosPDFrame::GetEnergy Error of energy index\n";
@@ -185,7 +177,7 @@ void MFMVamosPDFrame::SetLabel(int i, uint16_t Label) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMVamosPDFrame::GetLabel(int i) {
+uint16_t MFMVamosPDFrame::GetLabel(int i) const{
 	uint16_t Label;
 	if (i < 0 and i > VAMOSPD_NB_VALUE) {
 		cout << "MFMVamosPDFrame::GetLabel Error of Label index\n";
@@ -198,7 +190,7 @@ uint16_t MFMVamosPDFrame::GetLabel(int i) {
 	return Label;
 }
 //_______________________________________________________________________________
-void MFMVamosPDFrame::GetParameters(int i, uint16_t* label, uint16_t* value) {
+void MFMVamosPDFrame::GetParameters(int i, uint16_t* label, uint16_t* value)const {
 	*label = GetLabel(i);
 	*value = GetEnergy(i);
 }
@@ -212,7 +204,7 @@ void MFMVamosPDFrame::SetLocalCount(uint16_t count) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMVamosPDFrame::GetLocalCount() {
+uint16_t MFMVamosPDFrame::GetLocalCount()const {
 	/// Get LocalCount
 	uint16_t count;
 	count = (((MFM_vamosPD_frame*) pHeader)->VamosPDData.LocalCount);
@@ -228,7 +220,7 @@ void MFMVamosPDFrame::SetChecksum(uint16_t cksum) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMVamosPDFrame::GetChecksum() {
+uint16_t MFMVamosPDFrame::GetChecksum()const {
 	/// Compute and return value of Checksum
 	uint16_t cksum;
 	cksum = (((MFM_vamosPD_frame*) pHeader)->VamosPDData.Checksum);
@@ -237,7 +229,7 @@ uint16_t MFMVamosPDFrame::GetChecksum() {
 	return cksum;
 }
 //_______________________________________________________________________________
-string MFMVamosPDFrame::DumpData(char mode, bool nozero) {
+string MFMVamosPDFrame::DumpData(char mode, bool nozero) const{
 	// Dump parameter Label and parameter value of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -381,7 +373,7 @@ void MFMVamosPDFrame::FillStat() {
 
 }
 //____________________________________________________________________
-string MFMVamosPDFrame::GetStat(string info) {
+string MFMVamosPDFrame::GetStat(string info)const {
 	string display("");
 	stringstream ss("");
 	ss << MFMCommonFrame::GetStat(info);
@@ -418,15 +410,9 @@ string MFMVamosPDFrame::GetStat(string info) {
 	display = ss.str();
 	return display;
 }
-//____________________________________________________________________
-void MFMVamosPDFrame::PrintStat(string info) {
 
-	cout << (GetStat(info));
-
-}
 //_______________________________________________________________________________
-void MFMVamosPDFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMVamosPDFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -450,23 +436,20 @@ void MFMVamosPDFrame::FillEventRandomConst(uint64_t timestamp,
 		}
 	}
 	//SetCristalId(8,112);
-	SetEventNumber(enventnumber);
+	SetEventNumber(eventnumber);
 	SetTimeStamp(timestamp);
-	SetLocalCount(enventnumber);
+	SetLocalCount(eventnumber);
 	uint16_t cheksum = 1;
 
 	SetChecksum(cheksum);
 }
 //_______________________________________________________________________________
-string MFMVamosPDFrame::GetHeaderDisplay(char* infotext) {
+string MFMVamosPDFrame::GetHeaderDisplay(char* infotext)const {
 
 	stringstream ss("");
 	string display("");
 	display = ss.str();
-	if (infotext == NULL)
-		ss << MFMCommonFrame::GetHeaderDisplay((char*) "--VamosPD Frame--");
-	else
-		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
+	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
 	ss << "   BoardId =" << GetBoardId();
 	ss << "   Cristal Id =" << GetTGCristalId();
 	ss << "   EN = " << GetEventNumber();

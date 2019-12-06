@@ -60,22 +60,6 @@ uint16_t MFMVamosICFrame::GetEnergy() const{
 		SwapInt16(&energy);
 	return energy;
 }
-//_______________________________________________________________________________
-
-void MFMVamosICFrame::SetChecksum(uint16_t cksum) {
-	/// Set Checksum data
-	(((MFM_ICvamos_frame*) pHeader)->Data.Checksum) = cksum;
-}
-//_______________________________________________________________________________
-
-uint16_t MFMVamosICFrame::GetChecksum() const{
-	/// Compute and return value of Checksum
-	uint16_t cksum;
-	cksum = (((MFM_ICvamos_frame*) pHeader)->Data.Checksum);
-	if (fLocalIsBigEndian != fFrameIsBigEndian)
-		SwapInt16(&cksum);
-	return cksum;
-}
 
 //_______________________________________________________________________________
 void MFMVamosICFrame::FillEventRandomConst(uint64_t timestamp,
@@ -109,7 +93,7 @@ void MFMVamosICFrame::InitStat() {
 
 }
 //____________________________________________________________________
-string  MFMVamosICFrame::GetStat(string info){
+string  MFMVamosICFrame::GetStat(string info)const{
 
 	string display("");
 	stringstream ss("");

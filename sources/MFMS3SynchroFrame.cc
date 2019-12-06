@@ -44,8 +44,6 @@ uint64_t MFMS3SynchroFrame::GetPeriod() {
 		SwapInt64(((uint64_t* )(&ptperiod)),6);
 	return ((period));
 }
-
-
 //_______________________________________________________________________________
 void MFMS3SynchroFrame::SetPeriod(uint64_t period) {
 	/// Set 16 bits of Setup
@@ -56,7 +54,7 @@ void MFMS3SynchroFrame::SetPeriod(uint64_t period) {
 }
 
 //_______________________________________________________________________________
-void MFMS3SynchroFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMS3SynchroFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
@@ -65,7 +63,7 @@ void MFMS3SynchroFrame::FillEventRandomConst(uint64_t timestamp,
 	((MFM_syncho_frame*) pHeader)->Data.Nothing1 = 0;
 	((MFM_syncho_frame*) pHeader)->Data.Nothing2 = 0;
 	SetPeriod(timestamp);
-	MFMNumExoFrame::FillEventRandomConst(timestamp,enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,enventnumber);
 }
 
 //_______________________________________________________________________________

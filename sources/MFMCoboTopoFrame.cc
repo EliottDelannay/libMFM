@@ -63,27 +63,12 @@ uint16_t MFMCoboTopoFrame::CoboGetTpMode() const {
 void MFMCoboTopoFrame::CoboSetTpMode(uint16_t mode) {
 	((MFM_CoboTopo_header*) pHeader)->CoboTopoData.AsadMask = mode;
 }
-//_______________________________________________________________________________
-void MFMCoboTopoFrame::ExtracInfoFrame(int verbose,int dumpsize){
-	int framesize = GetFrameSize();
-	if ((verbose > 1) ) {
-		HeaderDisplay();
-		if (verbose > 3) {
-			int dump = dumpsize;
-			if (framesize < dump)
-				dump = framesize;
-			DumpRaw(dump, 0);
-		}
-	}
-}
+
 //_______________________________________________________________________________
 string MFMCoboTopoFrame::GetHeaderDisplay(char* infotext) const{
 	stringstream ss;
 	string display("");
 	display = ss.str();
-	if (infotext==NULL)
-	ss << MFMCommonFrame::GetHeaderDisplay((char*)GetTypeText());
-	else
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);	
 	ss << "   CoboIdx = " << CoboGetIdx();
 	ss << " CoboAsaIdxMask = " << CoboGetAsadMask();

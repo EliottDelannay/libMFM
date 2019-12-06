@@ -10,7 +10,7 @@
 
 #include "MFMS3AlphaFrame.h"
 
-
+# define MFM_S3_RUTH_FRAME_TYPE_TXT "MFM_S3_RUTH_FRAME_TYPE"
 #pragma pack(push, 1) // force alignment
 
 
@@ -25,9 +25,8 @@ MFMS3RuthFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMS3RuthFrame();
 
-
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
+ void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+ const char * GetTypeText()const {return MFM_S3_RUTH_FRAME_TYPE_TXT;} 
 };
 #pragma pack(pop) // free aligment
 #endif

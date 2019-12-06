@@ -13,6 +13,9 @@
 
 #pragma pack(push, 1) // force alignment
 
+#define MFM_XML_DATA_DESCRIPTION_FRAME_TYPE_TXT "MFM_XML_DATA_DESCRIPTION_FRAME_TYPE"
+#define MFM_XML_DATA_STD_UNIT_BLOCK_SIZE 1
+
 struct MFM_xml_Data {
 };
 
@@ -37,12 +40,16 @@ MFMXmlDataDescriptionFrame();
 MFMXmlDataDescriptionFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMXmlDataDescriptionFrame();
-virtual void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
-virtual char * GetText();
-virtual string FillExampleOfText();
-virtual void   FillEventRandomConst();
-virtual int    InitXml(bool write_or_read, string commentaire);
+
+ const char * GetTypeText()const {return MFM_XML_DATA_DESCRIPTION_FRAME_TYPE_TXT;} 
+ int GetDefinedUnitBlockSize()const {return MFM_XML_DATA_STD_UNIT_BLOCK_SIZE;};
+
+ void SetUserDataPointer();
+ void SetAttributs(void * pt =NULL);
+ char * GetText()const ;
+ string FillExampleOfText();
+ void   FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+ int    InitXml(bool write_or_read, string commentaire);
 bool HasTimeStamp()   const { return false; };
 bool HasEventNumber() const { return false; };
 void dump_to_stdout(const char* pFilename);

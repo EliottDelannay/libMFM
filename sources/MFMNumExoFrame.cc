@@ -211,8 +211,7 @@ string MFMNumExoFrame::GetStat(string info) {
 	return display;
 }
 //_______________________________________________________________________________
-void MFMNumExoFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMNumExoFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber)  {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -228,15 +227,14 @@ void MFMNumExoFrame::FillEventRandomConst(uint64_t timestamp,
 string MFMNumExoFrame::GetHeaderDisplay(char* infotext) const{
 	stringstream ss;
 	string display("");
-	display = ss.str();
-	if (infotext == NULL)
-		ss << MFMCommonFrame::GetHeaderDisplay((char*)(WhichFrame(MFMCommonFrame::GetFrameType())).data());
-	else
-		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   Cristal Id =" << GetTGCristalId();
-	ss << "   Test Checksum =" << VerifyChecksum();
-	ss << endl;
+	display = ss.str(); 
+	ss << MFMCommonFrame::GetHeaderDisplay(infotext) ;
+	ss << "   Cristal Id = " << GetTGCristalId();
+	ss << "   Test Checksum = " << VerifyChecksum();
 	display = ss.str();
 	return display;
 }
-//_______________________________________________________________________________
+//________________________________________________________________________________
+
+
+

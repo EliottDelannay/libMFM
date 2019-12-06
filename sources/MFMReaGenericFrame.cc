@@ -92,12 +92,12 @@ uint16_t MFMReaGenericFrame::GetTime() const{
 }
 
 //_______________________________________________________________________________
-void MFMReaGenericFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMReaGenericFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t eventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
-	MFMNumExoFrame::FillEventRandomConst(timestamp,eventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,eventnumber);
 	int value = random();
 	uint16_t uivalue = (uint16_t) (4294967296 * value / RAND_MAX);
 	SetTypeTns(REA_GENERIC_TIME_TYPE);

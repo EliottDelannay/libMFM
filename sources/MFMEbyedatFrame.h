@@ -71,29 +71,31 @@ MFMEbyedatFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMEbyedatFrame();
-virtual void SetPointers(void * pt =NULL);
 
 bool IsParameterPresent(const string & name) const;
 
-//virtual void SetHeaderBasic(MFM_basic_header* header) ;
 virtual void SetAttributs(void * pt =NULL);
 virtual const char * GetTypeText()const {
 	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE) return  MFM_EBY_EN_FRAME_TYPE_TXT;
 	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE) return  MFM_EBY_TS_FRAME_TYPE_TXT;
 	if (GetFrameType() == MFM_EBY_EN_TS_FRAME_TYPE) return  MFM_EBY_EN_TS_FRAME_TYPE_TXT;
-}	
+}
+
+int GetItemSizeFromStructure(int type=0) const{return sizeof (MFM_EbyedatItem);};
+int GetDefinedUnitBlockSize()const {return EBYEDAT_STD_UNIT_BLOCK_SIZE;};
+int GetDefinedHeaderSize() const;
+int GetDefinedFrameSize() const {return 0;};
+
+
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
-virtual void EbyedatGetParametersByItem(MFM_EbyedatItem *item,uint16_t * label, uint16_t *value)const;
-virtual void EbyedatSetParametersByItem(MFM_EbyedatItem *item,uint16_t label,uint16_t value);
-virtual void EbyedatGetParameters(int i,uint16_t * label, uint16_t *value)const;
-virtual void EbyedatSetParameters(int i,uint16_t  label, uint16_t value);
-virtual void FillEventWithRamdomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-virtual void GenerateAEbyedatExample(int type,int32_t eventnumber);
+ void EbyedatGetParametersByItem(MFM_EbyedatItem *item,uint16_t * label, uint16_t *value)const;
+ void EbyedatSetParametersByItem(MFM_EbyedatItem *item,uint16_t label,uint16_t value);
+ void EbyedatGetParameters(int i,uint16_t * label, uint16_t *value)const;
+ void EbyedatSetParameters(int i,uint16_t  label, uint16_t value);
+ void FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t enventnumber=0,int nbitem =0);
 virtual string GetHeaderDisplay(char* infotext)const ;
-void ExtractInfoFrame(int verbose,int dumpsize);
-void WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize,int type);
-virtual string DumpData(char mode='d', bool nozero=false)const;
+virtual string GetDumpData(char mode='d', bool nozero=false)const;
 virtual void InitStat() ;
 virtual void FillStat();
 virtual string  GetStat(string info)const;

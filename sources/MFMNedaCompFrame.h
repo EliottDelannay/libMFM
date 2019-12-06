@@ -16,7 +16,7 @@
 #define NEDACOMP_BOARD_ID_MASK 0x0fff
 #define NEDACOMP_CHANNEL_ID_MASK 0x000f
 #pragma pack(push, 1) // force alignment
-
+#define	MFM_NEDACOMP_FRAME_TYPE_TXT	"MFM_NEDACOMP_FRAME_TYPE"
 
 struct  MFM_NedaComp_EventInfo {
 	  unsigned EventIdx     : 32;
@@ -26,16 +26,16 @@ struct  MFM_NedaComp_EventInfo {
 
 // NedaComp data
 struct MFM_NedaComp_Data {
-	      unsigned Energy         : 16;
-	  	  unsigned Time           : 16;
-	  	  unsigned TdcCorValue    : 16;
-	  	  unsigned SlowIntegral : 32;
-	  	  unsigned FastIntegral : 32;
-	  	  signed   IntRaiseTime : 32;
-	  	  unsigned NeuralNetWork: 16;
-	  	  unsigned NbZero       : 8;
-	  	  unsigned NeutronFlag  : 8;
-	  	};
+	  unsigned Energy         : 16;
+	  unsigned Time           : 16;
+	  unsigned TdcCorValue    : 16;
+	  unsigned SlowIntegral   : 32;
+	  unsigned FastIntegral   : 32;
+	  unsigned   IntRaiseTime : 32;
+	  unsigned NeuralNetWork  : 16;
+	  unsigned NbZero         : 8;
+	  unsigned NeutronFlag    : 8;
+	  };
 
 
 struct MFM_NedaComp_Header{
@@ -53,7 +53,7 @@ class MFMNedaCompFrame : public MFMBlobFrame
 {
 
 private:
- MFM_NedaComp_Frame* pNedaCompFrame;
+
 long long * fCountNbEventCard;
 
 public :
@@ -63,48 +63,53 @@ MFMNedaCompFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize,
 		       int itemSize, int nItems);
 virtual ~MFMNedaCompFrame();
-virtual void SetPointers(void * pt =NULL);
 
 
 //virtual void SetHeaderBasic(MFM_basic_header* header) ;
 
-virtual void SetAttributs(void * pt =NULL);
+ void SetAttributs(void * pt =NULL);
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
 
-virtual uint16_t GetBoardId();
+const char * GetTypeText()const {return MFM_NEDACOMP_FRAME_TYPE_TXT;}
+int GetDefinedUnitBlockSize()const {return NEDACOMP_STD_UNIT_BLOCK_SIZE;};
+int GetDefinedHeaderSize()const {return NEDACOMP_HEADERSIZE;};
+int GetDefinedFrameSize()  const{return NEDACOMP_FRAMESIZE;} ;
+
+
+ void SetTimeStamp(uint64_t timestamp);
+ void SetEventNumber(uint32_t eventnumber);
+
+ uint16_t GetBoardId()const;
 bool HasBoardId() const { return true; }
-virtual uint16_t GetChannelId();
-virtual void SetLocationId(uint16_t Id);
-virtual void SetLocationId(uint16_t ChannelId, uint16_t BoardId);
-virtual uint16_t GetLocationId();
-virtual uint16_t GetEnergy() ;
-virtual void SetEnergy(uint16_t energy) ;
-virtual uint16_t GetTime() ;
-virtual void SetTime(uint16_t time) ;
-virtual uint16_t GetTdcCorValue() ;
-virtual void SetTdcCorValue(uint16_t val);
-virtual uint32_t GetSlowIntegral() ;
-virtual void SetSlowIntegral(uint32_t integral);
-virtual uint32_t GetFastIntegral() ;
-virtual void SetFastIntegral(uint32_t integral) ;
-virtual int32_t GetIntRaiseTime() ;
-virtual void SetIntRaiseTime(int32_t time) ;
-virtual uint16_t GetNeuralNetWork() ;
-virtual void SetNeuralNetWork(uint16_t neural) ;
-virtual uint8_t GetNbZero() ;
-virtual void SetNbZero(uint8_t nb) ;
-virtual bool GetNeutronFlag() ;
-virtual void SetNeutronFlag(bool neutron);
 
-virtual void FillEventWithRamdomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-virtual void GenerateANedaExample(int type,int32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext) ;
-virtual void InitStat() ;
-virtual void FillStat();
-virtual string  GetStat(string info);
+ uint16_t GetChannelId() const;
+ void SetLocationId(uint16_t Id);
+ void SetLocationId(uint16_t ChannelId, uint16_t BoardId);
+ uint16_t GetLocationId()const ;
+ uint16_t GetEnergy() const;
+ void SetEnergy(uint16_t energy) ;
+ uint16_t GetTime() const;
+ void SetTime(uint16_t time) ;
+ uint16_t GetTdcCorValue() const;
+ void SetTdcCorValue(uint16_t val);
+ uint32_t GetSlowIntegral() const;
+ void SetSlowIntegral(uint32_t integral);
+ uint32_t GetFastIntegral() const;
+ void SetFastIntegral(uint32_t integral) ;
+ int32_t GetIntRaiseTime() const;
+ void SetIntRaiseTime(int32_t time) ;
+ uint16_t GetNeuralNetWork() const;
+ void SetNeuralNetWork(uint16_t neural) ;
+ uint8_t GetNbZero() const;
+ void SetNbZero(uint8_t nb) ;
+ bool GetNeutronFlag()const ;
+ void SetNeutronFlag(bool neutron);
+void FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+ string GetHeaderDisplay(char* infotext)const ;
+ void InitStat() ;
+ void FillStat();
+ string  GetStat(string info)const;
 };
 #pragma pack(pop) // free alignment
 #endif

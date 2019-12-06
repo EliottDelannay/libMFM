@@ -18,6 +18,8 @@
 #define NEDA_CHANNEL_ID_MASK 0x000f
 #define NEDA_MASK_DATA_ITEM 0x3fff
 #define NEDA_MASK_PARITY_ITEM 0x4000
+
+#define	MFM_NEDA_FRAME_TYPE_TXT	"MFM_NEDA_FRAME_TYPE"
 #pragma pack(push, 1) // force alignment
 
 
@@ -47,13 +49,13 @@ struct MFM_Neda_EOF {
 };
 
 struct MFM_Neda_Header{
-  MFM_basic_header       NedaBasicHeader;
-  MFM_Neda_EventInfo 	NedaEvtInfo;
+  MFM_basic_header      BasicHeader;
+  MFM_Neda_EventInfo 	EvtInfo;
 };
 struct MFM_Neda_Frame{
-  MFM_Neda_Header       NedaNedaHeader;
+  MFM_Neda_Header       Header;
   MFM_Neda_Item         MFMNedaItem[NEDA_NB_OF_ITEMS];
-  MFM_Neda_EOF 		   MFMNedaEOF;
+  MFM_Neda_EOF 		MFMNedaEOF;
 };
 
 //____________MFMNedaFrame___________________________________________________________
@@ -75,14 +77,21 @@ class MFMNedaFrame : public MFMBasicFrame
 	       int frameType, int revision, int frameSize,int headerSize,
 	       int itemSize, int nItems);
   virtual ~MFMNedaFrame();
-  virtual void SetPointers(void * pt =NULL);
   virtual void SetAttributs(void * pt =NULL);
   virtual void SetTimeStamp(uint64_t timestamp);
   virtual void SetEventNumber(uint32_t eventnumber);
   void SetTimeStampFromFrameData();
   void SetEventNumberFromFrameData();
+  
+  const char * GetTypeText()const {return MFM_NEDA_FRAME_TYPE_TXT;}
+  int GetDefinedUnitBlockSize()const {return NEDA_STD_UNIT_BLOCK_SIZE;};
+  int GetDefinedHeaderSize()const {return NEDA_HEADERSIZE;};
+  int GetItemSizeFromStructure(int type=0)const{ return sizeof (MFM_Neda_Item);};
+  int GetDefinedNbItems()const{ return NEDA_NB_OF_ITEMS;};
+  int GetDefinedFrameSize()  const{return NEDA_FRAMESIZE;} ;
+  
   virtual uint16_t GetBoardId()const;
-  bool HasBoardId() const { return true; }
+  bool HasBoardId() const {return true; }
   virtual uint16_t GetChannelId()const;
 
   virtual void SetLocationId(uint16_t Id);
@@ -110,13 +119,11 @@ class MFMNedaFrame : public MFMBasicFrame
   virtual void NedaSetParametersByItem(MFM_Neda_Item *item,uint16_t value);
   virtual void NedaGetParameters(int i, uint16_t *value)const;
   virtual void NedaSetParameters(int i, uint16_t value);
-  virtual void FillEventWithRamdomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-  virtual void GenerateANedaExample(int type,int32_t eventnumber);
+  void FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber,int nbitem);
   virtual string GetHeaderDisplay(char* infotext) const;
-  virtual string DumpData(char mode='d', bool nozero=false);
   virtual void InitStat() ;
   virtual void FillStat();
-  virtual string  GetStat(string info);
+  string  GetStat(string info)const;
   virtual void SetEndFrame(uint32_t end);
   virtual void FillEndOfFrame();
   virtual bool TestEndOfFrame()const;

@@ -17,25 +17,19 @@ using namespace std;
 //_______________________________________________________________________________
 MFMCoboFrame::MFMCoboFrame(int unitBlock_size, int dataSource, int frameType,
 		int revision, int frameSize, int headerSize, int itemSize, int nItems) {
-	fNbMaxItem = COBO_NB_AGET * COBO_NB_AGET_CHANNEL * COBO_NB_SAMPLES;
+
 	SetPointers();
 
 }
 //_______________________________________________________________________________
 MFMCoboFrame::MFMCoboFrame() {
-	fNbMaxItem = COBO_NB_AGET * COBO_NB_AGET_CHANNEL * COBO_NB_SAMPLES;
+
 }
 //_______________________________________________________________________________
 MFMCoboFrame::~MFMCoboFrame() {
 	//cout << "debug destructor of MFMCoboFrame::()\n";
 }
 
-//_______________________________________________________________________________
-void MFMCoboFrame::SetPointers(void * pt) {
-	MFMBasicFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
 //_______________________________________________________________________________
 void MFMCoboFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
@@ -55,35 +49,27 @@ void MFMCoboFrame::SetTimeStampFromFrameData() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 }
-//_______________________________________________________________________________________________________________________
-void MFMCoboFrame::ExtracInfoFrame(int verbose,int dumpsize){
-	int framesize = GetFrameSize();
-	if ((verbose > 1) ) {
-		HeaderDisplay();
-		if (verbose > 3) {
-			int dump = dumpsize;
-			if (framesize < dump)
-				dump = framesize;
-			DumpRaw(dump, 0);
-		}
-	}
+//_______________________________________________________________________________
+int  MFMCoboFrame::GetItemSizeFromStructure(int type)const {
+
+ if (type == MFM_COBO_FRAME_TYPE)
+	return(sizeof(MFM_coboItem));
+ if (type == MFM_COBOF_FRAME_TYPE)
+	return (sizeof(MFM_cobofItem));
+
 }
 //_______________________________________________________________________________
 string MFMCoboFrame::GetHeaderDisplay(char* infotext) const{
 	stringstream ss;
 	string display("");
 	display = ss.str();
-	
-	if (infotext==NULL)
-	ss << MFMBasicFrame::GetHeaderDisplay((char*)GetTypeText());
-	else
+
 	ss << MFMBasicFrame::GetHeaderDisplay(infotext);	
 	ss << "   CoboIdx = " << CoboGetCoboIdx();
 	ss << " CoboAsaIdx = " << CoboGetAsaIdx();
 	display = ss.str();
 	return display;
 }
-
 //_______________________________________________________________________________
 
 void MFMCoboFrame::SetEventNumberFromFrameData() {
@@ -95,8 +81,6 @@ void MFMCoboFrame::SetEventNumberFromFrameData() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
 }
-
-
 //_______________________________________________________________________________
 void MFMCoboFrame::SetTimeStamp(uint64_t timestamp) {
 	char* pts = (char*) &timestamp;
@@ -294,9 +278,9 @@ void MFMCoboFrame::CoboSetParameters(uint32_t sample, uint32_t buckidx,
 	int i = buckidx * (COBO_NB_AGET * COBO_NB_AGET_CHANNEL) + chanidx % 2
 			+ (chanidx / 2) * (COBO_NB_AGET * 2) + 2 * agetidx;
 
-	if (i >= fNbMaxItem) {
+	if (i >= GetDefinedNbItems()) {
 		std::ostringstream tempos;
-		tempos << "Index to hight " << i << " >= " << fNbMaxItem
+		tempos << "Index to hight " << i << " >= " << GetDefinedNbItems()
 				<< "  agetidx = " << agetidx << "  chanidx = " << chanidx
 				<< " " << "  buckidx = " << buckidx;
 		fError.TreatError(2, 0, (tempos.str()).data());
@@ -323,34 +307,34 @@ void MFMCoboFrame::CoboSetParametersByItem(MFM_coboItem *item, uint32_t sample,
 
 	if (type == MFM_COBO_FRAME_TYPE) {
 
-				// Methode to fill item in case of MFM_COBO_FRAME_TYPE frame
-				uint32_t ui, ui2;
-				ui2 = 0;
+		// Methode to fill item in case of MFM_COBO_FRAME_TYPE frame
+		uint32_t ui, ui2;
+		ui2 = 0;
 
-				//char * pt_ui = (char*) &ui;
-				char * pt_ui2 = (char*) &ui2;
-				//sample form 0 to 11
-				ui2 = sample & COBO_SAMPLE_MASK;
+		//char * pt_ui = (char*) &ui;
+		char * pt_ui2 = (char*) &ui2;
+		//sample form 0 to 11
+		ui2 = sample & COBO_SAMPLE_MASK;
 
-				//buckdx from 14 to 22
-				ui = buckidx & COBO_BUCKIDX_MASK;
-				ui = ui << 14;
-				ui2 = ui2 | ui;
+		//buckdx from 14 to 22
+		ui = buckidx & COBO_BUCKIDX_MASK;
+		ui = ui << 14;
+		ui2 = ui2 | ui;
 
-				//chanidx from 23 to 29
-				ui = chanidx & COBO_CHANIDX_MASK;
-				ui = ui << 23;
-				ui2 = ui2 | ui;
+		//chanidx from 23 to 29
+		ui = chanidx & COBO_CHANIDX_MASK;
+		ui = ui << 23;
+		ui2 = ui2 | ui;
 
-				//agetidx from 30 to 31
-				ui = agetidx & COBO_AGETIDX_MASK;
-				ui = ui << 30;
-				ui2 = ui2 | ui;
+		//agetidx from 30 to 31
+		ui = agetidx & COBO_AGETIDX_MASK;
+		ui = ui << 30;
+		ui2 = ui2 | ui;
 
-				memcpy((char*) item, pt_ui2, fItemSize);
-			}else{
-				fError.TreatError(2,0,"MFMCoboFrame::CoboSetParametersByItem not a MFM_COBO_FRAME_TYPE ");
-			}
+		memcpy((char*) item, pt_ui2, fItemSize);
+		}else{
+			fError.TreatError(2,0,"MFMCoboFrame::CoboSetParametersByItem not a MFM_COBO_FRAME_TYPE ");
+	}
 
 }
 //_______________________________________________________________________________
@@ -377,27 +361,31 @@ void MFMCoboFrame::CoboSetParametersByItem(MFM_cobofItem *item,
 		fError.TreatError(2,0,"MFMCoboFrame::CoboSetParametersByItem not a MFM_COBOF_FRAME_TYPE ");
 	}
 }
-
+	
 //_______________________________________________________________________________
-void MFMCoboFrame::FillEventWithRamp(uint32_t samplemax, uint32_t channelmax,
-		uint32_t agetmax, uint64_t timestamp, uint32_t enventnumber,
-		uint32_t type) {
-
+void MFMCoboFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
+		// fill data but in this case we fill with a rampe and not with random data
+        uint32_t samplemax= COBO_NB_SAMPLES;
+        uint32_t cobo_nb_sample = COBO_NB_SAMPLES; // il pourrait varier mais on le fixe poru la simul
+        uint32_t channelmax= COBO_NB_AGET_CHANNEL;
+        uint32_t agetmax = COBO_NB_AGET;
 	uint32_t count;
 	count = 0;
+	
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
+	int static increment =0;
 	int i, j;
 	uint32_t value;
 	uint32_t asad;
+	uint32_t type = GetWantedFrameType();
 	asad = CoboGetAsaIdx();
-		for (i = 0; i < COBO_NB_AGET; i++) {
-			for (j = 0; j < COBO_NB_AGET_CHANNEL; j++) {
-				fNbentries[i][j] = 0;
-				fCoef[i][j] = (int) (rand()%23)+1;
-			}
+	for (i = 0; i < COBO_NB_AGET; i++) {
+		for (j = 0; j < COBO_NB_AGET_CHANNEL; j++) {
+			fNbentries[i][j] = 0;
+			fCoef[i][j] = (int) (rand()%23)+1;
 		}
-
+	}
 
 	for (uint32_t ageti = 0; ageti < agetmax; ageti++) {
 		for (uint32_t channeli = 0; channeli < channelmax; channeli++) {
@@ -431,87 +419,26 @@ void MFMCoboFrame::FillEventWithRamp(uint32_t samplemax, uint32_t channelmax,
 						<< fNbentries[i][j] << "\n";
 		}
 	}
-
-}
-//_______________________________________________________________________________
-void MFMCoboFrame::GenerateACoboExample(int type, int eventnumber,
-		int asadnumber) {
-	// generate a example of coba frame
-
-	uint32_t cobo_nb_sample = COBO_NB_SAMPLES;
-	//cobo_nb_sample=128;
-	uint32_t cobo_aget_channel = COBO_NB_AGET_CHANNEL;
-	uint32_t cobo_nb_aget = COBO_NB_AGET;
-	uint32_t unitBlock_size = COBO_STD_UNIT_BLOCK_SIZE;
-	uint32_t headersize = 128;
-	uint32_t itemsize = 4;
-	uint32_t nbitem = cobo_nb_sample * cobo_aget_channel * cobo_nb_aget;
-	uint32_t revision = 4;
-
-	if (type == MFM_COBO_FRAME_TYPE)
-			itemsize = sizeof(MFM_coboItem);
-		if (type == MFM_COBOF_FRAME_TYPE)
-			itemsize = sizeof(MFM_cobofItem);
-	uint32_t framesize = nbitem * itemsize + headersize;
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	MFM_make_header(unitBlock_size, 0, type, revision, (int) (framesize
-			/ unitBlock_size), (headersize / unitBlock_size), itemsize, nbitem);
-	CoboSetAsaIdx(asadnumber);
 	CoboSetReadOffset(COBO_NB_SAMPLES-cobo_nb_sample);
-	FillEventWithRamp(cobo_nb_sample, cobo_aget_channel, cobo_nb_aget,
-			GetTimeStampUs(), eventnumber, type);
-
+	CoboSetAsaIdx((increment++) % COBO_NB_ASAD);
 }
-//_______________________________________________________________________________________________________________________
-void MFMCoboFrame::WriteRandomFrame(int lun, int nbframe,int verbose, int dumsize, bool full) {
-	int32_t unitBlock_size = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-	int type;
-	MError Error;
-	if (full == false)
-		type = MFM_COBO_FRAME_TYPE;
-	else
-		type = MFM_COBOF_FRAME_TYPE;
-	for (int i = 0; i < nbframe; i++) {
-		GenerateACoboExample(type, i, fEventNumber % COBO_NB_ASAD);
-		if (verbose > 1) HeaderDisplay();
-			
-		framesize = GetFrameSize();
-		SetAttributs();
-		FillStat();
-		int dump = dumsize;
-		if (
-		framesize < dump)
-			dump = framesize;
-		if (verbose > 3)
-			DumpRaw(dump, 0);
 
-		verif = write(lun, GetPointHeader(), framesize);
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-		fEventNumber++;
-	}
-
-}
 //_______________________________________________________________________________
 void MFMCoboFrame::InitStat() {
 	MFMCommonFrame::InitStat();
 	fCountCoboFrame.reserve(8);
 	fCountEmptyCoboFrame.reserve(8);
 	int i;
-    for ( i= 0;i<8;i++){
-	        	fCountCoboFrame[i]=0;
-	        	fCountEmptyCoboFrame[i]=0;
+    	for ( i= 0;i<8;i++){
+	        fCountCoboFrame[i]=0;
+	       	fCountEmptyCoboFrame[i]=0;
 	        }
 }
 //____________________________________________________________________
 void MFMCoboFrame::FillStat() {
+
 	MFMCommonFrame::FillStat();
-    int cobo= CoboGetCoboIdx();
+    	int cobo= CoboGetCoboIdx();
 	int asad= CoboGetAsaIdx();
 	int indice;
 	indice = cobo*4*cobo +asad ;
@@ -521,20 +448,16 @@ void MFMCoboFrame::FillStat() {
 	if (framesize==headersize)fCountEmptyCoboFrame[indice]++;
 }
 //____________________________________________________________________
-string MFMCoboFrame::GetStat(string info  ){
+string MFMCoboFrame::GetStat(string info  )const {
 	string display("");
 	stringstream ss("");
 	ss <<MFMCommonFrame::GetStat( info);
 	if (GetCountFrame()!=0)
 	for ( int i=0;i<8; i++){
-							ss << "Number of CoboFrame (cobo = "<<i/4<<", asad = "<<i%4<<") = "<<fCountCoboFrame[i]<<endl;
-							ss << " included number of empty cobo frame ( headersize = framesize)"<<fCountEmptyCoboFrame[i]<<endl;
-						}
+		ss << "Number of CoboFrame (cobo = "<<i/4<<", asad = "<<i%4<<") = "<<fCountCoboFrame[i]<<endl;
+		ss << " included number of empty cobo frame ( headersize = framesize)"<<fCountEmptyCoboFrame[i]<<endl;
+	}
 	display = ss.str();
 	return display;
-}
-//____________________________________________________________________
-void MFMCoboFrame::PrintStat(string info ){
-cout << (GetStat(info));
 }
 //____________________________________________________________________

@@ -30,12 +30,7 @@ MFMMutantFrame::MFMMutantFrame() {
 MFMMutantFrame::~MFMMutantFrame() {
 	/// destructor of Mutant frame
 }
-//_______________________________________________________________________________
-void MFMMutantFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
+
 //_______________________________________________________________________________
 void MFMMutantFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
@@ -87,7 +82,7 @@ void MFMMutantFrame::SetTriggerInfo(uint16_t trig) {
 	(((MFM_mut_frame*) pHeader)->MutData.TriggerInfo) = trig;
 }
 //_______________________________________________________________________________
-uint16_t MFMMutantFrame::GetTriggerInfo() {
+uint16_t MFMMutantFrame::GetTriggerInfo() const{
 	uint16_t trig;
 	trig = (((MFM_mut_frame*) pHeader)->MutData.TriggerInfo);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
@@ -105,7 +100,7 @@ void MFMMutantFrame::SetMultiplicity(int i, uint16_t mult) {
 	}
 }
 //_______________________________________________________________________________
-uint16_t MFMMutantFrame::GetMultiplicity(int i) {
+uint16_t MFMMutantFrame::GetMultiplicity(int i) const{
 
 	uint16_t mutiblicity = 0;
 	if (i < 0 and i > MUT_NB_MULTIPLICITY) {
@@ -127,7 +122,7 @@ void MFMMutantFrame::SetEvtCount(int i, uint32_t count) {
 		((MFM_mut_frame*) pHeader)->MutData.EvtCount[i] = count;
 }
 //_______________________________________________________________________________
-uint32_t MFMMutantFrame::GetEvtCount(int i) {
+uint32_t MFMMutantFrame::GetEvtCount(int i) const {
 	uint32_t count;
 	if (i < 0 and i > MUT_NB_EVTCOUNT) {
 		cout << "MFMMutantFrame::GetEvtCount Error of index\n";
@@ -147,7 +142,7 @@ void MFMMutantFrame::SetScaler(int i, uint32_t scaler) {
 		((MFM_mut_frame*) pHeader)->MutData.Scaler[i] = scaler;
 }
 //_______________________________________________________________________________
-uint32_t MFMMutantFrame::GetScaler(int i) {
+uint32_t MFMMutantFrame::GetScaler(int i)const {
 	uint32_t scaler = 0;
 	if (i < 0 and i > MUT_NB_SCALER) {
 		cout << "MFMMutantFrame::GetScaler Error of index\n";
@@ -166,7 +161,7 @@ void MFMMutantFrame::SetD2pTime(uint32_t d2ptime) {
 }
 
 //_______________________________________________________________________________
-uint32_t MFMMutantFrame::GetD2pTime() {
+uint32_t MFMMutantFrame::GetD2pTime()const {
 	uint32_t d2ptime = 0;
 	d2ptime = (((MFM_mut_frame*) pHeader)->MutData.D2pTime);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
@@ -175,7 +170,7 @@ uint32_t MFMMutantFrame::GetD2pTime() {
 }
 
 //_______________________________________________________________________________
-void MFMMutantFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMMutantFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
@@ -198,18 +193,18 @@ void MFMMutantFrame::FillEventRandomConst(uint64_t timestamp,
 	SetTimeStamp(timestamp);
 }
 //_______________________________________________________________________________
-string MFMMutantFrame::GetHeaderDisplay(char* infotext) {
+string MFMMutantFrame::GetHeaderDisplay(char* infotext)const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
+	//if (fVerbose)>9)
+	ss << DumpData();
 	display = ss.str();
 	return display;
 }
 //_______________________________________________________________________________
-string MFMMutantFrame::DumpData(char mode, bool nozero) {
+string MFMMutantFrame::DumpData()const {
 	// Dump parameter Label and parameter value of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -219,9 +214,9 @@ string MFMMutantFrame::DumpData(char mode, bool nozero) {
 
 	int i;
 	char tempo[255];
-	sprintf(tempo, "\n|Tigger= %u|\n",GetTriggerInfo());
+	sprintf(tempo, "\n   |Tigger= %u ",GetTriggerInfo());
 	ss << tempo;
-	sprintf(tempo, "|GetD2pTime = %u|\n", GetD2pTime());
+	sprintf(tempo, "|GetD2pTime = %u ", GetD2pTime());
 	ss << tempo;
 	sprintf(tempo, "|Multiplicity A and B = ");
 	ss << tempo;
@@ -229,16 +224,16 @@ string MFMMutantFrame::DumpData(char mode, bool nozero) {
 		sprintf(tempo, " %u ", GetMultiplicity(i));
 		ss << tempo;
 	}
-	ss << " |\n| Scalers = ";
+	ss << " |\n   | Scalers = ";
 	for (i = 0; i < MUT_NB_SCALER; i++){
 		sprintf(tempo, " %u ",GetScaler(i));
 		ss << tempo;
 	}
-	ss << " |\n| EvCount = ";
+	ss << " |\n   | EvCount = ";
 	for (i = 0; i < MUT_NB_EVTCOUNT; i++){
 			sprintf(tempo, " %u ",GetEvtCount(i));
 			ss << tempo;
-	}ss << " |\n";
+	}ss << " |";
 
 	display = ss.str();
 	return display;

@@ -46,7 +46,7 @@ MError::~MError() {
 }
 //_____________________________________________________________________________
 void MError::Infos(const char *message, const char *message2,
-		const char* comment) {
+		const char* comment)const {
 	// call :TreatError(int level,int status , char *message,char* comment )
 	TreatError(0, 0, message, message2, comment);
 }
@@ -56,13 +56,13 @@ void MError::Barre() {
 	cout<<"-----------------------------------------------------------------------------------\n";
 }
 //_____________________________________________________________________________
-void MError::Infos(string *message, string *message2, string* comment) {
+void MError::Infos(string *message, string *message2, string* comment)const {
 	// call :TreatError(int level,int status , char *message,char* comment )
 	TreatError(0, 0, message, message2, comment);
 }
 //_____________________________________________________________________________
 void MError::TreatError(int level, int status, string *message,
-		string *message2, string* comment) {
+		string *message2, string* comment)const {
 	// call :TreatError(int level,int status , char *message,char* comment )
 	if (message  == NULL) return;
 	if (message2 == NULL){
@@ -88,7 +88,7 @@ void MError::SetDebugVerbose(int level) {
 //_____________________________________________________________________________
 
 void MError::TreatError(int level, int status, const char *message,
-		const char *message2, const char* comment) {
+		const char *message2, const char* comment)const {
 	// Level = 0 info
 	//         1 warnig
 	//         2 Error
@@ -179,7 +179,7 @@ void MError::TreatError(int level, int status, const char *message,
 
 //_____________________________________________________________________________
 void MError::TreatDebug(int level, int status, string *message,
-		string *message2, string* comment) {
+		string *message2, string* comment) const{
 	// call :TreatDebug(int level,int status , string *message,string* comment )
 	if (message  == NULL) return;
 	if (message2 == NULL){
@@ -197,7 +197,7 @@ void MError::TreatDebug(int level, int status, string *message,
 
 //_____________________________________________________________________________
 void MError::TreatDebug(int level, int status, const char *message,
-		const char *message2, const char* comment) {
+		const char *message2, const char* comment) const {
 	//         1 ->10
 
 	string WorE;

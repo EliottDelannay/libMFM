@@ -30,6 +30,7 @@
 #define COBO_NB_SAMPLES   512 // nb of bin in each channel (bucket)
 #define COBO_NB_EVTTIME     6 // Nb of bytes of event time
 #define COBO_NB_EVTNB       4 // Nb of bytes of event number
+#define COBO_NB_MAX_ITEM  COBO_NB_AGET * COBO_NB_AGET_CHANNEL * COBO_NB_SAMPLES;
 
 #endif
 

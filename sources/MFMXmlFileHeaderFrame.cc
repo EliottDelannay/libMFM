@@ -78,9 +78,22 @@ void MFMXmlFileHeaderFrame::SetEventNumber(uint32_t eventnumber) {
 	/// Set Event Number of frame
 
 }
-
 //_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::FillExampleOfText() {
+void MFMXmlFileHeaderFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber){
+	// fill frame with example given in FillExampleOfText()
+	string text;
+	text =  FillExampleOfText() ;
+	int size = text.size();
+	cout << " size of xml text"<<size<<"\n";
+	SetBufferSize(size + MFM_BLOB_HEADER_SIZE );
+	strcpy((char*)(text.data()),(const char*)GetText());
+}
+//_______________________________________________________________________________
+char*  MFMXmlFileHeaderFrame::GetText(){
+return ((char*)  &(((MFM_XmlFile_header_frame*) pHeader)->Data));
+}
+//_______________________________________________________________________________
+string MFMXmlFileHeaderFrame::FillExampleOfText() {
 
 	/// Fill text fied wiht a example
 	string text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -104,7 +117,7 @@ void MFMXmlFileHeaderFrame::FillExampleOfText() {
 	text += "</software>";
 	text += "<user_comment>comment</user_comment>";
 	text += "</File_Header>";
-
+return text;
 }
 
 //_______________________________________________________________________________

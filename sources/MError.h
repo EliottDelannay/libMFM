@@ -59,25 +59,25 @@ using namespace std;
 class MError{
  private:
   int fVerbose;
-  int fNbError; // number of critical errors
-  int fNbCriticalError; // number of critical errors
-  int fNbCriticalErrorMax; // number of critical errors
-  int fNbWarning; // number of warning
-  int fNbInfo; // number of infon
-  int fNbDebug; // number of debug
+  mutable int fNbError; // number of critical errors
+  mutable int fNbCriticalError; // number of critical errors
+  mutable int fNbCriticalErrorMax; // number of critical errors
+  mutable int fNbWarning; // number of warning
+  mutable int fNbInfo; // number of infon
+  mutable int fNbDebug; // number of debug
   int fBidon;// pour alignement
 
  public :
   MError();   // default constructor of MError object
   ~MError();   // destructor of MError
-  virtual void Infos( const char *message,const char *message2=NULL, const char* comment=NULL); 
-  virtual void Infos( string *message,  string *message2=NULL,string * comment=NULL);
+  virtual void Infos( const char *message,const char *message2=NULL, const char* comment=NULL) const; 
+  virtual void Infos( string *message,  string *message2=NULL,string * comment=NULL)const;
   virtual void Barre();
-  virtual void TreatError(int level,int status , const char *message, const char *message2=NULL, const char* comment =NULL);
-  virtual void TreatError(int level,int status , string *message,  string    *message2=NULL, string *    comment =NULL);
+  virtual void TreatError(int level,int status , const char *message, const char *message2=NULL, const char* comment =NULL)const;
+  virtual void TreatError(int level,int status , string *message,  string    *message2=NULL, string *    comment =NULL)const;
   
-  virtual void TreatDebug(int level,int status, const char *message, const char *message2=NULL, const char* comment =NULL);
-  virtual void TreatDebug(int level,int status, string *message,    string    *message2=NULL, string *    comment =NULL);
+  virtual void TreatDebug(int level,int status, const char *message, const char *message2=NULL, const char* comment =NULL)const;
+  virtual void TreatDebug(int level,int status, string *message,    string    *message2=NULL, string *    comment =NULL)const;
   
   virtual void SetDebugVerbose (int level);
   

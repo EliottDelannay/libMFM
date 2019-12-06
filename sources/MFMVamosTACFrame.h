@@ -6,12 +6,12 @@
 	Copyright Acquisition group, GANIL Caen, France
 
 */
-#define VAMOSTAC_FRAMESIZE 32
+
 #define VAMOSTAC_HEADERFRAMESIZE 18
 
 #define VAMOSTAC_NB_STATUS 2
 #define VAMOSTAC_STD_UNIT_BLOCK_SIZE 4
-
+#define MFM_VAMOSTAC_FRAME_TYPE_TXT "MFM_VAMOSTAC_FRAME_TYPE"
 
 #include "MFMNumExoFrame.h"
 #pragma pack(push, 1) // force alignment
@@ -45,18 +45,25 @@ struct MFM_TACvamos_frame{
 class MFMVamosTACFrame : public MFMNumExoFrame
 {
 public :
-virtual void      SetStatus(int i, uint16_t status);
-virtual uint16_t  GetStatus(int i)const;
 
-virtual void      SetTime(uint16_t time);
-virtual uint16_t  GetTime()const;
-virtual void      SetChecksum(uint16_t cksum);
-virtual uint16_t  GetChecksum()const;
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
 
-virtual void 	  InitStat();
-virtual void 	  FillStat();
-virtual string    GetStat(string info);
+
+ const char * GetTypeText()const {return MFM_VAMOSTAC_FRAME_TYPE_TXT;} 
+ int GetDefinedUnitBlockSize()const {return MFM_UNIT_BLOCK_DEFAULT_SIZE;};
+
+
+ void      SetStatus(int i, uint16_t status);
+ uint16_t  GetStatus(int i)const;
+
+ void      SetTime(uint16_t time);
+ uint16_t  GetTime()const;
+ void      SetChecksum(uint16_t cksum);
+ uint16_t  GetChecksum()const;
+ void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t enventnumber=0);
+
+ void 	  InitStat();
+ void 	  FillStat();
+ string   GetStat(string info)const;
 
 };
 #pragma pack(pop) // free aligment

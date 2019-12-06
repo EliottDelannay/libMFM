@@ -41,74 +41,24 @@ MFMEbyedatFrame::~MFMEbyedatFrame() {
 	if (fNbLabels) delete [] fNbLabels;
 }
 //_______________________________________________________________________________
-void MFMEbyedatFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMBasicFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
-//_______________________________________________________________________________
 void MFMEbyedatFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
 	SetEventNumberFromFrameData();
 	SetTimeStampFromFrameData();
 }
-//________________________________________________________________________________
-void MFMEbyedatFrame::ExtractInfoFrame(int verbose,int dumpsize) {
-// Print info form frame
-	int framesize = GetFrameSize();
-	if (verbose > 1) {
-		HeaderDisplay();
-		int dump = dumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (verbose > 3)
-			DumpRaw(dump, 0);
-	}
-}
+
 //_______________________________________________________________________________
 string MFMEbyedatFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
-	if (infotext==NULL)
-	ss << MFMBasicFrame::GetHeaderDisplay((char*)GetTypeText());
-	else
 	ss << MFMBasicFrame::GetHeaderDisplay(infotext);
    	 if(IsParameterPresent("TIMEH")){
    	 //    ss << MFMCommonFrame::indentation << "   CENTRUM-TS = " << GetCENTRUMTimestamp() << " (0x" << hex << GetCENTRUMTimestamp() << ")";
    	 }
 	display = ss.str();
 	return display;
-}
-
-//_______________________________________________________________________________________________________________________
- void MFMEbyedatFrame::WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize,int type){
-	uint32_t framesize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-        
-	for (int i = 0; i <nbframes; i++) {
-		GenerateAEbyedatExample(type, i);
-		SetAttributs();
-		framesize =GetFrameSize();
-		FillStat();
-		if (verbose > 1)
-			HeaderDisplay();
-		int dump = dumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (verbose > 3)
-			DumpRaw(dump, 0);
-
-		verif = write(lun, GetPointHeader(), framesize);
-		if (verif != framesize)
-			fError.TreatError(2, 0, "Error of write");
-	}
 }
 //_______________________________________________________________________________ 
   bool MFMEbyedatFrame::IsParameterPresent(const string & name) const {
@@ -239,18 +189,16 @@ void MFMEbyedatFrame::EbyedatSetParametersByItem(MFM_EbyedatItem *item,
 	item->Value = value;
 }
 //_______________________________________________________________________________
-void MFMEbyedatFrame::FillEventWithRamdomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMEbyedatFrame::FillDataWithRamdomValue(uint64_t timestamp,
+		uint32_t enventnumber,int nbitem ) {
 	/// Fill frame items with random values
 	//  in this case the nume
- 	int  nbitem =GetNbItems();
-
+	
     	int max_value = 16384; // nous nous basons sur 14 bits comme beaucoup de cartes electoniques
 	float randval;
 	uint16_t i = 0;
 	if (nbitem > 0)
 		EbyedatSetParameters(0, 1, 1);
-
 	for (i = 1; i < nbitem; i++) {
 		randval = random();
 		uint16_t uivalue = (uint16_t) (max_value * randval / RAND_MAX);
@@ -259,7 +207,30 @@ void MFMEbyedatFrame::FillEventWithRamdomConst(uint64_t timestamp,
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 }
+//_______________________________________________________________________________
+int  MFMEbyedatFrame::GetDefinedHeaderSize() const {
+/// return value of fixed Header Size which depend on type or wanted type
 
+	int type = 0;
+	int headersize;
+		type = GetFrameType();
+	if (type == 0)
+		type = GetWantedFrameType();
+	if (type == 0) 
+		fError.TreatError(2, 0, "MFMEbyedatFrame::GetDefinedHeaderSize, type is 0");
+	
+	if (type == MFM_EBY_EN_FRAME_TYPE) {
+		headersize = EBYEDAT_EN_HEADERSIZE;
+	}
+	if (type == MFM_EBY_TS_FRAME_TYPE) {
+		headersize = EBYEDAT_TS_HEADERSIZE;
+	}
+	if (type == MFM_EBY_EN_TS_FRAME_TYPE) {
+		headersize = EBYEDAT_ENTS_HEADERSIZE;
+	}
+	return headersize;
+}
+/*
 //_______________________________________________________________________________
 
 void MFMEbyedatFrame::GenerateAEbyedatExample(int type, int eventnumber) {
@@ -267,8 +238,7 @@ void MFMEbyedatFrame::GenerateAEbyedatExample(int type, int eventnumber) {
 	/// usable for tests.
 	if ((type != MFM_EBY_EN_FRAME_TYPE) and (type != MFM_EBY_TS_FRAME_TYPE)
 			and (type != MFM_EBY_EN_TS_FRAME_TYPE)) {
-		cout
-				<< "Error in  MFMEbyedatFrame::GenerateAEbyedatExample type not understood\n";
+		fError.TreatError(2, 0, "Error in  MFMEbyedatFrame::GenerateAEbyedatExample type not understood\n");
 		return;
 	}
 
@@ -296,10 +266,10 @@ void MFMEbyedatFrame::GenerateAEbyedatExample(int type, int eventnumber) {
 	MFM_make_header(unitBlock_size, 0, type, revision, (int) (framesize
 			/ unitBlock_size), (headersize / unitBlock_size), itemsize, nbitem);
 	FillEventWithRamdomConst(GetTimeStampUs(), eventnumber);
-}
+}*/
 //____________________________________________________________________________
 
-string MFMEbyedatFrame::DumpData(char mode, bool nozero) const {
+string MFMEbyedatFrame::GetDumpData(char mode, bool nozero) const {
 	// Dump parameter Label and parameter value of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -420,7 +390,7 @@ string MFMEbyedatFrame::GetStat(string info) const {
 	ss << MFMCommonFrame::GetStat(info);
 	display = ss.str();
 	//return display;
-    int total =0;
+        int total =0;
 	uint16_t i ;
 	for (i = 0;  i<  fNbPara;i++){
 		ss << "Indice : "<< i << "   Label :"<< fIndiceLabel[i] <<"  Nb : "<< fNbLabels[i]<<endl;

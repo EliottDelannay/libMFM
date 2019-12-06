@@ -16,7 +16,7 @@
 #define VAMOSPD_NB_VALUE 64
 #define VAMOSPD_STD_UNIT_BLOCK_SIZE 4
 #define VAMOSPD_NB_CHANNEL 2048
-
+#define MFM_VAMOSPD_FRAME_TYPE_TXT "MFM_VAMOSPD_FRAME_TYPE" 
 #include "MFMBlobFrame.h"
 
 #pragma pack(push, 1) // force alignment
@@ -62,39 +62,43 @@ MFMVamosPDFrame();
 MFMVamosPDFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMVamosPDFrame();
-virtual void SetPointers(void * pt =NULL);
 
 virtual void SetAttributs(void * pt =NULL);
-
+void SetUserDataPointer() ;
+ 
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL);
+void SetTimeStamp(uint64_t timestamp);
+void SetEventNumber(uint32_t eventnumber);
+  
+ string GetHeaderDisplay(char* infotext=NULL)const ;
+  const char * GetTypeText()const    {return MFM_VAMOSPD_FRAME_TYPE_TXT;} 
+  int GetDefinedUnitBlockSize()const {return VAMOSPD_STD_UNIT_BLOCK_SIZE;};
+  int GetDefinedHeaderSize()const    {return VAMOSPD_HEADERFRAMESIZE;};
+  int GetDefinedFrameSize()const     {return VAMOSPD_FRAMESIZE;};
 
 void     SetCristalId(uint16_t cristalId) ;
 void     SetCristalId(uint16_t tgRequest, uint16_t idBoard);
-uint16_t GetCristalId();
-uint16_t GetTGCristalId();
-uint16_t GetBoardId();
+uint16_t GetCristalId() const;
+uint16_t GetTGCristalId()const;
+uint16_t GetBoardId()const;
 bool     HasBoardId(){return true;};
 
-virtual void      SetLabel(int i, uint16_t Label);
-virtual uint16_t  GetLabel(int i);
-virtual void      SetEnergy(int i, uint16_t energy);
-virtual uint16_t  GetEnergy(int i);
-virtual void      GetParameters(int i, uint16_t *label, uint16_t* value);
-virtual void      SetLocalCount(uint16_t count);
-virtual uint16_t  GetLocalCount();
-virtual void      SetChecksum(uint16_t cksum);
-virtual uint16_t  GetChecksum();
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
+ void      SetLabel(int i, uint16_t Label);
+ uint16_t  GetLabel(int i)const;
+ void      SetEnergy(int i, uint16_t energy);
+ uint16_t  GetEnergy(int i)const;
+ void      GetParameters(int i, uint16_t *label, uint16_t* value)const;
+ void      SetLocalCount(uint16_t count);
+ uint16_t  GetLocalCount()const;
+ void      SetChecksum(uint16_t cksum);
+ uint16_t  GetChecksum()const;
+ void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber);
 
-virtual string DumpData(char mode, bool nozero);
-virtual void   PrintStat(string info);
-virtual string GetStat(string info);
-virtual void   FillStat();
-virtual void   InitStat();
+ string DumpData(char mode, bool nozero)const;
+ string GetStat(string info)  const;
+ void   FillStat();
+ void   InitStat();
 
 };
 #pragma pack(pop) // free aligment

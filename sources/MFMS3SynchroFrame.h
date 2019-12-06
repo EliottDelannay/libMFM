@@ -13,7 +13,7 @@
 
 #pragma pack(push, 1) // force alignment
 
-
+#define MFM_S3_SYNC_FRAME_TYPE_TXT "MFM_S3_SYNC_FRAME_TYPE"
 
 struct MFM_syncho_data{
   uint16_t CristalId ;
@@ -40,11 +40,11 @@ MFMS3SynchroFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMS3SynchroFrame();
 
-virtual void      SetPeriod(uint64_t period);
-virtual uint64_t  GetPeriod();
+ void      SetPeriod(uint64_t period);
+ uint64_t  GetPeriod();
 
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
+void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+const char * GetTypeText()const {return MFM_S3_SYNC_FRAME_TYPE_TXT;};
 };
 #pragma pack(pop) // free aligment
 #endif

@@ -33,13 +33,6 @@ MFMOscilloFrame::~MFMOscilloFrame() {
 		delete [] fCountNbEventCard;
 		fCountNbEventCard =NULL;
 	}
-
-}
-//_______________________________________________________________________________
-void MFMOscilloFrame::SetPointers(void * pt) {
-	MFMBasicFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetAttributs(void * pt) {
@@ -47,7 +40,6 @@ void MFMOscilloFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
 }
-
 //_______________________________________________________________________________
 void MFMOscilloFrame::OscilloGetParameters(int i,uint16_t *value) {
 	OscilloGetParametersByItem((MFM_OscilloItem *) GetItem(i), value);
@@ -59,11 +51,10 @@ void MFMOscilloFrame::OscilloGetParametersByItem(MFM_OscilloItem *item,uint16_t 
 		SwapInt16(&tmp);
 	*value = tmp;
 }
-
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfig(uint16_t config){
   /// Set all Config
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config = config;
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.Config = config;
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfig(uint16_t on_off,uint16_t basetime,uint16_t trig,uint16_t signal,uint16_t channel){
@@ -76,120 +67,122 @@ void MFMOscilloFrame::SetConfig(uint16_t on_off,uint16_t basetime,uint16_t trig,
 			((channel)&MFM_CONFIG_IDXCHAN_MSK);
 	 SetConfig(config);
 }
-
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfigOnOff(uint16_t onoff){
   /// Set  Config ON or OFF ( 1 or 0) in config
 	onoff=	onoff & MFM_CHANNELID_NUMBER_MSK;
-((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config =
-		(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config & (~MFM_CONFIG_ONOFF_MSK))
+((MFM_OscilloHeader*) pHeader)->EvtInfo.Config =
+		(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config & (~MFM_CONFIG_ONOFF_MSK))
 		| (onoff<<15);
 }
-
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfigTimeBase(uint16_t time){
 	/// Set Time base in config
 	time = (time <<11)& MFM_CONFIG_TIMEBASE_MSK;
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config =
-			(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config & (~MFM_CONFIG_TIMEBASE_MSK))
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.Config =
+			(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config & (~MFM_CONFIG_TIMEBASE_MSK))
 			| time;
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfigTrig(uint16_t trig){
 	/// Set Tring in config
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config =
-			(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config & (~MFM_CONFIG_TRIG_MSK))
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.Config =
+			(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config & (~MFM_CONFIG_TRIG_MSK))
 			| ((trig<<8) & MFM_CONFIG_TRIG_MSK);
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfigSignal(uint16_t signal){
 	/// set Signal in config
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config =
-			(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config & (~MFM_CONFIG_SIGNAL_MSK))
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.Config =
+			(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config & (~MFM_CONFIG_SIGNAL_MSK))
 			| ((signal<<5) & MFM_CONFIG_SIGNAL_MSK);
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetConfigChannelIdx(uint16_t idx){
 	/// return Channel idx from config
 	idx = idx & MFM_CHANNELID_NUMBER_MSK;
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config =
-			(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config & (~MFM_CHANNELID_NUMBER_MSK))
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.Config =
+			(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config & (~MFM_CHANNELID_NUMBER_MSK))
 			| idx ;
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfig(){
+uint16_t MFMOscilloFrame::GetConfig() const {
 	/// return all config word
-uint16_t tmp=(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.Config);
+uint16_t tmp=(((MFM_OscilloHeader*) pHeader)->EvtInfo.Config);
 	if (fLocalIsBigEndian!=fFrameIsBigEndian)
 		SwapInt16(&tmp);
 	return  tmp;
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfigOnOff(){
+uint16_t MFMOscilloFrame::GetConfigOnOff() const {
 	/// Get ON / OFF  bit from config
 	return ((GetConfig() & MFM_CONFIG_ONOFF_MSK)>>15);
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfigTimeBase(){
+uint16_t MFMOscilloFrame::GetConfigTimeBase() const {
 	/// return Time Base formconfig
 
 	return ((GetConfig() & MFM_CONFIG_TIMEBASE_MSK)>>11);
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfigTrig(){
+uint16_t MFMOscilloFrame::GetConfigTrig() const {
 	/// return trigger from config
 	return ((GetConfig() & MFM_CONFIG_TRIG_MSK)>>8);
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfigSignal(){
+uint16_t MFMOscilloFrame::GetConfigSignal() const {
 	/// return Signal from config
 	return ((GetConfig() & MFM_CONFIG_SIGNAL_MSK)>>5);
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetConfigChannelIdx(){
+uint16_t MFMOscilloFrame::GetConfigChannelIdx() const {
 	/// return ChannelIdx from config
 	return ((GetConfig() & MFM_CONFIG_IDXCHAN_MSK));
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetChannelIdxNumber(){
+uint16_t MFMOscilloFrame::GetChannelIdxNumber() const {
     /// return channel number(on/off,time base, trig, signal, channel idx)
 	return (MFM_CHANNELID_NUMBER_MSK & GetChannelIdx());
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetChannelIdxBoard(){
+uint16_t MFMOscilloFrame::GetChannelIdxBoard() const {
     /// return channel board index
 	return ((MFM_CHANNELID_BOARD_MSK& GetChannelIdx())>>5);
 }
 //_______________________________________________________________________________
-uint16_t MFMOscilloFrame::GetChannelIdx(){
+uint16_t MFMOscilloFrame::GetBoardId() const {
+         return GetChannelIdxBoard();
+}
+//_______________________________________________________________________________
+uint16_t MFMOscilloFrame::GetChannelIdx() const {
     /// return all channel index  (board index + channel number)
-    uint16_t tmp=(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx);
+    uint16_t tmp=(((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx);
 	if (fLocalIsBigEndian!=fFrameIsBigEndian)
 		SwapInt16(&tmp);
 	return  tmp;
 }
-/*
-//_______________________________________________________________________________
+
+/*//_______________________________________________________________________________
 
 void MFMOscilloFrame::SetChannelIdxNumber(uint16_t idx){
     /// return channel number shoulb be >=1 and <= 4
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx=
-			(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx & (~MFM_CHANNELID_NUMBER_MSK))
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx=
+			(((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx & (~MFM_CHANNELID_NUMBER_MSK))
 			| (idx & MFM_CHANNELID_NUMBER_MSK);
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetChannelIdxBoard(uint16_t idx){
     /// set channel number
-	cout <<" idx "<<idx<<" channelidx "<<((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx<<"\n";
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx=
-		(((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx & (~MFM_CHANNELID_BOARD_MSK))
+	cout <<" idx "<<idx<<" channelidx "<<((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx<<"\n";
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx=
+		(((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx & (~MFM_CHANNELID_BOARD_MSK))
 			| ((idx & MFM_CHANNELID_BOARD_MSK)<<5);
 }
 */
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetChannelIdx(uint16_t idx){
 	  /// Set channel number ( board index + channel number)
-	((MFM_OscilloHeader*) pHeader)->OscilloEvtInfo.ChannelIdx = idx;
+	((MFM_OscilloHeader*) pHeader)->EvtInfo.ChannelIdx = idx;
 }
 //_______________________________________________________________________________
 void MFMOscilloFrame::SetChannelIdx(uint16_t idxch,uint16_t idxboard){
@@ -231,7 +224,7 @@ string  MFMOscilloFrame::GetStat(string info){
 	string display("");
 	stringstream ss("");
 	ss << MFMCommonFrame::GetStat( info);
-    int i, j; int total =0;
+	int i, j; int total =0;
 
 	for ( i=0;i<65536;i++ ){
 
@@ -248,8 +241,6 @@ string  MFMOscilloFrame::GetStat(string info){
 	display = ss.str();
 	return display;
 }
-
-
 
 //_______________________________________________________________________________
 string MFMOscilloFrame::GetHeaderDisplay(char* infotext) {
@@ -272,19 +263,22 @@ string MFMOscilloFrame::GetHeaderDisplay(char* infotext) {
 }
 
 //_______________________________________________________________________________
-void MFMOscilloFrame::FillEventWithRamp(uint16_t channelIdx, uint16_t Config) {
-	uint16_t idxch =  ((channelIdx % 4 )+1);
-	SetChannelIdx(idxch,channelIdx);
-	SetConfigChannelIdx(channelIdx);
-	SetConfigOnOff(channelIdx%2);
+//void MFMOscilloFrame::MFMBasicFrame:FillDataWithRamdomValue(uint16_t channelIdx, uint16_t Config) {
+void MFMOscilloFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber,int nbitem ){
+	uint16_t boardid =116;
+	uint16_t Config =1;
+	uint16_t idxch =  1;
+	SetChannelIdx(idxch,boardid);
+	SetConfigChannelIdx(boardid);
+	SetConfigOnOff(1);
 	SetConfigTimeBase(15);
 	SetConfigTrig(1);
 	SetConfigSignal(2);
 
 	uint16_t j = 0;
 	int i = 0;
-	if  (GetNbItems()>0)
-	for (i = 0; i < GetNbItems(); i++) {
+	if  (nbitem>0)
+	for (i = 0; i < nbitem; i++) {
 		OscilloSetParameters(i,j++);
 	}
 }

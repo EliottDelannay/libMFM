@@ -73,8 +73,7 @@ void MFMS3BaF2Frame::SetSetup(uint16_t setup) {
 	return ((energy));
 }
 //_______________________________________________________________________________
-void MFMS3BaF2Frame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMS3BaF2Frame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -84,7 +83,7 @@ void MFMS3BaF2Frame::FillEventRandomConst(uint64_t timestamp,
 	((MFM_numexo_frame*) pHeader)->Data.Data2 = 0;
 	((MFM_numexo_frame*) pHeader)->Data.Data3 = 0;
 	SetEnergy((uint32_t) (enventnumber & 0x0000fff));
-	MFMNumExoFrame::FillEventRandomConst(timestamp,enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,enventnumber);
 }
 
 //_______________________________________________________________________________

@@ -26,7 +26,7 @@ void MFMBoxDiagFrame::SetStatus(int i, uint16_t status) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMBoxDiagFrame::GetStatus(int i) {
+uint16_t MFMBoxDiagFrame::GetStatus(int i) const{
 	/// Set Status (0,1 or 2)
 	uint16_t status;
 	if (i < 0 and i > BOX_DIAG_NB_STATUS) {
@@ -50,7 +50,7 @@ void MFMBoxDiagFrame::SetTimeStop(uint16_t timestop) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMBoxDiagFrame::GetTimeStop() {
+uint16_t MFMBoxDiagFrame::GetTimeStop() const{
 	/// Get Time
 	uint16_t time;
 	time = (((MFM_BoxDiag_frame*) pHeader)->Data.TimeStop);
@@ -67,7 +67,7 @@ void MFMBoxDiagFrame::SetEnergy(uint16_t energy) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMBoxDiagFrame::GetEnergy() {
+uint16_t MFMBoxDiagFrame::GetEnergy() const{
 	/// Get Energy
 	uint16_t energy;
 	energy = (((MFM_BoxDiag_frame*) pHeader)->Data.Energy);
@@ -83,7 +83,7 @@ void MFMBoxDiagFrame::SetTime(uint16_t time) {
 }
 //_______________________________________________________________________________
 
-uint16_t MFMBoxDiagFrame::GetTime() {
+uint16_t MFMBoxDiagFrame::GetTime() const{
 	/// Get Time
 	uint16_t time;
 	time = (((MFM_BoxDiag_frame*) pHeader)->Data.Time);
@@ -92,35 +92,32 @@ uint16_t MFMBoxDiagFrame::GetTime() {
 	return time;
 }
 //_______________________________________________________________________________
-
+/*
 void MFMBoxDiagFrame::SetChecksum(uint16_t cksum) {
 	/// Set Checksum data
 	(((MFM_BoxDiag_frame*) pHeader)->Data.Checksum) = cksum;
 }
 //_______________________________________________________________________________
 
-uint16_t MFMBoxDiagFrame::GetChecksum() {
+uint16_t MFMBoxDiagFrame::GetChecksum() const{
 	/// Compute and return value of Checksum
 	uint16_t cksum;
 	cksum = (((MFM_BoxDiag_frame*) pHeader)->Data.Checksum);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt16(&cksum);
 	return cksum;
-}
-
+}*/
 //_______________________________________________________________________________
-void MFMBoxDiagFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMBoxDiagFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
-	MFMNumExoFrame::FillEventRandomConst( timestamp, enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue( timestamp, enventnumber);
 	int value = random();
 	uint16_t uivalue = (uint16_t) (4294967296 * value / RAND_MAX);
 	SetTimeStop(uivalue+2);
 	SetEnergy(uivalue);
 	SetTime(uivalue+1);
-
 }
 //_______________________________________________________________________________
 

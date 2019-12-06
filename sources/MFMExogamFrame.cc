@@ -128,7 +128,11 @@ uint16_t MFMExogamFrame::ExoGetBoardId()const {
 /// Compute and return id value of Board
 	return ((ExoGetCristalId()>>5) & EXO_BOARD_ID_MASK);
 }
-
+//_______________________________________________________________________________
+uint16_t MFMExogamFrame::GetBoardId()const {
+/// Compute and return id value of Board
+	return (ExoGetBoardId());
+}
 //_______________________________________________________________________________
 
 void MFMExogamFrame::ExoSetStatus(int i, uint16_t status) {
@@ -390,7 +394,7 @@ void MFMExogamFrame::FillStat() {
 
 }
 //____________________________________________________________________
-string  MFMExogamFrame::GetStat(string info){
+string  MFMExogamFrame::GetStat(string info)const{
 
 	string display("");
 	stringstream ss("");
@@ -412,9 +416,9 @@ string  MFMExogamFrame::GetStat(string info){
 	display = ss.str();
 	return display;
 }
+
 //_______________________________________________________________________________
-void MFMExogamFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMExogamFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -424,74 +428,20 @@ void MFMExogamFrame::FillEventRandomConst(uint64_t timestamp,
 	for (i = 0; i < EXO_NB_MAX_PARA; i++) {
 		ExoSetPara(i, uivalue);
 	}
-	ExoSetCristalId(8,112);
+	ExoSetCristalId(8,116);
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 }
-//____________________________________________________________________________
-void  MFMExogamFrame::WriteRandomFrame(int lun, int nbframes,int verbose,int dumpsize){
-// write in file random frame
-	uint32_t unitBlock_size = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-        uint32_t eventNumber=0;
-        MError Error;
-	unitBlock_size = EXO_STD_UNIT_BLOCK_SIZE;
-	framesize = EXO_FRAMESIZE;
-	revision = 1;
 
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	MFM_make_header(unitBlock_size, 0, MFM_EXO2_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), true);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < nbframes; i++) {
-		timestamp = i;
-		eventNumber = i;
-		FillEventRandomConst(timestamp, eventNumber);
-		SetAttributs();
-		FillStat();
-		if (verbose > 1) HeaderDisplay();
-		int dump = dumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (verbose > 3) DumpRaw(dump, 0);
-		if (lun>0)
-		verif = write(lun, GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-	}
-}
-//_______________________________________________________________________________________________________________________
-void MFMExogamFrame::ExtractInfoFrame(int verbose,int dumpsize){
-// extract information Frames form a file
-        int framesize =GetFrameSize();
-	if ((verbose > 1) ) {
-		HeaderDisplay();
-		int dump = dumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (verbose > 3)
-			DumpRaw(dump, 0);
-	}
-}
 //_______________________________________________________________________________
 string MFMExogamFrame::GetHeaderDisplay(char* infotext)const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
-	if (infotext==NULL)
-	ss << MFMCommonFrame::GetHeaderDisplay((char*)GetTypeText());
-	else
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-
 	ss << "   Cristal Id ="<<ExoGetTGCristalId();
 	display = ss.str();
 	return display;
+//_______________________________________________________________________________
 }
 //_______________________________________________________________________________

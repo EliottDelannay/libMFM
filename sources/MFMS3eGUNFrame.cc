@@ -84,8 +84,7 @@ void MFMS3eGUNFrame::SetSetup(uint16_t i,uint16_t setup) {
 	return (grid);
 }
 //_______________________________________________________________________________
-void MFMS3eGUNFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMS3eGUNFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -95,7 +94,7 @@ void MFMS3eGUNFrame::FillEventRandomConst(uint64_t timestamp,
 	SetSetup(3,16381);
 	SetGrid((uint32_t) (enventnumber & 0x0000fff));
 	SetCup((uint32_t) (enventnumber & 0x0000fff));
-	MFMNumExoFrame::FillEventRandomConst(timestamp,enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,enventnumber);
 }
 
 //_______________________________________________________________________________

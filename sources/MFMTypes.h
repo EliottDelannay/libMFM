@@ -27,7 +27,6 @@
 #define MFM_VAMOSTAC_FRAME_TYPE 0x1D /// Vamos Time  Frame
 #define MFM_BOX_DIAG_FRAME_TYPE 0x1E /// Box Diagnostic
 
-
 #define MFM_EBY_EN_FRAME_TYPE   0x20 /// Ganil data frame with event number
 #define MFM_EBY_TS_FRAME_TYPE   0x21 /// Ganil data frame with time stamp
 #define MFM_EBY_EN_TS_FRAME_TYPE    0x22 /// Ganil data frame with time stamp and event number

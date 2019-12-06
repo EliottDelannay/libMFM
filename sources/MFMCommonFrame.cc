@@ -57,23 +57,24 @@ void MFMCommonFrame::Init() {
 	///
 	/// Initialization of MFMCommonFrame object\n
 	///
-	fFrameSize = 0;
-	fTimeDiff = 0;
+	fFrameSize   = 0;
+	fTimeDiff    = 0;
 	SetTimeDiffUs();
-	pData = NULL;
-	pDataNew = NULL;
-	pHeader = NULL;
-	fHeaderSize = MFM_BLOB_HEADER_SIZE;
+	pData        = NULL;
+	pDataNew     = NULL;
+	pHeader      = NULL;
+	fHeaderSize  = MFM_BLOB_HEADER_SIZE;
 	pReserveHeader = NULL;
-	pData_char = NULL;
-	fIncrement = 0;
-	fBufferSize = 0;
+	pData_char   = NULL;
+	fIncrement   = 0;
+	fBufferSize  = 0;
 	fSizeOfUnitBlock = 0;
 	fLocalIsBigEndian = (Endianness() == MFM_BIG_ENDIAN);
 	fFrameIsBigEndian = false;
-	fCountFrame = 0;
-	fTimeStamp =0;
-	fEventNumber =0;
+	fCountFrame  = 0;
+	fTimeStamp   = 0;
+	fEventNumber = 0;
+	fFrameType   = 0;
 }
 //_______________________________________________________________________________
 void MFMCommonFrame::SetUserDataPointer()
@@ -335,6 +336,7 @@ void MFMCommonFrame::SetDataSource(uint8_t source) {
 void MFMCommonFrame::SetFrameType(uint16_t frametype) {
 	/// Set type of frame
 	fFrameType = frametype;
+	if (pHeader!=NULL)
 	pHeader->hd.frameType = frametype;
 }
 
@@ -363,12 +365,14 @@ string MFMCommonFrame::GetHeaderDisplay(char* infotext) const{
 	string display("");
 	bool blob;
 	stringstream ss("");
+	
+
 	if ((pHeader->hd.metaType & MFM_BLOBNESS_MSK) == 0)
 		blob = false;
 	else
 		blob = true;
 	if (infotext == NULL)
-		ss << "MFM header, Type :" << GetTypeText() << " ";
+		ss << "Frame Type : " << GetTypeText() << " ";
 	else
 		ss << MFMCommonFrame::indentation << infotext;
 	ss << endl ;
@@ -382,11 +386,11 @@ string MFMCommonFrame::GetHeaderDisplay(char* infotext) const{
 			<< GetFrameType() << hex << "(0x" << GetFrameType()
 			<< ")" << "  revision = " << dec << (int) GetRevision() << hex
 			<< "(0x" << (int) GetRevision() << ")" << " pointer = "
-			<< (int*) GetPointHeader() << "\n";
+			<< (long long*) GetPointHeader() << "\n";
     	if(HasEventNumber()||HasTimeStamp()) ss << MFMCommonFrame::indentation;
     	if(HasEventNumber()) ss << "   EN = " << dec << GetEventNumber();
-    	if(HasTimeStamp()) ss << "   TS = " << dec << GetTimeStamp() << " (0x" << hex << GetTimeStamp() << ")";
-    	if(HasBoardId())   ss << "   Board =" << dec << GetBoardId() ;
+    	if(HasTimeStamp())   ss << "   TS = " << dec << GetTimeStamp() << " (0x" << hex << GetTimeStamp() << ")";
+    	if(HasBoardId())     ss << "   Board =" << dec << GetBoardId() ;
 	display = ss.str();
 	return display;
 }//_______________________________________________________________________________
@@ -523,9 +527,58 @@ void MFMCommonFrame::SetAttributsOn4Bytes(void * pt) {
 	SetUnitBlockSizeFromFrameData();
 	SetFrameSizeFromFrameData();
 }
-/*
+//_______________________________________________________________________________
+void MFMCommonFrame::ReadAttributsExtractFrame(int verbose,int dumpsize,void * pt){
+	SetAttributs(pt);
+	ExtractInfoFrame(verbose,dumpsize);
+	FillStat();
+	
+}
 //_______________________________________________________________________________
 
+void MFMCommonFrame::WriteRandomFrame(int lun,int  nbframe,int verbose,int dumpsize, int  type){
+/// write  frames in file with ramdom data
+	uint64_t ts;
+	int verif;
+	uint32_t framesize = 0;
+	SetWantedFrameType(type);
+	for (int i = 0; i < nbframe; i++) {
+		ts = GetTimeStampUs();
+		GenerateAFrameExample(ts, i);
+		ReadAttributsExtractFrame(verbose, dumpsize);
+		framesize=GetFrameSize();
+		verif = write(lun, GetPointHeader(), framesize);
+		if (verif != framesize)
+			fError.TreatError(2, 0, "Error of write");
+	}
+}
+//_______________________________________________________________________________
+
+void MFMCommonFrame::GenerateAFrameExample(uint64_t timestamp,uint32_t eventnumber) {
+	/// Generate a example of frame containing random value\n
+	/// usable for tests.
+
+
+	uint32_t unitBlock_size = GetDefinedUnitBlockSize();;
+	uint16_t type       = GetWantedFrameType();
+	uint32_t framesize  = GetDefinedFrameSize();
+	uint32_t revision   = 1;
+	uint16_t source     = 0xff; // standard value when produced by a desktop computer
+	uint32_t headersize = GetDefinedHeaderSize();
+	/*cout <<dec<< "MFMCommonFrame GenerateAFrameExample GetWantedFrameType       = "<< GetWantedFrameType()<<"\n";
+        cout << "MFMCommonFrame GenerateAFrameExample GetDefinedUnitBlockSize  = "<< GetDefinedUnitBlockSize()<<"\n";
+        cout << "MFMCommonFrame GenerateAFrameExample GetframeSize             = "<< framesize<<"\n";
+        cout << "MFMCommonFrame GenerateAFrameExample GetDefinedFrameSize      = "<< GetDefinedFrameSize()<<"\n";
+        cout << "MFMCommonFrame GenerateAFrameExample GetDefinedHeaderSize     = "<< headersize<<"\n";
+        */
+	// generation of MFM header , in this case, MFM is same for all MFM frames
+	MFM_make_header(unitBlock_size, source, type, revision, (int) (framesize
+			/ unitBlock_size), (headersize / unitBlock_size));
+	FillDataWithRamdomValue(timestamp,eventnumber);
+}
+
+//_______________________________________________________________________________
+/*
 void MFMCommonFrame::SwapInt32(uint32_t *Buf, int nbByte, int repeat)const {
 	/// Swap a 32 bits(4 Bytes) integer to do endianess conversion\n
 	///     Buf   : pointer on integer to convert\n
@@ -723,10 +776,11 @@ int MFMCommonFrame::ReadInFile(int *fLun, char** vector, int * vectorsize) {
 	}
 	return framesize;
 }
+
 //_______________________________________________________________________________________________________________________
 void MFMCommonFrame::ExtractInfoFrame(int verbose,int dumpsize){ 
-// extract information Frames form a file
-        FillStat();
+// extract informations Frames  and print informations
+     
 	if ((verbose> 1) ) {
 		HeaderDisplay();
 		if (verbose > 3) {
@@ -737,6 +791,7 @@ void MFMCommonFrame::ExtractInfoFrame(int verbose,int dumpsize){
 			DumpRaw(dump, 0);
 		}
 	}
+	if (verbose >=9) DumpData();
 }
 //_______________________________________________________________________________
 int MFMCommonFrame::ReadInMem(char **pt) {

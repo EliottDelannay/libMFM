@@ -84,18 +84,18 @@ void MFMS3AlphaFrame::SetSetup(uint16_t i,uint16_t setup) {
 	return ((energy));
 }
 //_______________________________________________________________________________
-void MFMS3AlphaFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMS3AlphaFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random or constant values to do test
 	/// And report time stamp and event number
-SetFrameType (MFM_S3_ALPHA_FRAME_TYPE);
+	SetFrameType (MFM_S3_ALPHA_FRAME_TYPE);
 	SetStatus(1);
 	SetSetup(1,16383);
 	SetSetup(2,16382);
 	SetSetup(3,16381);
 	SetEnergy((uint32_t) enventnumber & 0x0000fff);
-	MFMNumExoFrame::FillEventRandomConst(timestamp,enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,enventnumber);
 }
 
 //_______________________________________________________________________________

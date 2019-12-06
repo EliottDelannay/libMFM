@@ -34,23 +34,13 @@ MFMScalerDataFrame::MFMScalerDataFrame() {
 MFMScalerDataFrame::~MFMScalerDataFrame() {
 	///Destructor
 }
-//_______________________________________________________________________________
-void MFMScalerDataFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMBasicFrame::SetPointers(pt);
-	SetTimeStampFromFrameData();
-        SetEventNumberFromFrameData();
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
+
 //_______________________________________________________________________________
 void MFMScalerDataFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
-
+	SetTimeStampFromFrameData();
+        SetEventNumberFromFrameData();
 }
 //_______________________________________________________________________________
 void MFMScalerDataFrame::SetEventNumberFromFrameData() {
@@ -98,7 +88,7 @@ void MFMScalerDataFrame::SetTimeStamp(uint64_t timestamp) {
 }
 //_______________________________________________________________________________
 void MFMScalerDataFrame::GetValues(int i, uint32_t* label, uint64_t* count,
-		uint64_t* frequency, int32_t* status, uint64_t* tics, int32_t* acqstatus) {
+		uint64_t* frequency, int32_t* status, uint64_t* tics, int32_t* acqstatus) const{
 	/// Compute and return the couple information of label /value of the i-th item
 	GetValuesByItem((MFM_ScalerData_Item *) GetItem(i), label, count,
 			frequency, status, tics, acqstatus);
@@ -107,7 +97,7 @@ void MFMScalerDataFrame::GetValues(int i, uint32_t* label, uint64_t* count,
 //_______________________________________________________________________________
 void MFMScalerDataFrame::GetValuesByItem(MFM_ScalerData_Item *item,
 		uint32_t * label, uint64_t *count, uint64_t *frequency,
-		int32_t * status, uint64_t * tics,int32_t * acqstatus ) {
+		int32_t * status, uint64_t * tics,int32_t * acqstatus ) const{
 	/// Compute and return the couple information of label /value of  item
 
 	if (fLocalIsBigEndian != fFrameIsBigEndian) {
@@ -165,33 +155,27 @@ void MFMScalerDataFrame::SetValuesByItem(MFM_ScalerData_Item *item,
 }
 
 //_______________________________________________________________________________
-void MFMScalerDataFrame::FillScalerWithRamdomConst2(int nbitem,uint64_t timestamp,uint32_t enventnumber) {
-	/// Fill frame items with ramdom values
-	   int hsize = SCALER_DATA_HEADERSIZE;
-		int oldframesize = GetFrameSize();
-	  	int ubs= SCALER_STD_UNIT_BLOCK_SIZE;
-	  	int framesize_up =0;
-		int framesize_min = nbitem*sizeof(MFM_ScalerData_Item)+hsize ;
-
-		if (framesize_min%ubs ==0) framesize_up= framesize_min;
-		else framesize_up = ((framesize_min /ubs)+1)*ubs;
-	    if (oldframesize != framesize_up){
-		//TODO reagencement de la frame si oldframesize != framesize
-	    	SetFrameSize(framesize_up/ubs);
-	    	SetBufferSize(framesize_up,false);
-	    	SetAttributs();
-	    	 std::cout << "ReSizing Scaler!-------------new = " << framesize_up <<" \n";
-	    }
-	 SetNbItem((int)nbitem);
-	 FillScalerWithRamdomConst(timestamp,enventnumber);
-
-}
-//_______________________________________________________________________________
-void MFMScalerDataFrame::FillScalerWithRamdomConst(uint64_t timestamp,uint32_t enventnumber) {
+void MFMScalerDataFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber,int nbitem) {
 	/// Fill frame items with ramdom values
 
 	float randval;
 	uint16_t i = 0;
+   	int hsize = GetDefinedHeaderSize();
+	int oldframesize = GetFrameSize();
+	int ubs= GetDefinedUnitBlockSize();
+	int framesize_up =0;
+	int framesize_min = nbitem*sizeof(MFM_ScalerData_Item)+hsize ;
+	
+	if (framesize_min%ubs ==0) framesize_up= framesize_min;
+	else framesize_up = ((framesize_min /ubs)+1)*ubs;
+	if (oldframesize != framesize_up){
+		//TODO reagencement de la frame si oldframesize != framesize
+	    	SetFrameSize(framesize_up/ubs);
+	    	SetBufferSize(framesize_up,false);
+	    	SetAttributs();
+	    	std::cout << "ReSizing Scaler!-------------new = " << framesize_up <<" \n";
+	}
+	SetNbItem((int)nbitem);
 
 	if (GetNbItems() > 0)
 		SetValues(0, 1, 1, 1, 1, 1, 1);
@@ -254,35 +238,9 @@ void MFMScalerDataFrame::FillScalerWithVector(uint64_t timestamp,uint32_t EventC
    SetTimeStamp(timestamp);
 
 }
-//_______________________________________________________________________________
 
-void MFMScalerDataFrame::GenerateAScalerExample(uint64_t timestamp,uint32_t eventnumber,int nbChannels) {
-	/// Generate a example of frame containing random value\n
-	/// usable for tests.
-
-	uint32_t unitBlock_size = 0;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 1;
-	uint32_t headersize = 0;
-	uint16_t source = 0xff; // standard value when produced by a desktop computer
-	unitBlock_size = SCALER_STD_UNIT_BLOCK_SIZE;
-	itemsize = sizeof(MFM_ScalerData_Item);
-
-	nbitem = nbChannels;
-	headersize = SCALER_DATA_HEADERSIZE;
-	uint16_t type = MFM_SCALER_DATA_FRAME_TYPE;
-
-	framesize = headersize + nbitem * itemsize;
-	revision = 1;
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	MFM_make_header(unitBlock_size, source, type, revision, (int) (framesize
-			/ unitBlock_size), (headersize / unitBlock_size), itemsize, nbitem);
-	FillScalerWithRamdomConst2(nbitem,timestamp,eventnumber);
-}
 //____________________________________________________________________________
-string MFMScalerDataFrame::GetDumpTextData() {
+string MFMScalerDataFrame::GetDumpTextData() const{
 stringstream ss;
 	string display("");
 	ss << "|label|  count   | frequency|statu|   tics   |statu| \n";
@@ -290,16 +248,12 @@ stringstream ss;
 			return display;
 	}
 //____________________________________________________________________________
-void MFMScalerDataFrame::DumpTextData() {
+void MFMScalerDataFrame::DumpTextData() const{
 	cout<<GetDumpTextData();
 }
 
 //____________________________________________________________________________
-void MFMScalerDataFrame::DumpData(char mode, bool nozero) {
-	cout<<GetDumpData(mode, nozero);
-}
-//____________________________________________________________________________
-string MFMScalerDataFrame::GetDumpData(char mode, bool nozero) {
+string MFMScalerDataFrame::GetDumpData(char mode, bool nozero)const{
 	// Dump parameter Label and parameter value of the current event.
 	// if enter parameter is true (default value), all zero parameter of event aren't dumped
 	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
@@ -320,6 +274,7 @@ string MFMScalerDataFrame::GetDumpData(char mode, bool nozero) {
 	int reste;
 	char one = '1', zero = '0';
 	int DecNumber = 0;
+	ss<<GetDumpTextData();
 	if (mode == 'b')
 		max_presentation = 3;
 	if (GetEventNumber() == 0xFFFFFFFF) {
@@ -388,72 +343,12 @@ string MFMScalerDataFrame::GetDumpData(char mode, bool nozero) {
 	display = ss.str();
 	return display;
 }
-//______________________________________________________________________________
-void MFMScalerDataFrame::ExtracInfoFrame(int verbose,int dumpsize){
-	int framesize = GetFrameSize();
-	if ((verbose > 1) ) {
-		HeaderDisplay();
-		if (verbose > 3) {
-			int dump = dumpsize;
-			if (framesize < dump)
-				dump = framesize;
-			DumpRaw(dump, 0);
-		}
-	if (verbose > 5)
-		cout << GetDumpTextData()<< (GetDumpData());
-	}
-}
-//_______________________________________________________________________________
-string MFMScalerDataFrame::GetHeaderDisplay(char* infotext) const{
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	
-	if (infotext==NULL)
-	ss << MFMBasicFrame::GetHeaderDisplay((char*)GetTypeText());
-	else
-	ss << MFMBasicFrame::GetHeaderDisplay(infotext);	
-	display = ss.str();
-	return display;
-}
 
-//_______________________________________________________________________________
-void MFMScalerDataFrame::WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize){
 
-	int type = MFM_SCALER_DATA_FRAME_TYPE;	
-	time_t seconds_past_epoch;
-	uint64_t ts;
-	uint32_t eventnum;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-	MError Error;
-	int nb_item = 20;
-	for (int i = 0; i < nbframe; i++) {
-		seconds_past_epoch = time(0);
-		ts = (uint64_t) seconds_past_epoch;
-		GenerateAScalerExample(ts, i, nb_item);
-		framesize = GetFrameSize();
-		SetAttributs();
-		FillStat();
-		if (verbose > 1)
-			HeaderDisplay();
-		int dump = dumsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (verbose > 3)
-			DumpRaw(dump, 0);
-		verif = write(lun, GetPointHeader(), framesize);
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-	}
-}
-//______________________________________________________________________________
 /*
+
+//______________________________________________________________________________
+
 class GParaCaliXml :public GBase{
 
  private:

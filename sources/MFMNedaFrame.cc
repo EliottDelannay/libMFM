@@ -20,21 +20,23 @@ MFMNedaFrame::MFMNedaFrame(int unitBlock_size, int dataSource, int frameType,
 		int revision, int frameSize, int headerSize, int itemSize, int nItems) {
 	/// Constructor of frame with a memory space\n
 	/// fill header information : unitBlock_size,dataSource,....
+	pNedaFrame =NULL;
 	SetPointers();
 	fCountNbEventCard = NULL;
 	fEndFrame =0xF0F0F0F0;
 	fNbofGoodF0F0 = 0;
-    fNbofBadF0F0  = 0;
+        fNbofBadF0F0  = 0;
 
 }
 
 //_______________________________________________________________________________
 MFMNedaFrame::MFMNedaFrame() {
 	/// Constructor of a empty frame object
+	pNedaFrame =NULL;
 	fCountNbEventCard = NULL;
 	fEndFrame =0xF0F0F0F0;
 	fNbofGoodF0F0 = 0;
-    fNbofBadF0F0  = 0;
+        fNbofBadF0F0  = 0;
 }
 //_______________________________________________________________________________
 MFMNedaFrame::~MFMNedaFrame() {
@@ -45,17 +47,7 @@ MFMNedaFrame::~MFMNedaFrame() {
 	}
 
 }
-//_______________________________________________________________________________
-void MFMNedaFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMBasicFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pNedaFrame = (MFM_Neda_Frame*) pData;
-	pData_char = (char*) pData;
-}
+
 //_______________________________________________________________________________
 void MFMNedaFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
@@ -68,14 +60,12 @@ string MFMNedaFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
 	string display("");
 	ss << MFMBasicFrame::GetHeaderDisplay(infotext);
-	ss << " | Channel = " << GetChannelId()
-			<< " | LeInter = " << (int) GetLeInterval();
-	ss << " | ZcoInterval = " << (int) GetZcoInterval() << endl;
-	ss << "   Tdc =  " << GetTdcValue() << " | Slow Integ = "
+	ss << endl << "   | LeInter = " << (int) GetLeInterval();
+	ss << " | ZcoInterval = " << (int) GetZcoInterval() << "|  Tdc =  " << GetTdcValue() << " | Slow Integ = "
 			<< GetSlowIntegral() << " | FastIntegral = ";
 	ss << GetFastIntegral() << " | Bitfield = " << (int) GetBitfield()
 			<< "| AbsMax = " << (int) GetAbsMax() << endl;
-	ss << " Event is neutron = " << IsNeutron() << " | Valid CFD = " << IsCFDValid() << " | Parity = " << IsCFDParity() << endl; 
+	ss << "   Event is neutron = " << IsNeutron() << " | Valid CFD = " << IsCFDValid() << " | Parity = " << IsCFDParity() ; 
 	display = ss.str();
 	return display;
 }
@@ -91,11 +81,11 @@ void MFMNedaFrame::SetTimeStampFromFrameData() {
 		for (int j = 0; j < 6; j++)
 			memcpy(
 					((char*) (&fTimeStamp)) + j,
-					((char*) ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.EventTime)
+					((char*) ((MFM_Neda_Header*) pHeader)->EvtInfo.EventTime)
 							+ byte_numexo[j], 1);
 	} else {
 		memcpy(((char*) (&fTimeStamp)),
-				((MFM_Neda_Header*) pHeader)->NedaEvtInfo.EventTime, 6);
+				((MFM_Neda_Header*) pHeader)->EvtInfo.EventTime, 6);
 
 	}
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
@@ -109,7 +99,7 @@ void MFMNedaFrame::SetEventNumberFromFrameData() {
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
 
-	fEventNumber = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.EventIdx;
+	fEventNumber = ((MFM_Neda_Header*) pHeader)->EvtInfo.EventIdx;
 	if (GetRevision() != 0) {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
@@ -120,19 +110,19 @@ void MFMNedaFrame::SetTimeStamp(uint64_t timestamp) {
 	// Set frame timestamp
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
-	memcpy(((MFM_Neda_Header*) pHeader)->NedaEvtInfo.EventTime, pts, 6);
+	memcpy(((MFM_Neda_Header*) pHeader)->EvtInfo.EventTime, pts, 6);
 }
 
 //_______________________________________________________________________________
 void MFMNedaFrame::SetEventNumber(uint32_t eventnumber) {
 	/// set frame event number
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.EventIdx = eventnumber;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.EventIdx = eventnumber;
 }
 
 //_______________________________________________________________________________
 void MFMNedaFrame::SetLocationId(uint16_t Id) {
 	/// Set 16 bits of LocationId
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.LocationId = Id;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.LocationId = Id;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetLocationId(uint16_t ChannelId, uint16_t BoardId) {
@@ -153,7 +143,7 @@ void MFMNedaFrame::SetLocationId(uint16_t ChannelId, uint16_t BoardId) {
 uint16_t MFMNedaFrame::GetLocationId()const {
 	uint16_t Id = 0;
 	/// Compute and return the 2 bytes of LocationId()
-	Id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.LocationId;
+	Id = ((MFM_Neda_Header*) pHeader)->EvtInfo.LocationId;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt16((&Id));
 	return ((Id));
@@ -172,26 +162,26 @@ uint16_t MFMNedaFrame::GetBoardId() const{
 //_______________________________________________________________________________
 
 uint8_t MFMNedaFrame::GetLeInterval() const{
-	uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.LeInterval;
+	uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.LeInterval;
 	return id;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetLeInterval(uint8_t interval) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.LeInterval = interval;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.LeInterval = interval;
 }
 //_______________________________________________________________________________
 uint8_t MFMNedaFrame::GetZcoInterval() const{
-	return (uint8_t) ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.ZcoInterval;
+	return (uint8_t) ((MFM_Neda_Header*) pHeader)->EvtInfo.ZcoInterval;
 
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetZcoInterval(uint8_t interval) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.ZcoInterval = interval;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.ZcoInterval = interval;
 }
 //_______________________________________________________________________________
 uint16_t MFMNedaFrame::GetTdcValue() const{
 	uint16_t val = 0;
-	val = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.TdcValue;
+	val = ((MFM_Neda_Header*) pHeader)->EvtInfo.TdcValue;
 	if (GetRevision() > 0) {
 		if (fLocalIsBigEndian != fFrameIsBigEndian) {
 			SwapInt16(&val);
@@ -203,7 +193,7 @@ uint16_t MFMNedaFrame::GetTdcValue() const{
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetTdcValue(uint16_t val) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.TdcValue = val;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.TdcValue = val;
 }
 //_______________________________________________________________________________
 uint16_t MFMNedaFrame::GetSlowIntegral()const {
@@ -211,7 +201,7 @@ uint16_t MFMNedaFrame::GetSlowIntegral()const {
 	uint16_t integral = 0;
 	char * pintegral = (char*) &(integral);
 
-	integral = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.SlowIntegral;
+	integral = ((MFM_Neda_Header*) pHeader)->EvtInfo.SlowIntegral;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		if (GetRevision() > 0)
 			SwapInt16((uint16_t *) (pintegral));
@@ -219,14 +209,14 @@ uint16_t MFMNedaFrame::GetSlowIntegral()const {
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetSlowIntegral(uint16_t id) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.SlowIntegral = id;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.SlowIntegral = id;
 }
 //_______________________________________________________________________________
 uint16_t MFMNedaFrame::GetFastIntegral() const{
 	uint16_t integral = 0;
 	char * pintegral = (char*) &(integral);
 
-	integral = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.FastIntegral;
+	integral = ((MFM_Neda_Header*) pHeader)->EvtInfo.FastIntegral;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		if (GetRevision() > 0)
 			SwapInt16((uint16_t *) (pintegral));
@@ -234,21 +224,21 @@ uint16_t MFMNedaFrame::GetFastIntegral() const{
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetFastIntegral(uint16_t id) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.FastIntegral = id;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.FastIntegral = id;
 }
 //_______________________________________________________________________________
 uint8_t MFMNedaFrame::GetBitfield() const{
-	uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield;
+	uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield;
 	return id;
 }
 //_______________________________________________________________________________
 bool MFMNedaFrame::GetBitfield(int id) const{
-	uint8_t bitfield = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield;
+	uint8_t bitfield = ((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield;
 	return ((bool) ((bitfield >> id) & 0x1));
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetBitfield(uint8_t bitfield) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield = bitfield;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield = bitfield;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetBitfield(int id, bool bit) {
@@ -259,25 +249,25 @@ void MFMNedaFrame::SetBitfield(int id, bool bit) {
 	} else {
 		bitfield = bitfield & (~localbit);
 	}
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield = bitfield;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield = bitfield;
 }
 //_______________________________________________________________________________
 uint8_t MFMNedaFrame::GetAbsMax() const{
-	uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.AbsMax;
+	uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.AbsMax;
 	return id;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetAbsMax(uint8_t id) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.AbsMax = id;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.AbsMax = id;
 }
 //_______________________________________________________________________________
 uint8_t MFMNedaFrame::GetInterpolCFD() const{
-	uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.InterpolCFD;
+	uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.InterpolCFD;
 	return id;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::SetInterpolCFD(uint8_t id) {
-	((MFM_Neda_Header*) pHeader)->NedaEvtInfo.InterpolCFD = id;
+	((MFM_Neda_Header*) pHeader)->EvtInfo.InterpolCFD = id;
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::NedaGetParameters(int i, uint16_t *value)const {
@@ -296,7 +286,6 @@ void MFMNedaFrame::NedaGetParameters(int i, uint16_t *value)const {
 //_______________________________________________________________________________
 void MFMNedaFrame::NedaGetParametersByItem(MFM_Neda_Item *item, uint16_t *value) const{
 	/// Compute and return the couple information of value of  item
-
 
 	if (fLocalIsBigEndian != fFrameIsBigEndian) {
 		uint16_t tmp = item->Value;
@@ -321,7 +310,7 @@ void MFMNedaFrame::NedaSetParameters(int i, uint16_t value) {
 //_______________________________________________________________________________
 void MFMNedaFrame::NedaSetParametersByItem(MFM_Neda_Item *item, uint16_t value) {
 	/// set "item" with the couple information of value
-
+        static int toto=0;
 	item->Value = value;
 }
 //_______________________________________________________________________________
@@ -331,15 +320,15 @@ void MFMNedaFrame::SetEndFrame(uint32_t end) {
 //_______________________________________________________________________________
 bool MFMNedaFrame::TestEndOfFrame()const {
 	/// test last 4 butes of frame ,
-		return (( pNedaFrame)->MFMNedaEOF.EndOfFrame == 0xf0f0f0f0);
+		return (( (MFM_Neda_Frame*) pData)->MFMNedaEOF.EndOfFrame == 0xf0f0f0f0);
 }
 //_______________________________________________________________________________
 void MFMNedaFrame::FillEndOfFrame() {
 	/// last 4 bytes to of frame,
 
-static unsigned int seed = 6;
+static unsigned int seed = 6;      
 	if ((fEndFrame == 0xf0f0f0f0)|| (fEndFrame == 0)){
-		((MFM_Neda_Frame*) pNedaFrame)->MFMNedaEOF.EndOfFrame = fEndFrame;
+		((MFM_Neda_Frame*) pData)->MFMNedaEOF.EndOfFrame = fEndFrame;
 
 	}else{
 		// get fEndFrame witch give the rate of error in per cent
@@ -349,23 +338,22 @@ static unsigned int seed = 6;
 
 		if (rando < fEndFrame){
 
-			((MFM_Neda_Frame*) pNedaFrame)->MFMNedaEOF.EndOfFrame = 0xABBAABBA;
+			((MFM_Neda_Frame*) pData)->MFMNedaEOF.EndOfFrame = 0xABBAABBA;
 
 		}else{
-			((MFM_Neda_Frame*) pNedaFrame)->MFMNedaEOF.EndOfFrame = 0xf0f0f0f0;
+			((MFM_Neda_Frame*)pData)->MFMNedaEOF.EndOfFrame = 0xf0f0f0f0;
 		}
 	}
 
 }
 //_______________________________________________________________________________
-void MFMNedaFrame::FillEventWithRamdomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMNedaFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber,int nbitem){
 	/// Fill frame items  of sinus values with random perios,
 
-	int size = GetNbItems();
+
 	int nb_bits = 16;
 	float nbofperiodes = 1;
-
+	int h;
 	int i;
 	float P;
 	static unsigned int seed = 15;
@@ -373,23 +361,31 @@ void MFMNedaFrame::FillEventWithRamdomConst(uint64_t timestamp,
 	float rando, tempof;
 	P = 1.570796327 * 2;
 	rando = seed;
-
-	int h;
 	h = pow(2, nb_bits) - 1;
+	
+	SetLocationId(1, 116) ;
+	SetLeInterval(3);
+	SetZcoInterval(4);
+	SetTdcValue(5);
+	SetSlowIntegral(6);
+	SetFastIntegral(7);
+	SetBitfield(8);
+	SetAbsMax(9);
 
-	if (size > 0)
+	
+	if (nbitem > 0)
 		NedaSetParameters(0, 1);
 	rando = (float) ((rand_r(&seed) / (RAND_MAX + 1.0)));
 	seed++;
-
-	for (i = 1; i < size; i++) {
+  
+	for (i = 1; i < nbitem; i++) {
 
 		seed++;
 		nbofperiodes = 1 + rando * 4;
 
-		tempof = (float) i / (size / (nbofperiodes));
+		tempof = (float) i / (nbitem / (nbofperiodes));
 		uivalue
-				= (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+				= (uint16_t) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
 
 		NedaSetParameters(i, uivalue);
 	}
@@ -398,7 +394,7 @@ void MFMNedaFrame::FillEventWithRamdomConst(uint64_t timestamp,
 	FillEndOfFrame();
 
 }
-
+/*
 //_______________________________________________________________________________
 
 void MFMNedaFrame::GenerateANedaExample(int type, int eventnumber) {
@@ -428,99 +424,12 @@ void MFMNedaFrame::GenerateANedaExample(int type, int eventnumber) {
 	MFM_make_header(unitBlock_size, 0, type, revision, (int) (framesize
 			/ unitBlock_size), (headersize / unitBlock_size), itemsize, nbitem);
 
-	SetLocationId(1, 2);
-	SetLeInterval(3);
-	SetZcoInterval(4);
-	SetTdcValue(5);
-	SetSlowIntegral(6);
-	SetFastIntegral(7);
-	SetBitfield(8);
-	SetAbsMax(9);
-	FillEventWithRamdomConst(GetTimeStampUs(), eventnumber);
-	FillEndOfFrame();
-}
-//____________________________________________________________________________
 
-string MFMNedaFrame::DumpData(char mode, bool nozero) {
-	// Dump  values of the current event.
-	// if enter parameter is true (default value), all zero parameter of event aren't dumped
-	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
+	FillEventWithRamdomConst(GetTimeStampUs(), eventnumber,nbitem);
 
-	stringstream ss;
-	string display("");
-
-	int i, j, maxbin, presentation = 0, max_presentation = 5;
-	char tempo[255];
-	char Bin[255];
-	char Bin2[255];
-
-	int reste;
-	char one = '1', zero = '0';
-	int DecNumber = 0;
-
-	if (mode == 'b')
-		max_presentation = 3;
-	if (GetEventNumber() == 0xFFFFFFFF) {
-		ss << "No Event , so no event dump. Get a new event frame";
-	} else {
-		for (i = 0; i < GetNbItems(); i++) {
-
-			uint16_t value = 0;
-			NedaGetParameters(i, &value);
-			if ((value != 0xFFFF) || (nozero == false)) {
-				switch (mode) {
-				case 'd':// decimal display
-					sprintf(tempo, "|%5d ", value);
-					break;
-				case 'o':// octal display
-					sprintf(tempo, "|%5o ", value);
-					break;
-				case 'h':// hexa display
-					sprintf(tempo, "|%5x x", value);
-					break;
-				case 'b': // binary display
-					DecNumber = (int) value;
-					Bin[0] = '\0';
-					Bin[1] = zero;
-					Bin2[1] = '\0';
-					Bin2[0] = zero;
-					j = 1;
-					if (DecNumber != 0) {
-						while (DecNumber >= 1) {
-							reste = DecNumber % 2;
-							DecNumber -= reste;
-							DecNumber /= 2;
-							if (reste)
-								Bin[j] = one;
-							else
-								Bin[j] = zero;
-							j++;
-						}
-						j--;
-						maxbin = j;
-						while (j >= 0) {
-							Bin2[j] = Bin[maxbin - j];
-							j--;
-						}
-					}
-					sprintf(tempo, "|%16s ", Bin2);
-					break;
-				}
-				ss << tempo;
-				presentation++;
-			}
-			if (presentation == max_presentation) {
-				ss << "|\n";
-				presentation = 0;
-			}
-		}
-		if (presentation != 0)
-			ss << "|\n";
-	}
-	display = ss.str();
-	return display;
 }
 
+*/
 //_______________________________________________________________________________
 void MFMNedaFrame::InitStat() {
 	MFMBasicFrame::InitStat();
@@ -552,7 +461,7 @@ void MFMNedaFrame::FillStat() {
 
 }
 //____________________________________________________________________
-string MFMNedaFrame::GetStat(string info) {
+string MFMNedaFrame::GetStat(string info)const {
 
 	string display("");
 	stringstream ss("");
@@ -578,19 +487,19 @@ string MFMNedaFrame::GetStat(string info) {
 //____________________________________________________________________
 bool MFMNedaFrame::IsNeutron()const
 {
-  uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield;
+  uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield;
   return id>>7;
 }
 //____________________________________________________________________
 bool MFMNedaFrame::IsCFDValid()const
 {
-  uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield;
+  uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield;
   return (id>>5)&0x1;
 }
 //____________________________________________________________________
 bool MFMNedaFrame::IsCFDParity()const
 {
-  uint8_t id = ((MFM_Neda_Header*) pHeader)->NedaEvtInfo.Bitfield;
+  uint8_t id = ((MFM_Neda_Header*) pHeader)->EvtInfo.Bitfield;
   return (id>>6)&0x1;
 }
 //____________________________________________________________________

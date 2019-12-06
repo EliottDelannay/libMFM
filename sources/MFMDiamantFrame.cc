@@ -84,15 +84,13 @@ uint32_t MFMDiamantFrame::GetTop() {
 		SwapInt32(&top);
 	return top;
 }
-
-
 //_______________________________________________________________________________
-void MFMDiamantFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMDiamantFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t eventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
-	MFMNumExoFrame::FillEventRandomConst(timestamp,eventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,eventnumber);
 	float maxuint16 = pow(2,16);
 	float maxuint32 = pow(2,32);
 	float value = random();

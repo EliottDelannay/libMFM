@@ -40,17 +40,6 @@ MFMNedaCompFrame::~MFMNedaCompFrame() {
 
 }
 //_______________________________________________________________________________
-void MFMNedaCompFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMCommonFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pNedaCompFrame = (MFM_NedaComp_Frame*) pData;
-	pData_char = (char*) pData;
-}
-//_______________________________________________________________________________
 void MFMNedaCompFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMCommonFrame::SetAttributs(pt);
@@ -58,12 +47,10 @@ void MFMNedaCompFrame::SetAttributs(void * pt) {
 	SetEventNumberFromFrameData();
 }
 //_______________________________________________________________________________
-string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) {
+string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
-
-
 	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
 	ss << endl;
 	ss << "   Board = " << GetBoardId() << " | Channel = " << GetChannelId()
@@ -71,7 +58,7 @@ string MFMNedaCompFrame::GetHeaderDisplay(char* infotext) {
 	ss << "   Slow Integ = "
 			<< GetSlowIntegral() << " | FastIntegral = ";
 	ss << GetFastIntegral() << " | NeuralNetWork = " << (int) GetNeuralNetWork()
-			<< " | NbZero = " << (int) GetNbZero() << " | NeutronFlag = "<<GetNeutronFlag()<< endl;
+			<< " | NbZero = " << (int) GetNbZero() << " | NeutronFlag = "<<GetNeutronFlag();
 
 	display = ss.str();
 
@@ -135,7 +122,7 @@ void MFMNedaCompFrame::SetLocationId(uint16_t ChannelId, uint16_t BoardId) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMNedaCompFrame::GetLocationId() {
+uint16_t MFMNedaCompFrame::GetLocationId() const{
 	uint16_t Id = 0;
 	/// Compute and return the 2 bytes of LocationId()
 	Id = ((MFM_NedaComp_Header*) pHeader)->NedaCompEvtInfo.LocationId;
@@ -145,13 +132,13 @@ uint16_t MFMNedaCompFrame::GetLocationId() {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMNedaCompFrame::GetChannelId() {
+uint16_t MFMNedaCompFrame::GetChannelId() const{
 	/// Compute and return extracted ChannelId
 	return (GetLocationId() & NEDACOMP_CHANNEL_ID_MASK);
 }
 
 //_______________________________________________________________________________
-uint16_t MFMNedaCompFrame::GetBoardId() {
+uint16_t MFMNedaCompFrame::GetBoardId() const{
 	/// Compute and return id value of Board
 	return (((GetLocationId() >> 4) & NEDACOMP_BOARD_ID_MASK));
 }
@@ -164,7 +151,7 @@ void MFMNedaCompFrame::SetEnergy(uint16_t energy) {
 
 //_______________________________________________________________________________
 
-uint16_t MFMNedaCompFrame::GetEnergy() {
+uint16_t MFMNedaCompFrame::GetEnergy() const{
 	uint16_t energy = 0;
 	/// Compute and return the 2 bytes of LocationId()
 	energy = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.Energy;
@@ -176,7 +163,7 @@ uint16_t MFMNedaCompFrame::GetEnergy() {
 
 //_______________________________________________________________________________
 
-uint16_t MFMNedaCompFrame::GetTime() {
+uint16_t MFMNedaCompFrame::GetTime() const{
 	uint16_t time = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.Time;
 	return time;
 }
@@ -186,7 +173,7 @@ void MFMNedaCompFrame::SetTime(uint16_t time) {
 }
 
 //_______________________________________________________________________________
-uint16_t MFMNedaCompFrame::GetTdcCorValue() {
+uint16_t MFMNedaCompFrame::GetTdcCorValue() const{
 	uint16_t val = 0;
 	val = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.TdcCorValue;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
@@ -198,7 +185,7 @@ void MFMNedaCompFrame::SetTdcCorValue(uint16_t val){
 	((MFM_NedaComp_Frame*) pHeader)->NedaCompData.TdcCorValue = val;
 }
 //_______________________________________________________________________________
-uint32_t MFMNedaCompFrame::GetSlowIntegral() {
+uint32_t MFMNedaCompFrame::GetSlowIntegral() const{
 	uint32_t integral = 0;
 	char * pintegral = (char*) &(integral);
 	integral = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.SlowIntegral;
@@ -211,7 +198,7 @@ void MFMNedaCompFrame::SetSlowIntegral(uint32_t integral){
 	((MFM_NedaComp_Frame*) pHeader)->NedaCompData.SlowIntegral = integral;
 }
 //_______________________________________________________________________________
-uint32_t MFMNedaCompFrame::GetFastIntegral() {
+uint32_t MFMNedaCompFrame::GetFastIntegral() const{
 	uint32_t integral = 0;
 	char * pintegral = (char*) &(integral);
 	integral = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.FastIntegral;
@@ -225,7 +212,7 @@ void MFMNedaCompFrame::SetFastIntegral(uint32_t integral) {
 }
 
 //_______________________________________________________________________________
-int32_t MFMNedaCompFrame::GetIntRaiseTime() {
+int32_t MFMNedaCompFrame::GetIntRaiseTime() const{
 	int32_t time = 0;
 char * ptime = (char*) &(time);
 time = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.IntRaiseTime;
@@ -238,7 +225,7 @@ void MFMNedaCompFrame::SetIntRaiseTime(int32_t time) {
 	((MFM_NedaComp_Frame*) pHeader)->NedaCompData.IntRaiseTime = time;
 }
 //_______________________________________________________________________________
-uint16_t MFMNedaCompFrame::GetNeuralNetWork() {
+uint16_t MFMNedaCompFrame::GetNeuralNetWork() const{
 	uint16_t neural = 0;
 	neural = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NeuralNetWork;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
@@ -250,7 +237,7 @@ void MFMNedaCompFrame::SetNeuralNetWork(uint16_t neural) {
 	((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NeuralNetWork = neural;
 }
 //_______________________________________________________________________________
-uint8_t MFMNedaCompFrame::GetNbZero() {
+uint8_t MFMNedaCompFrame::GetNbZero() const{
 	uint8_t id = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NbZero;
 	return id;
 }
@@ -258,19 +245,9 @@ uint8_t MFMNedaCompFrame::GetNbZero() {
 void MFMNedaCompFrame::SetNbZero(uint8_t nb) {
 	((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NbZero = nb;
 }
-//_______________________________________________________________________________
-/*bool MFMNedaCompFrame::GetNeutronFlag() {
-	uint8_t val = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NbZero;
-	return (val>0);
-}
-//_______________________________________________________________________________
-void MFMNedaCompFrame::SetNeutronFlag(bool neutron) {
-	if (neutron )((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NbZero = 1;
-	else ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NbZero = 0;
 
-}*/
 //_______________________________________________________________________________
-bool MFMNedaCompFrame::GetNeutronFlag() {
+bool MFMNedaCompFrame::GetNeutronFlag() const{
         uint8_t val = ((MFM_NedaComp_Frame*) pHeader)->NedaCompData.NeutronFlag;
 	return (val>0);
 }
@@ -281,16 +258,15 @@ void MFMNedaCompFrame::SetNeutronFlag(bool neutron) {
 
 }
 //_______________________________________________________________________________
-void MFMNedaCompFrame::FillEventWithRamdomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMNedaCompFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber){
 	/// Fill frame items  of sinus values with random perios,
 
 	static unsigned int seed =15;
-
 	float rando;
 	rando = seed;
 	rando = (float) ((rand_r(&seed) / (RAND_MAX + 1.0)));
 	seed++;
+	SetLocationId(1, 116) ;
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 	SetEnergy((uint32_t)rando);
@@ -303,7 +279,7 @@ void MFMNedaCompFrame::FillEventWithRamdomConst(uint64_t timestamp,
     SetNbZero(7) ;
     SetNeutronFlag(true);
 }
-
+/*
 //_______________________________________________________________________________
 
 void MFMNedaCompFrame::GenerateANedaExample(int type, int eventnumber) {
@@ -333,7 +309,7 @@ SetLocationId(1, 2);
 
 }
 
-
+*/
 //_______________________________________________________________________________
 void MFMNedaCompFrame::InitStat() {
 	MFMCommonFrame::InitStat();
@@ -360,7 +336,7 @@ void MFMNedaCompFrame::FillStat() {
 	}
 }
 //____________________________________________________________________
-string  MFMNedaCompFrame::GetStat(string info){
+string  MFMNedaCompFrame::GetStat(string info)const{
 
 	string display("");
 	stringstream ss("");

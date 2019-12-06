@@ -11,10 +11,18 @@
 #endif
 #pragma pack(push, 1) // force alignment
 
-struct MFM_XmlFile_header{
-	 MFM_common_header XmlFile_header;
+struct MFM_XmlFile_data {
+};
+struct MFM_XmlFile_header_frame{
+	 MFM_common_header Header;
+	 MFM_XmlFile_data  Data;
 };
 
+
+
+
+#define MFM_XML_FILE_HEADER_FRAME_TYPE_TEXT "MFM_XML_FILE_HEADER_FRAME_TYPE"
+#define MFM_XML_FILE_HEADER_STD_UNIT_BLOCK_SIZE 1
 //____________MFMXmlFileHeaderFrame___________________________________________________________
 
 class MFMXmlFileHeaderFrame : public MFMBlobFrame
@@ -28,6 +36,9 @@ MFMXmlFileHeaderFrame(int unitBlock_size, int dataSource,
 virtual ~MFMXmlFileHeaderFrame();
 virtual void SetPointers(void * pt =NULL);
 
+ const char * GetTypeText()const {return MFM_XML_FILE_HEADER_FRAME_TYPE_TEXT;} 
+ int GetDefinedUnitBlockSize()const {return MFM_XML_FILE_HEADER_STD_UNIT_BLOCK_SIZE;};
+virtual char * GetText();
 virtual void SetAttributs(void * pt =NULL);
 virtual uint64_t GetTimeStamp();
 virtual uint64_t GetTimeStampAttribut();
@@ -37,9 +48,8 @@ virtual bool HasTimeStamp()   const { return false; }
 virtual bool HasEventNumber() const { return false; }
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);
-
-
-virtual void      FillExampleOfText();
+void FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+string FillExampleOfText();
 
 };
 #pragma pack(pop) // free aligment

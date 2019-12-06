@@ -45,13 +45,14 @@
 #define MFM_ENDIANNESS_MSK 0x80
 #define MFM_BLOBNESS_MSK 0x40
 #define MFM_UNIT_BLOCK_SIZE_MSK 0x0F
+#define MFM_UNIT_BLOCK_DEFAULT_SIZE 1
 #define MFM_BLOCK_SIZE 0x0C
 #define MFM_BIG_ENDIAN 0
 #define MFM_LITTLE_ENDIAN 0x80
 #define MFM_FRAME_SIZE_MASK 0x00FFFFFF
 #define MFM_BLOB_HEADER_SIZE 8
 #define set_user_data_pointer(A,B) pUserData_char = (char*) &(((A*)pHeader)->B)
-#define MFM_COMMON_TYPE_TXT "MFM_COMMON_FRAME" 
+#define MFM_COMMON_TYPE_TXT "MFM_UNKNONW_COMMON_FRAME" 
 
 enum MFM_ERR { MFM_ERR_UNIT_BLOCK_SIZE = -100, MFM_ERR_FRAME_SIZE };
 
@@ -108,7 +109,6 @@ protected:
 
 uint32_t fHeaderSize;   		///< Header size in Bytes
 void *   pReserveHeader; 		///< Pointer on frame reserve header
-
 char *   pDataNew;  			///< Pointer of beginning frame  if local allocation.
 char *   pData_char; 			///< Pointer of beginning frame
 char *   pUserData_char; 		///< Pointer of User Data ( after header and timestamp,enventnumber..)
@@ -116,6 +116,7 @@ int      fSizeOfUnitBlock; 		///< Size of Unit block in Bytes
 bool     fLocalIsBigEndian; 		///< Endianness or running computer  
 bool     fFrameIsBigEndian ; 		///< Endianness or Frame
 uint16_t fFrameType; 			///< Frame type
+int      fWantedFrameType; 		///< Wanted Frame type in case of generation of frame ( simulation ). No usage in read frame
 int      fFrameSize; 			///< Frame size
 uint64_t fTimeStamp;			//<Time Stamp
 uint32_t fEventNumber;			//<EventNumber
@@ -142,9 +143,9 @@ public :
 MFMCommonFrame();
 MFMCommonFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize);
-virtual ~MFMCommonFrame();
-virtual	void Init();
-virtual	string WhichFrame(uint16_t type =0) const;
+ virtual ~MFMCommonFrame();
+ virtual void Init();
+ virtual string WhichFrame(uint16_t type =0) const;
  void SetMetaType(int unitBlock_size,bool isablob=false);
  void SetUnitBlockSize(int size);
  void SetDataSource(uint8_t datasource);
@@ -154,14 +155,21 @@ virtual	string WhichFrame(uint16_t type =0) const;
  void SetHeader(MFM_topcommon_header* header);
  void SetBufferSize(int size,bool ifinferior=true);
  void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
-virtual void SetAttributsOn4Bytes(void * pt =NULL);
-virtual unsigned char Endianness(void)const;
+ virtual void SetAttributs(void * pt =NULL);
+ virtual void SetAttributsOn4Bytes(void * pt =NULL);
+ virtual unsigned char Endianness(void)const;
  bool isBigEndian()const;
  bool is_power_2(int i)const;
- int	 GetBlobNess()const;
- uint8_t	 GetMetaType()const;
-virtual const char * GetTypeText()const {return MFM_COMMON_TYPE_TXT;} 
+ int GetBlobNess()const;
+ uint8_t GetMetaType()const;
+ 
+ 
+ virtual const char * GetTypeText()const    {return MFM_COMMON_TYPE_TXT;} 
+ virtual int GetDefinedUnitBlockSize()const {return MFM_UNIT_BLOCK_DEFAULT_SIZE;};
+ virtual int GetDefinedHeaderSize()const    {return MFM_BLOB_HEADER_SIZE;};
+ virtual int GetDefinedFrameSize()const     {return MFM_BLOB_HEADER_SIZE;};
+
+
  unsigned char GetFrameEndianness(void)const;
  uint16_t  GetDataSource()const; 
  uint16_t  GetFrameType()const;
@@ -170,38 +178,44 @@ virtual const char * GetTypeText()const {return MFM_COMMON_TYPE_TXT;}
  int  GetHeaderSize()const;
  int  GetBufferSize()const;
  int  GetFrameSize()const;
- void	SetFrameTypeFromFrameData();
- void  	SetFrameSizeFromFrameData();
- void  	SetTimeStampFromFrameData(){};
- void 	SetEventNumberFromFrameData(){};
-  virtual void  SetUnitBlockSizeFromFrameData();
+ void SetFrameTypeFromFrameData();
+ void SetFrameSizeFromFrameData();
+ void SetTimeStampFromFrameData(){};
+ void SetEventNumberFromFrameData(){};
+ virtual void  SetUnitBlockSizeFromFrameData();
  virtual void  SetHeaderSizeFromFrameData(){};
  virtual void SetUserDataPointer();
- void *GetPointHeader()const;
-virtual char* GetPointUserData()const;
-virtual	uint32_t GetEventNumber()const;
-virtual uint64_t GetTimeStamp()const;
-virtual void SetTimeStamp(uint64_t t) { fTimeStamp=t; }
-virtual void SetEventNumber(uint32_t e) { fEventNumber=e; }
-virtual void DumpRaw(int dumpsize=0, int increment=256) const;
-virtual string GetDumpRaw(int dumpsize=0, int increment=256)const;
-virtual void   GetDumpRaw(void *point,int dumpsize, int increment,string * mydump = NULL)const;
-virtual string GetHeaderDisplay(char* infotext=NULL)const;
+ virtual void *GetPointHeader()const;
+ virtual char* GetPointUserData()const;
+ virtual uint32_t GetEventNumber()const;
+ virtual uint64_t GetTimeStamp()const;
+ virtual void SetTimeStamp(uint64_t t) { fTimeStamp=t; }
+ virtual void SetEventNumber(uint32_t e) { fEventNumber=e; }
+ virtual void DumpRaw(int dumpsize=0, int increment=256) const;
+ virtual string GetDumpRaw(int dumpsize=0, int increment=256)const;
+ virtual void   GetDumpRaw(void *point,int dumpsize, int increment,string * mydump = NULL)const;
+ void  DumpData(char mode='d', bool nozero=false) const {cout << GetDumpData( mode,  nozero);}; 
+ virtual string GetDumpData(char mode='d', bool nozero=false) const {string test ="";return test;}; ///  Dump decoded data in if frame class avec this method
+ virtual string GetHeaderDisplay(char* infotext=NULL)const;
  void   HeaderDisplay(char* infotext=NULL) const ;
-virtual void   MFM_make_header(int unitBlock_size, int dataSource,
+ virtual void   MFM_make_header(int unitBlock_size, int dataSource,
 			    int frameType, int revision, int frameSize,bool blob=false);
-virtual void   MFM_fill_header( int unitBlock_size,
+ virtual void   MFM_fill_header( int unitBlock_size,
 				   int dataSource, int frameType, int revision,
 				   int frameSize,bool blob=false);
-/*
-virtual void SwapInt32(uint32_t *Buf, int nbByte = 4, int repeat = 1)const;
-virtual void SwapInt64(uint64_t *Buf, int nbByte = 8, int repeat = 1)const;
-virtual void SwapInt16(uint16_t *Buf, int repeat =1)const;
-*/
+virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber,int  nbitem){fError.TreatError(2,0,"MFMCommonFrame:FillDataWithRamdomValue should never be here----------\n");};
+virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber){fError.TreatError(2,0,"MFMCommonFrame:FillDataWithRamdomValue should never be here----------\n");}
+
+
+virtual void GenerateAFrameExample(uint64_t timestamp,uint32_t eventnumber);
+virtual void WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize,int type);
+
+
  int  ReadInFile(int *fLun,char** vector, int * vectosize);
  int  FillBigBufferFromFile(int fLun,char* vector, unsigned int  vectosize,unsigned int *readsize,unsigned int *eventcount);
  int  ReadInMem(char** vector);
- void ExtractInfoFrame(int verbose,int dumpsize);
+virtual void ExtractInfoFrame(int verbose,int dumpsize);
+virtual void ReadAttributsExtractFrame(int verbose,int dumpsize,void * pt=NULL);
  uint64_t GetTimeStampUs(uint64_t diff= 0)const;
  uint64_t SetTimeDiffUs();
  uint64_t GenerateATimeStamp()const;
@@ -220,8 +234,9 @@ virtual bool HasTimeStamp() const {return true; }
 virtual bool HasEventNumber() const {return true; } 
 virtual bool HasBoardId() const {return false; }
 virtual uint16_t GetBoardId() const { return 0; }
-
- int GetCountFrame() const;
+ void SetWantedFrameType(uint32_t type){ fWantedFrameType = type;}
+ int  GetWantedFrameType() const { return fWantedFrameType;}
+ int  GetCountFrame() const;
 
 virtual void Print(int /*verbose*/=0, int /*dumpsize*/=0) const {
         HeaderDisplay();
@@ -229,7 +244,6 @@ virtual void Print(int /*verbose*/=0, int /*dumpsize*/=0) const {
         cout << endl;
     }
 
- virtual void GenerateExample(uint32_t){}
 
  bool IsType(uint16_t t) const{
   return fFrameType==t;

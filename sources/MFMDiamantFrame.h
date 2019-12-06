@@ -13,7 +13,7 @@
 # define DIA_NB_STATUS 2
 # define DIA_NB_CHANNELS 16
 #pragma pack(push, 1) // force alignment
-
+# define MFM_DIAMANT_FRAME_TYPE_TXT "MFM_DIAMANT_FRAME_TYPE"
 struct MFM_dia_data{
   unsigned CristalId : 16;
   unsigned Status1   : 8;
@@ -50,8 +50,8 @@ virtual uint32_t  GetEnergy();
 virtual void      SetTop(uint32_t energy);
 virtual uint32_t  GetTop();
 
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t eventnumber=0);
-
+virtual void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t eventnumber=0);
+virtual const char * GetTypeText()const {return MFM_DIAMANT_FRAME_TYPE_TXT;}
 };
 #pragma pack(pop) // free aligment
 #endif

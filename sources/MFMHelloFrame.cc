@@ -31,21 +31,17 @@ MFMHelloFrame::~MFMHelloFrame() {
 	/// destructor of Hello frame
 }
 //_______________________________________________________________________________
-void MFMHelloFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-}
-//_______________________________________________________________________________
 void MFMHelloFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
+	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
-	MFMBlobFrame::SetAttributs(pt);
+	}
+//_______________________________________________________________________________
+void MFMHelloFrame::SetUserDataPointer() {
 	pUserData_char = (char*) &(((MFM_hel_header*) pHeader)->HelData);
 }
 //_______________________________________________________________________________
-
 void  MFMHelloFrame::SetTimeStampFromFrameData() {
 	/// Computer, set attibut and return value of time stamp from  frame
 	fTimeStamp = 0;
@@ -80,16 +76,13 @@ void MFMHelloFrame::SetEventNumber(uint32_t eventnumber) {
 	((MFM_hel_header*) pHeader)->HelEventInfo.EventIdx = eventnumber;
 }
 //_______________________________________________________________________________
-void MFMHelloFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
-
-	/// Fill all data of frame with random values to do test
-	/// And report time stamp and event number
+void MFMHelloFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber){
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
+	strcpy (GetPointUserData(),(char*) MFM_HELLO_FRAME_TYPE_TXT); // cpy text of name of 
 }
 //_______________________________________________________________________________
-string MFMHelloFrame::GetHeaderDisplay(char* infotext) {
+string MFMHelloFrame::GetHeaderDisplay(char* infotext)const {
 	stringstream ss;
 	string display("");
 	display = ss.str();
@@ -99,15 +92,5 @@ string MFMHelloFrame::GetHeaderDisplay(char* infotext) {
 	display = ss.str();
 	return display;
 }
-//_______________________________________________________________________________
-string MFMHelloFrame::DumpData(char mode, bool nozero) {
-	// Dump parameter Label and parameter value of the current event.
-	// if enter parameter is true (default value), all zero parameter of event aren't dumped
-	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
 
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	return display;
-}
 //_______________________________________________________________________________

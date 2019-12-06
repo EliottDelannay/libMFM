@@ -32,18 +32,18 @@ MFMS3RuthFrame::~MFMS3RuthFrame() {
 }
 
 //_______________________________________________________________________________
-void MFMS3RuthFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMS3RuthFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
-SetFrameType (MFM_S3_RUTH_FRAME_TYPE);
+	SetFrameType (MFM_S3_RUTH_FRAME_TYPE);
 	SetStatus(1);
 	SetSetup(1,16383);
 	SetSetup(2,16382);
 	SetSetup(3,16381);
 	SetEnergy((uint32_t) enventnumber & 0x0000fff);
-	MFMS3AlphaFrame::FillEventRandomConst(timestamp,enventnumber);
+	MFMNumExoFrame::FillDataWithRamdomValue(timestamp,enventnumber);
 }
 
 //_______________________________________________________________________________

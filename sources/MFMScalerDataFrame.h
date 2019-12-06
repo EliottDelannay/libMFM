@@ -14,6 +14,7 @@ using namespace std;
 #define SCALER_DATA_HEADERSIZE 28;
 #define SCALER_STD_UNIT_BLOCK_SIZE 4;
 #define	MFM_SCALER_DATA_FRAME_TYPE_TXT	"MFM_SCALER_DATA_FRAME_TYPE"
+#define MFM_SCALER_NB_ITEMS 20;
 #pragma pack(push, 1) // force alignment
 
 struct MFM_ScalerData_Info {
@@ -51,35 +52,35 @@ MFMScalerDataFrame(int unitBlock_size, int dataSource,
 		       int itemSize, int nItems);
 virtual ~MFMScalerDataFrame();
 
-virtual void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
+ void SetAttributs(void * pt =NULL);
 uint32_t  GetEventNumber() const;
-uint32_t  GetEventFrom() const;
-virtual uint64_t GetTimeStamp();
+//uint32_t  GetEventFrom() const;
+ uint64_t GetTimeStamp();
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-virtual void GetValuesByItem(MFM_ScalerData_Item *item,uint32_t * label,
-		uint64_t *count, uint64_t *frequency,int32_t * status,uint64_t * tics, int32_t* acqstatus);
-virtual void SetValuesByItem(MFM_ScalerData_Item *item,uint32_t  label,
+void SetTimeStamp(uint64_t timestamp);
+void SetEventNumber(uint32_t eventnumber);
+void GetValuesByItem(MFM_ScalerData_Item *item,uint32_t * label,
+		uint64_t *count, uint64_t *frequency,int32_t * status,uint64_t * tics, int32_t* acqstatus)const;
+void SetValuesByItem(MFM_ScalerData_Item *item,uint32_t  label,
 		uint64_t count, uint64_t frequency,int32_t status,uint64_t tics, int32_t acqstatus);
-virtual void GetValues(int i,uint32_t * label, uint64_t *count, uint64_t *frequency,
-		int32_t * status,uint64_t * tics, int32_t* acqstatus) ;
-virtual void SetValues(int i,uint32_t  label, uint64_t count, uint64_t frequency,
+void GetValues(int i,uint32_t * label, uint64_t *count, uint64_t *frequency,
+		int32_t * status,uint64_t * tics, int32_t* acqstatus) const;
+void SetValues(int i,uint32_t  label, uint64_t count, uint64_t frequency,
 		int32_t status, uint64_t tics, int32_t acqstatus);
-virtual void FillScalerWithRamdomConst2(int nbitem, uint64_t timestamp=0,uint32_t enventnumber=0);
-virtual void FillScalerWithRamdomConst(uint64_t timestamp,uint32_t enventnumber);
-virtual void FillScalerWithVector(uint64_t timestamp,uint32_t EventCounter,int64_t * fVector, int sizeofvector);
-virtual void GenerateAScalerExample(uint64_t timestamp,uint32_t eventnumber,int nbChannels);
-virtual string GetHeaderDisplay(char* infotext)const ;
-void WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize);
+void FillDataWithRamdomValue( uint64_t timestamp=0,uint32_t enventnumber=0,int nbitem =0);
+void FillScalerWithVector(uint64_t timestamp,uint32_t EventCounter,int64_t * fVector, int sizeofvector);
+
 const char * GetTypeText()const {return MFM_SCALER_DATA_FRAME_TYPE_TXT;}
-void ExtracInfoFrame(int verbose,int dumpsize);
-virtual string GetDumpData(char mode='d', bool nozero=false);
-virtual void DumpData(char mode='d', bool nozero=false);
-virtual string GetDumpTextData() ;
-virtual void DumpTextData() ;
+int GetDefinedUnitBlockSize()const {return SCALER_STD_UNIT_BLOCK_SIZE;};
+int GetDefinedHeaderSize()const {return SCALER_DATA_HEADERSIZE;};
+int GetItemSizeFromStructure(int type=0)const{ return sizeof (MFM_ScalerData_Item);};
+
+int GetDefinedFrameSize()const {return 0;};
+
+string GetDumpData(char mode='d', bool nozero=false) const;
+string GetDumpTextData() const;
+void DumpTextData() const;
 };
 #pragma pack(pop) // free alignment
 #endif

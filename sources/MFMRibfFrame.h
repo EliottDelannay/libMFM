@@ -6,10 +6,13 @@
 	Copyright Acquisition group, GANIL Caen, France
 
 */
-
-#define MUT_HEADERFRAMESIZE 18
-#define MUT_NB_STATUS
 #include "MFMBlobFrame.h"
+
+#define RIBF_HEADERFRAMESIZE 18
+#define RIBF_STD_UNIT_BLOCK_SIZE 1
+#define MFM_ERIBF_FRAME_TYPE_TXT "MFM_RIBF_FRAME_TYPE"
+#define RIBF_USERSIZE 20   // fully ramdom value, just for write test
+#define RIBF_FRAMESIZE RIBF_HEADERFRAMESIZE + RIBF_USERSIZE
 
 #pragma pack(push, 1) // force alignment
 
@@ -19,13 +22,13 @@ struct MFM_Ribf_eventInfo {
 };
 
 struct MFM_Ribf_data{
-
+char test[RIBF_USERSIZE];
 };
 
 struct MFM_Ribf_header{
-	 MFM_common_header   RibfBlobcHeader;
-	 MFM_Ribf_eventInfo  RibfEventInfo;
-	 MFM_Ribf_data       RibfData;
+	 MFM_common_header   BlobcHeader;
+	 MFM_Ribf_eventInfo  EventInfo;
+	 MFM_Ribf_data       Data;
 };
 
 
@@ -39,19 +42,22 @@ public :
 MFMRibfFrame();
 MFMRibfFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
-virtual ~MFMRibfFrame();
-virtual void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
+ ~MFMRibfFrame();
+ void SetUserDataPointer();
+ void SetAttributs(void * pt =NULL);
 
-void	SetTimeStampFromFrameData();
-void	SetEventNumberFromFrameData();
+ const char * GetTypeText()const {return MFM_ERIBF_FRAME_TYPE_TXT;} 
+ int GetDefinedUnitBlockSize()const {return RIBF_STD_UNIT_BLOCK_SIZE;};
+ int GetDefinedHeaderSize()const {return RIBF_HEADERFRAMESIZE;};
+ int GetDefinedFrameSize()const {return RIBF_FRAMESIZE;};
+
+void SetTimeStampFromFrameData();
+void SetEventNumberFromFrameData();
 	
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL);
-// MUTANT
-
-virtual void FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
+ void SetTimeStamp(uint64_t timestamp);
+ void SetEventNumber(uint32_t eventnumber);
+ string GetHeaderDisplay(char* infotext=NULL)const ;
+ void FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
 
 };
 #pragma pack(pop) // free aligment

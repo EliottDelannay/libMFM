@@ -11,13 +11,12 @@
 #include "MFMNumExoFrame.h"
 
 #define BOX_DIAG_NB_STATUS 2
-
 #define BOX_DIAG_NB_CHANNELS 16
+#define MFM_BOX_DIAG_FRAME_TYPE_TXT "MFM_BOX_DIAG_FRAME_TYPE"
 
 #include "MFMBlobFrame.h"
 
 #pragma pack(push, 1) // force alignment
-
 
 struct MFM_BoxDiag_data{
   unsigned CristalId : 16;
@@ -29,36 +28,29 @@ struct MFM_BoxDiag_data{
   unsigned Checksum  : 16;
 };
 
-
 struct MFM_BoxDiag_frame{
 	 MFM_common_header      Header;
-	 MFM_numexo_eventInfo  EventInfo;
+	 MFM_numexo_eventInfo   EventInfo;
 	 MFM_BoxDiag_data       Data;
 };
-
-
 
 //____________MFMBoxDiagFrame___________________________________________________________
 
 class MFMBoxDiagFrame : public MFMNumExoFrame
 {
 
-
 public :
+ void      SetStatus(int i, uint16_t status);
+ uint16_t  GetStatus(int i)const ;
+ void      SetTimeStop(uint16_t timestop);
+ uint16_t  GetTimeStop()const;
+ void      SetEnergy(uint16_t energy);
+ uint16_t  GetEnergy()const;
+ void      SetTime(uint16_t time);
+ uint16_t  GetTime()const;
 
-
-virtual void      SetStatus(int i, uint16_t status);
-virtual uint16_t  GetStatus(int i);
-virtual void      SetTimeStop(uint16_t timestop);
-virtual uint16_t  GetTimeStop();
-virtual void      SetEnergy(uint16_t energy);
-virtual uint16_t  GetEnergy();
-virtual void      SetTime(uint16_t time);
-virtual uint16_t  GetTime();
-virtual void      SetChecksum(uint16_t cksum);
-virtual uint16_t  GetChecksum();
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
+ void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+ const char * GetTypeText()const {return MFM_BOX_DIAG_FRAME_TYPE_TXT;} 
 
 
 };

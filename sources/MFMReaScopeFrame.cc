@@ -44,22 +44,17 @@ MFMReaScopeFrame::~MFMReaScopeFrame() {
 		fCountNbEventCard = NULL;
 	}
 }
-
 //_______________________________________________________________________________
-void MFMReaScopeFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMBasicFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pReaScopeFrame = (MFM_ReaScope_Frame*) pData;
-	pData_char = (char*) pData;
+void MFMReaScopeFrame::SetUserDataPointer()  {	
+	pUserData_char=(char*)&(((MFM_ReaScope_Frame*) pHeader)->MFMReaScopeItem[0]);
+
 }
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 }
 //_______________________________________________________________________________
 string MFMReaScopeFrame::GetHeaderDisplay(char* infotext) const{
@@ -68,20 +63,16 @@ string MFMReaScopeFrame::GetHeaderDisplay(char* infotext) const{
 	display = ss.str();
 
 	ss << MFMBasicFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
 	ss << endl;
-	ss << "   Board = " << GetBoardId() << " | Channel = " << GetChannelId()
-	   << " | SetupScope = "<< GetSetupScope()  << endl; 
-
+	ss << "   | Channel = " << GetChannelId()<< " | SetupScope = "<< GetSetupScope()  ; 
 	display = ss.str();
-
+	
 	return display;
 }
 //_______________________________________________________________________________
 
 void MFMReaScopeFrame::SetTimeStampFromFrameData() {
-	/// Compute time stamp and fill fTimeStamp attribut. return value of TimeStamp
+	/// Compute time stamp and fill fTimeStamp attribut.
 	fTimeStamp = 0;
 	uint64_t* timeStamp = &(fTimeStamp);
 	if (GetRevision() == 0) {
@@ -99,8 +90,6 @@ void MFMReaScopeFrame::SetTimeStampFromFrameData() {
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 }
-
-
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetEventNumberFromFrameData() {
 	/// Compute and return envent number
@@ -113,7 +102,6 @@ void MFMReaScopeFrame::SetEventNumberFromFrameData() {
 		SwapInt32((uint32_t *) (eventNumber), 4);
 		}
 }
-
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetTimeStamp(uint64_t timestamp) {
 	// Set frame timestamp
@@ -121,13 +109,11 @@ void MFMReaScopeFrame::SetTimeStamp(uint64_t timestamp) {
 	timestamp = timestamp & 0x0000ffffffffffff;
 	memcpy(((MFM_ReaScope_Header*) pHeader)->ReaScopeEvtInfo.EventTime, pts, 6);
 }
-
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetEventNumber(uint32_t eventnumber) {
 	/// set frame event number
 	((MFM_ReaScope_Header*) pHeader)->ReaScopeEvtInfo.EventIdx = eventnumber;
 }
-
 //_______________________________________________________________________________
 void MFMReaScopeFrame::SetLocationId(uint16_t Id) {
 	/// Set 16 bits of LocationId
@@ -146,7 +132,6 @@ void MFMReaScopeFrame::SetLocationId(uint16_t ChannelId, uint16_t BoardId) {
 	ui2 = ui2 | ui;
 	SetLocationId(ui2);
 }
-
 //_______________________________________________________________________________
 
 uint16_t MFMReaScopeFrame::GetLocationId() const{
@@ -231,11 +216,10 @@ uint16_t MFMReaScopeFrame::GetCheckSum()const {
 	return checksum;
 }
 //_______________________________________________________________________________
-void MFMReaScopeFrame::FillEventWithRamdomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
 	/// Fill frame items  of sinus values with random perios,
 
-	int size = GetNbItems();
+	
 	int nb_bits = 16;
 	float nbofperiodes = 1;
         int16_t board=112;
@@ -252,58 +236,26 @@ void MFMReaScopeFrame::FillEventWithRamdomConst(uint64_t timestamp,
 	int h;
 	h = pow(2, nb_bits) - 1;
         SetLocationId(channel,board);
-	if (size > 0)
+	if (nbitem > 0)
 		ReaScopeSetParameters(0, 1);
 	rando = (float) ((rand_r(&seed) / (RAND_MAX + 1.0)));
 	seed++;
 	
         SetSetupScope(1966);
-	for (i = 1; i < size; i++) {
+	for (i = 1; i < nbitem; i++) {
 		seed++;
 		nbofperiodes = 1 + rando * 4;
-		tempof = (float) i / (size / (nbofperiodes));
+		tempof = (float) i / (nbitem / (nbofperiodes));
 		uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
 		ReaScopeSetParameters(i, uivalue);
 	}
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
+	SetLocationId(1, 116);
 	SetCheckSum(66);
 
 }
 
-//_______________________________________________________________________________
-void MFMReaScopeFrame::GenerateAReaScopeExample(int type, int eventnumber) {
-	/// Generate a example of frame containing random value\n
-	/// usable for tests.
-	if (type != MFM_REA_SCOPE_FRAME_TYPE) {
-		cout
-				<< "Error in  MFMReaScopeFrame::GenerateAReaScopeExample type not understood\n";
-		return;
-	}
-
-	uint32_t unitBlock_size = 0;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 1;
-	uint32_t headersize = 0;
-	unitBlock_size = REA_SCOPE_STD_UNIT_BLOCK_SIZE;
-	itemsize = sizeof (MFM_ReaScope_Item);
-	nbitem = REA_SCOPE_NB_OF_ITEMS;
-
-	headersize = REA_SCOPE_HEADERSIZE;
-
-	framesize = headersize + nbitem * itemsize + sizeof(MFM_ReaScopeCheckSum);
-	revision = 1;
-	// generation of MFM header
-	MFM_make_header(unitBlock_size, 0, type, revision, (int) (framesize
-			/ unitBlock_size), (headersize / unitBlock_size), itemsize, nbitem);
-
-	SetLocationId(1, 2);
-	SetSetupScope(6);
-	FillEventWithRamdomConst(GetTimeStampUs(), eventnumber);
-	SetCheckSum(66);
-}
 //_______________________________________________________________________________
 string MFMReaScopeFrame::DumpData(char mode, bool nozero) const {
 	// Dump  values of the current event.
@@ -413,7 +365,7 @@ void MFMReaScopeFrame::FillStat() {
 
 }
 //_______________________________________________________________________________
-string MFMReaScopeFrame::GetStat(string info) {
+string MFMReaScopeFrame::GetStat(string info)const {
 
 	string display("");
 	stringstream ss("");

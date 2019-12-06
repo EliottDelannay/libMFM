@@ -11,7 +11,7 @@
 #define MUT_NB_SCALER 5
 #define MUT_UNIT_BLOCK_SIZE 2
 #define MUT_NB_MULTIPLICITY 2
-
+#define	MFM_MUTANT_FRAME_TYPE_TXT	"MFM_MUTANT_FRAME_TYPE"
 #include "MFMBlobFrame.h"
 
 #pragma pack(push, 1) // force alignment
@@ -46,35 +46,38 @@ public :
 MFMMutantFrame();
 MFMMutantFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
-virtual ~MFMMutantFrame();
-virtual void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
+ ~MFMMutantFrame();
+
+ void SetAttributs(void * pt =NULL);
 
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
 
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL);
+ void SetTimeStamp(uint64_t timestamp);
+ void SetEventNumber(uint32_t eventnumber);
+
+ const char * GetTypeText()const {return MFM_MUTANT_FRAME_TYPE_TXT;} 
+ int GetDefinedUnitBlockSize()const {return MUT_UNIT_BLOCK_SIZE;};
+ int GetDefinedHeaderSize()const {return MUT_HEADERFRAMESIZE;};
+ int GetDefinedFrameSize()const {return MUT_FRAMESIZE;};
+ string GetHeaderDisplay(char* infotext)const;
 // MUTANT
+ void      SetTriggerInfo(uint16_t trig);
+ uint16_t  GetTriggerInfo() const;
 
-virtual void      SetTriggerInfo(uint16_t trig);
-virtual uint16_t  GetTriggerInfo();
+ void      SetMultiplicity(int i, uint16_t mult);
+ uint16_t  GetMultiplicity(int i)const;
 
-virtual void      SetMultiplicity(int i, uint16_t mult);
-virtual uint16_t  GetMultiplicity(int i);
+ void      SetEvtCount(int i, uint32_t count);
+ uint32_t  GetEvtCount(int i)const;
 
-virtual void      SetEvtCount(int i, uint32_t count);
-virtual uint32_t  GetEvtCount(int i);
+ void      SetScaler(int i, uint32_t scaler);
+ uint32_t  GetScaler(int i)const;
 
-virtual void      SetScaler(int i, uint32_t scaler);
-virtual uint32_t  GetScaler(int i);
-
-virtual void      SetD2pTime(uint32_t trig);
-virtual uint32_t  GetD2pTime();
-
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-virtual string    DumpData(char mode ='d', bool nozero=0);
+ void      SetD2pTime(uint32_t trig);
+ uint32_t  GetD2pTime()const;
+ void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t enventnumber=0);
+ string    DumpData()const;
 };
 #pragma pack(pop) // free aligment
 #endif

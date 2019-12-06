@@ -12,7 +12,7 @@
 
 
 #pragma pack(push, 1) // force alignment
-
+#define MFM_S3_ALPHA_FRAME_TYPE_TXT "MFM_S3_ALPHA_FRAME_TYPE"
 
 //____________MFMS3AlphaFrame___________________________________________________________
 
@@ -25,14 +25,14 @@ MFMS3AlphaFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMS3AlphaFrame();
 
-virtual void      SetSetup(uint16_t i,uint16_t setup);
-virtual uint16_t  GetSetup(uint16_t i);
-virtual void      SetStatus(uint16_t status);
-virtual uint16_t  GetStatus();
-virtual void      SetEnergy(uint16_t energy);
-virtual uint16_t  GetEnergy();
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
+ void      SetSetup(uint16_t i,uint16_t setup);
+ uint16_t  GetSetup(uint16_t i);
+ void      SetStatus(uint16_t status);
+ uint16_t  GetStatus();
+ void      SetEnergy(uint16_t energy);
+ uint16_t  GetEnergy();
+ void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
+ const char * GetTypeText()const {return MFM_S3_ALPHA_FRAME_TYPE_TXT;} 
 };
 #pragma pack(pop) // free aligment
 #endif

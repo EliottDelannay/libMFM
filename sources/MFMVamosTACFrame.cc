@@ -78,8 +78,8 @@ uint16_t MFMVamosTACFrame::GetChecksum() const{
 }
 
 //_______________________________________________________________________________
-void MFMVamosTACFrame::FillEventRandomConst(uint64_t timestamp,
-		uint32_t enventnumber) {
+void MFMVamosTACFrame::FillDataWithRamdomValue(uint64_t timestamp,
+		uint32_t eventnumber) {
 
 	/// Fill all data of frame with random values to do test
 	/// And report time stamp and event number
@@ -87,7 +87,7 @@ void MFMVamosTACFrame::FillEventRandomConst(uint64_t timestamp,
 	uint16_t uivalue = (uint16_t) (4294967296 * value / RAND_MAX);
 	SetTime(uivalue);
 	SetCristalId(8,112);
-	SetEventNumber(enventnumber);
+	SetEventNumber(eventnumber);
 	SetTimeStamp(timestamp);
 }
 
@@ -110,7 +110,7 @@ void MFMVamosTACFrame::InitStat() {
 	}
 }
 //_______________________________________________________________________________
-string  MFMVamosTACFrame::GetStat(string info){
+string  MFMVamosTACFrame::GetStat(string info)const{
 
 	string display("");
 	stringstream ss("");

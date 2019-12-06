@@ -10,7 +10,7 @@
 #include "MFMNumExoFrame.h"
 
 #define REA_GENERIC_NB_STATUS 2
-#define REA_GENERIC_STD_UNIT_BLOCK_SIZE 4
+#define MFM_REA_GENE_TYPE_TXT "MFM_REA_GENE_TYPE"
 
 #pragma pack(push, 1) // force alignment
 
@@ -38,16 +38,16 @@ class MFMReaGenericFrame : public MFMNumExoFrame
 
 public :
 
-virtual void      SetStatus(int i, uint16_t status);
-virtual uint16_t  GetStatus(int i)const;
-virtual void      SetTypeTns(enum ReaTnsType type);
-virtual enum ReaTnsType  GetTypeTns()const;
-virtual void      SetEnergy(uint16_t energie);
-virtual uint16_t  GetEnergy()const;
-virtual void      SetTime(uint16_t time);
-virtual uint16_t  GetTime()const;
-virtual void      FillEventRandomConst(uint64_t timestamp=0,uint32_t enventnumber=0);
-
+ void      SetStatus(int i, uint16_t status);
+ uint16_t  GetStatus(int i)const;
+ void      SetTypeTns(enum ReaTnsType type);
+ enum ReaTnsType  GetTypeTns()const;
+ void      SetEnergy(uint16_t energie);
+ uint16_t  GetEnergy()const;
+ void      SetTime(uint16_t time);
+ uint16_t  GetTime()const;
+ void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t enventnumber=0);
+ const char * GetTypeText()const {return MFM_REA_GENE_TYPE_TXT;} 
 };
 #pragma pack(pop) // free aligment
 #endif
