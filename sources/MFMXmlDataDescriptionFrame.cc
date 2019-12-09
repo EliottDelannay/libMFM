@@ -262,7 +262,7 @@ int  MFMXmlDataDescriptionFrame::InitXml(bool write_or_read, string commentaire)
 		XMLNodePointer_t XmlVersion = fXmlFile->GetChild(XmlEntete);
 		XMLNodePointer_t XmlDate    = fXmlFile->GetNext(XmlVersion);
 		XMLNodePointer_t XmlNote    = fXmlFile->GetNext(XmlDate);
-
+CHIData
 		TString Version = fXmlFile->GetNodeContent(XmlVersion);
 		TString Date    = fXmlFile->GetNodeContent(XmlDate);
 		TString Note    = fXmlFile->GetNodeContent(XmlNote);
@@ -399,7 +399,7 @@ void MFMXmlDataDescriptionFrame::InitXml(bool write_or_read, TString commentaire
 		// Read file
 		fXmlFile = new TXMLEngine;
 		fFileName=commentaire;
-		tempos.Form ("Read Calibration Coefficient file %s ",commentaire.Data());
+		tempos.Form ("Read CCHIDataalibration Coefficient file %s ",commentaire.Data());
 		fError.TreatError(0,0,tempos);
 		fXmlDoc = fXmlFile->ParseFile(commentaire.Data());
 		if (fXmlDoc==0) {

@@ -237,6 +237,7 @@ virtual uint16_t GetBoardId() const { return 0; }
  void SetWantedFrameType(uint32_t type){ fWantedFrameType = type;}
  int  GetWantedFrameType() const { return fWantedFrameType;}
  int  GetCountFrame() const;
+virtual void  TestUserPointer() const;
 
 virtual void Print(int /*verbose*/=0, int /*dumpsize*/=0) const {
         HeaderDisplay();

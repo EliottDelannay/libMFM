@@ -75,12 +75,13 @@ void MFMCommonFrame::Init() {
 	fTimeStamp   = 0;
 	fEventNumber = 0;
 	fFrameType   = 0;
+	fWantedFrameType =0;
 }
 //_______________________________________________________________________________
 void MFMCommonFrame::SetUserDataPointer()
 {
    SetHeaderSizeFromFrameData();
-   pUserData_char = pData_char + GetHeaderSize();
+   pUserData_char = pData_char + GetHeaderSize() +6*(int)(HasTimeStamp())+4*(int)(HasEventNumber());
 }
 //_______________________________________________________________________________
 void MFMCommonFrame::SetHeader(MFM_topcommon_header* header) {
@@ -501,6 +502,7 @@ void MFMCommonFrame::SetPointers(void * pt) {
 	pData_char = (char*) pData;
 	SetUnitBlockSizeFromFrameData();
 	SetUserDataPointer();
+	
 }
 //_______________________________________________________________________________
 void MFMCommonFrame::SetAttributs(void * pt) {
@@ -532,6 +534,7 @@ void MFMCommonFrame::ReadAttributsExtractFrame(int verbose,int dumpsize,void * p
 	SetAttributs(pt);
 	ExtractInfoFrame(verbose,dumpsize);
 	FillStat();
+	TestUserPointer();
 	
 }
 //_______________________________________________________________________________
@@ -904,6 +907,8 @@ string MFMCommonFrame::WhichFrame(uint16_t type) const{
 		tempos = "MFM_SCALER_DATA_FRAME_TYPE";
 	if (type == MFM_MERGE_EN_FRAME_TYPE)
 		tempos = "MFM_MERGE_EN_FRAME_TYPE";
+	if (type == MFM_MERGE_TS_FRAME_TYPE)
+		tempos = "MFM_MERGE_TS_FRAME_TYPE";
 	if (type == MFM_XML_DATA_DESCRIPTION_FRAME_TYPE)
 		tempos = "MFM_XML_DATA_DESCRIPTION_FRAME_TYPE";
 	if (type == MFM_RIBF_DATA_FRAME_TYPE)
@@ -1028,6 +1033,16 @@ void MFMCommonFrame::PrintStat(string info) const{
 //_______________________________________________________________________________
 int MFMCommonFrame::GetCountFrame() const{
 	return fCountFrame;
+}
+
+//_______________________________________________________________________________
+void MFMCommonFrame::TestUserPointer() const
+{ 
+if  (GetPointUserData() != pData_char + GetDefinedHeaderSize()){
+    fError.TreatError ( 0,2," GetPointHeader() no good!");
+    debug_frame() ;
+    }
+   
 }
 //_______________________________________________________________________________
 void MFMCommonFrame::debug_frame() const

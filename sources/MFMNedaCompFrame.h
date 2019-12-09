@@ -31,7 +31,7 @@ struct MFM_NedaComp_Data {
 	  unsigned TdcCorValue    : 16;
 	  unsigned SlowIntegral   : 32;
 	  unsigned FastIntegral   : 32;
-	  unsigned   IntRaiseTime : 32;
+	  unsigned IntRaiseTime : 32;
 	  unsigned NeuralNetWork  : 16;
 	  unsigned NbZero         : 8;
 	  unsigned NeutronFlag    : 8;
@@ -46,6 +46,7 @@ struct MFM_NedaComp_Frame{
 	 MFM_NedaComp_Header       NedaCompHeader;
 	 MFM_NedaComp_Data         NedaCompData;
 };
+
 
 //____________MFMNedaCompFrame___________________________________________________________
 
@@ -68,6 +69,7 @@ virtual ~MFMNedaCompFrame();
 //virtual void SetHeaderBasic(MFM_basic_header* header) ;
 
  void SetAttributs(void * pt =NULL);
+ void SetUserDataPointer() ;
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
 

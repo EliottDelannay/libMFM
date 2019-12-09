@@ -49,6 +49,10 @@ void MFMBoxDiagFrame::SetTimeStop(uint16_t timestop) {
 	((MFM_BoxDiag_frame*) pHeader)->Data.TimeStop= timestop;
 }
 //_______________________________________________________________________________
+void MFMBoxDiagFrame::SetUserDataPointer(){
+	pUserData_char = (char*) &(((MFM_BoxDiag_frame*) pHeader)->Data);
+}
+//_______________________________________________________________________________
 
 uint16_t MFMBoxDiagFrame::GetTimeStop() const{
 	/// Get Time

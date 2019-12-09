@@ -43,15 +43,15 @@ public :
 
 // DIAMANT
 
-virtual void      SetStatus(int i, uint16_t status);
-virtual uint16_t  GetStatus(int i);
-virtual void      SetEnergy(uint32_t energy);
-virtual uint32_t  GetEnergy();
-virtual void      SetTop(uint32_t energy);
-virtual uint32_t  GetTop();
-
-virtual void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t eventnumber=0);
-virtual const char * GetTypeText()const {return MFM_DIAMANT_FRAME_TYPE_TXT;}
+ void      SetStatus(int i, uint16_t status);
+ uint16_t  GetStatus(int i);
+ void      SetEnergy(uint32_t energy);
+ uint32_t  GetEnergy();
+ void      SetTop(uint32_t energy);
+ uint32_t  GetTop();
+ void SetUserDataPointer();
+ void      FillDataWithRamdomValue(uint64_t timestamp=0,uint32_t eventnumber=0);
+ const char * GetTypeText()const {return MFM_DIAMANT_FRAME_TYPE_TXT;}
 };
 #pragma pack(pop) // free aligment
 #endif

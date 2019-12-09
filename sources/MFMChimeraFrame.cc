@@ -34,10 +34,8 @@ MFMChimeraFrame::~MFMChimeraFrame() {
 	/// destructor of Chimera frame
 }
 //_______________________________________________________________________________
-void MFMChimeraFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMChimeraFrame::SetUserDataPointer(){
+pUserData_char = (char*) &(((MFM_CHI_frame*) pHeader)->CHIData);
 }
 //_______________________________________________________________________________
 void MFMChimeraFrame::SetAttributs(void * pt) {
@@ -45,7 +43,6 @@ void MFMChimeraFrame::SetAttributs(void * pt) {
 	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
-	pUserData_char = (char*) &(((MFM_CHI_header*) pHeader)->CHIData);
 }
 //_______________________________________________________________________________
 
@@ -54,7 +51,7 @@ void MFMChimeraFrame::SetTimeStampFromFrameData() {
 	fTimeStamp = 0;
 	uint64_t * timeStamp = &(fTimeStamp);
 	memcpy(((char*) (&fTimeStamp)),
-			((MFM_CHI_header*) pHeader)->CHIEventInfo.EventTime, 6);
+			((MFM_CHI_frame*) pHeader)->CHIEventInfo.EventTime, 6);
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt64((timeStamp), 6);
 
@@ -67,7 +64,7 @@ void MFMChimeraFrame::SetEventNumberFromFrameData() {
 	fEventNumber = 0;
 	char * eventNumber = (char*) &(fEventNumber);
 	//memcpy(&fEventNumber,((char*)((MFM_hel_header*)pHeader)->helEvtInfo.eventIdx),4);
-	fEventNumber = ((MFM_CHI_header*) pHeader)->CHIEventInfo.EventIdx;
+	fEventNumber = ((MFM_CHI_frame*) pHeader)->CHIEventInfo.EventIdx;
 	if (fLocalIsBigEndian != fFrameIsBigEndian)
 		SwapInt32((uint32_t *) (eventNumber), 4);
 }
@@ -78,15 +75,15 @@ void MFMChimeraFrame::SetTimeStamp(uint64_t timestamp) {
 
 	char* pts = (char*) &timestamp;
 	timestamp = timestamp & 0x0000ffffffffffff;
-	memcpy(((MFM_CHI_header*) pHeader)->CHIEventInfo.EventTime, pts, 6);
+	memcpy(((MFM_CHI_frame*) pHeader)->CHIEventInfo.EventTime, pts, 6);
 }
 //_______________________________________________________________________________
 void MFMChimeraFrame::SetEventNumber(uint32_t eventnumber) {
 	/// Set Event Number of frame
-	((MFM_CHI_header*) pHeader)->CHIEventInfo.EventIdx = eventnumber;
+	((MFM_CHI_frame*) pHeader)->CHIEventInfo.EventIdx = eventnumber;
 }
 //_______________________________________________________________________________
-void MFMChimeraFrame::FillEventRandomConst(uint64_t timestamp,
+void MFMChimeraFrame::FillDataWithRamdomValue(uint64_t timestamp,
 		uint32_t enventnumber) {
 
 	/// Fill all data of frame with random values to do test
@@ -94,25 +91,4 @@ void MFMChimeraFrame::FillEventRandomConst(uint64_t timestamp,
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 }
-//_______________________________________________________________________________
-string MFMChimeraFrame::GetHeaderDisplay(char* infotext) {
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-	ss << "   EN = " << GetEventNumber();
-	ss << "   TS = " << GetTimeStamp();
-	display = ss.str();
-	return display;
-}
-//_______________________________________________________________________________
-string MFMChimeraFrame::DumpData(char mode, bool nozero) {
-	// Dump parameter Label and parameter value of the current event.
-	// if enter parameter is true (default value), all zero parameter of event aren't dumped
-	// mode = 'd' for decimal, 'b' for binary, 'h' for hexa, 'o' for octal
 
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	return display;
-}

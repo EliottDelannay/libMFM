@@ -71,14 +71,14 @@ MFMExogamFrame();
 MFMExogamFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMExogamFrame();
-virtual void SetPointers(void * pt =NULL);
 
-virtual void SetAttributs(void * pt =NULL);
+ void SetUserDataPointer();
+ void SetAttributs(void * pt =NULL);
  void SetTimeStampFromFrameData();
  void SetEventNumberFromFrameData();
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
-virtual string GetHeaderDisplay(char* infotext=NULL)const;
+ void SetTimeStamp(uint64_t timestamp);
+ void SetEventNumber(uint32_t eventnumber);
+ string GetHeaderDisplay(char* infotext=NULL)const;
 
  const char * GetTypeText()const {return MFM_EXO2_FRAME_TYPE_TXT;} 
  int GetDefinedUnitBlockSize()const {return EXO_STD_UNIT_BLOCK_SIZE;};

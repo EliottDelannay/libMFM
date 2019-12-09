@@ -18,7 +18,7 @@ struct MFM_CoboTopo_Data {
 
 };
 
-struct MFM_CoboTopo_header{
+struct MFM_CoboTopo_frame{
 	 MFM_common_header  CoboTopoBlobHeader;
 	 MFM_CoboTopo_Data  CoboTopoData;
 };
@@ -40,16 +40,16 @@ MFMCoboTopoFrame();
 MFMCoboTopoFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMCoboTopoFrame();
-virtual void SetPointers(void * pt =NULL);
-virtual void SetAttributs(void * pt =NULL);
-virtual uint16_t CoboGetIdx()const ;
-virtual void CoboSetIdx(uint16_t idx);
-virtual uint16_t CoboGetAsadMask() const;
-virtual void CoboSetAsadMask(uint16_t asadmask);
-virtual uint16_t CoboGetTpMode () const;
-virtual void CoboSetTpMode (uint16_t mode);
-virtual bool HasTimeStamp()   const { return false; }
-virtual bool HasEventNumber() const { return false; }
+ void SetAttributs(void * pt =NULL);
+ uint16_t CoboGetIdx()const ;
+ void CoboSetIdx(uint16_t idx);
+ void SetUserDataPointer();
+ uint16_t CoboGetAsadMask() const;
+ void CoboSetAsadMask(uint16_t asadmask);
+ uint16_t CoboGetTpMode () const;
+ void CoboSetTpMode (uint16_t mode);
+ bool HasTimeStamp()   const { return false; }
+ bool HasEventNumber() const { return false; }
 const char * GetTypeText()const {return MFM_COBOT_FRAME_TYPE_TXT;} 
 int GetDefinedUnitBlockSize()const {return COBOT_STD_UNIT_BLOCK_SIZE;};
 int GetDefinedHeaderSize()const {return COBOT_HEADERSIZE;};

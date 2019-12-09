@@ -39,6 +39,7 @@ virtual int  GetNbItems()  const;
  void SetItemSize(int itemsize);
  void SetNbItem(int nbitem);
 virtual void SetAttributs(void * pt=NULL);
+virtual void SetUserDataPointer();
  void *GetItem(int i) const ;
  void *GetCurrentItem()const{return pCurrentItem;} ;
 virtual string GetHeaderDisplay(char* infotext=NULL) const;

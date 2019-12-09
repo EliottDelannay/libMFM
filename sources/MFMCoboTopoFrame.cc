@@ -29,10 +29,8 @@ MFMCoboTopoFrame::~MFMCoboTopoFrame() {
 /// destructor of Exogam frame
 }
 //_______________________________________________________________________________
-void MFMCoboTopoFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMCoboTopoFrame::SetUserDataPointer(){
+pUserData_char = (char*) &(((MFM_CoboTopo_frame*) pHeader)->CoboTopoData);
 }
 //_______________________________________________________________________________
 void MFMCoboTopoFrame::SetAttributs(void * pt) {
@@ -41,27 +39,27 @@ void MFMCoboTopoFrame::SetAttributs(void * pt) {
 }
 //_______________________________________________________________________________
 uint16_t MFMCoboTopoFrame::CoboGetIdx() const {
-	return ((int16_t) (((MFM_CoboTopo_header*) pHeader)->CoboTopoData.CoboIdx));
+	return ((int16_t) (((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.CoboIdx));
 }
 //_______________________________________________________________________________
 void MFMCoboTopoFrame::CoboSetIdx(uint16_t idx){
-	((MFM_CoboTopo_header*) pHeader)->CoboTopoData.CoboIdx = idx;
+	((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.CoboIdx = idx;
 }
 //_______________________________________________________________________________
 uint16_t MFMCoboTopoFrame::CoboGetAsadMask() const {
-	return ((int16_t) (((MFM_CoboTopo_header*) pHeader)->CoboTopoData.AsadMask));
+	return ((int16_t) (((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.AsadMask));
 }
 //_______________________________________________________________________________
 void MFMCoboTopoFrame::CoboSetAsadMask(uint16_t asadmask){
-	((MFM_CoboTopo_header*) pHeader)->CoboTopoData.AsadMask = asadmask;
+	((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.AsadMask = asadmask;
 }
 //_______________________________________________________________________________
 uint16_t MFMCoboTopoFrame::CoboGetTpMode() const {
-	return ((int16_t) (((MFM_CoboTopo_header*) pHeader)->CoboTopoData.AsadMask));
+	return ((int16_t) (((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.AsadMask));
 }
 //_______________________________________________________________________________
 void MFMCoboTopoFrame::CoboSetTpMode(uint16_t mode) {
-	((MFM_CoboTopo_header*) pHeader)->CoboTopoData.AsadMask = mode;
+	((MFM_CoboTopo_frame*) pHeader)->CoboTopoData.AsadMask = mode;
 }
 
 //_______________________________________________________________________________

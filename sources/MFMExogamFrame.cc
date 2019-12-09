@@ -36,10 +36,8 @@ MFMExogamFrame::~MFMExogamFrame() {
 	}
 }
 //_______________________________________________________________________________
-void MFMExogamFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMExogamFrame::SetUserDataPointer() {
+	pUserData_char=(char*)&(((MFM_exo_header*) pHeader)->ExoData);
 }
 //_______________________________________________________________________________
 void MFMExogamFrame::SetAttributs(void * pt) {
@@ -47,7 +45,6 @@ void MFMExogamFrame::SetAttributs(void * pt) {
 	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
-	pUserData_char=(char*)&(((MFM_exo_header*) pHeader)->ExoData);
 }
 //_______________________________________________________________________________
 void MFMExogamFrame::SetTimeStampFromFrameData() {
@@ -105,7 +102,6 @@ void MFMExogamFrame::ExoSetCristalId(uint16_t tgRequest, uint16_t idBoard) {
 				ui2 = ui2 | ui;
 				ExoSetCristalId(ui2);
 }
-
 //_______________________________________________________________________________
 
 uint16_t MFMExogamFrame::ExoGetCristalId() const{
@@ -183,7 +179,6 @@ uint16_t MFMExogamFrame::ExoGetDeltaT() const{
 		SwapInt16(&deltat);
 	return deltat;
 }
-
 //_______________________________________________________________________________
 void MFMExogamFrame::ExoSetInnerM(int i, uint16_t inner) {
 	/// Set Inner data , 6 MeV (i=0) or inner 20 MeV (i=1)

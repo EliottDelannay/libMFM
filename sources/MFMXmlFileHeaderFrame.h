@@ -18,11 +18,9 @@ struct MFM_XmlFile_header_frame{
 	 MFM_XmlFile_data  Data;
 };
 
-
-
-
 #define MFM_XML_FILE_HEADER_FRAME_TYPE_TEXT "MFM_XML_FILE_HEADER_FRAME_TYPE"
 #define MFM_XML_FILE_HEADER_STD_UNIT_BLOCK_SIZE 1
+
 //____________MFMXmlFileHeaderFrame___________________________________________________________
 
 class MFMXmlFileHeaderFrame : public MFMBlobFrame
@@ -34,20 +32,15 @@ MFMXmlFileHeaderFrame();
 MFMXmlFileHeaderFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMXmlFileHeaderFrame();
-virtual void SetPointers(void * pt =NULL);
+void SetAttributs(void * pt =NULL);
+void SetUserDataPointer(); 
+const char * GetTypeText()const {return MFM_XML_FILE_HEADER_FRAME_TYPE_TEXT;} 
+int GetDefinedUnitBlockSize()const {return MFM_XML_FILE_HEADER_STD_UNIT_BLOCK_SIZE;};
+ 
+ char * GetText()const; 
+ bool HasTimeStamp()   const { return false; }
+ bool HasEventNumber() const { return false; }
 
- const char * GetTypeText()const {return MFM_XML_FILE_HEADER_FRAME_TYPE_TEXT;} 
- int GetDefinedUnitBlockSize()const {return MFM_XML_FILE_HEADER_STD_UNIT_BLOCK_SIZE;};
-virtual char * GetText();
-virtual void SetAttributs(void * pt =NULL);
-virtual uint64_t GetTimeStamp();
-virtual uint64_t GetTimeStampAttribut();
-virtual uint32_t GetEventNumberAttribut();
-virtual uint32_t GetEventNumber();
-virtual bool HasTimeStamp()   const { return false; }
-virtual bool HasEventNumber() const { return false; }
-virtual void SetTimeStamp(uint64_t timestamp);
-virtual void SetEventNumber(uint32_t eventnumber);
 void FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
 string FillExampleOfText();
 

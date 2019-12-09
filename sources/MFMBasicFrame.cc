@@ -63,6 +63,10 @@ void MFMBasicFrame::SetHeaderBasic(MFM_basic_header* header) {
 	pHeader = (MFM_topcommon_header*)header;
 }
 //_______________________________________________________________________________
+void MFMBasicFrame::SetUserDataPointer(){
+	pUserData_char = pData_char+GetDefinedHeaderSize();
+}
+//_______________________________________________________________________________
 void MFMBasicFrame::SetNbItemsFromFrameData() {
 	/// Compute number of items
 	unsigned int tmp;

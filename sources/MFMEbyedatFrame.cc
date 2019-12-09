@@ -40,6 +40,7 @@ MFMEbyedatFrame::~MFMEbyedatFrame() {
 	if (fIndiceLabel) delete [] fIndiceLabel;
 	if (fNbLabels) delete [] fNbLabels;
 }
+
 //_______________________________________________________________________________
 void MFMEbyedatFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
@@ -47,7 +48,6 @@ void MFMEbyedatFrame::SetAttributs(void * pt) {
 	SetEventNumberFromFrameData();
 	SetTimeStampFromFrameData();
 }
-
 //_______________________________________________________________________________
 string MFMEbyedatFrame::GetHeaderDisplay(char* infotext) const {
 	stringstream ss;
@@ -210,7 +210,8 @@ void MFMEbyedatFrame::FillDataWithRamdomValue(uint64_t timestamp,
 //_______________________________________________________________________________
 int  MFMEbyedatFrame::GetDefinedHeaderSize() const {
 /// return value of fixed Header Size which depend on type or wanted type
-
+   // cout << " MFMEbyedatFrame::GetDefinedHeaderSize() GetFrameType() ="<<GetFrameType()<<"\n";
+    // cout << " MFMEbyedatFrame::GetDefinedHeaderSize() GetwantedFrameType() ="<<GetWantedFrameType()<<"\n";
 	int type = 0;
 	int headersize;
 		type = GetFrameType();

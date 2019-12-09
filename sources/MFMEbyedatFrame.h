@@ -75,6 +75,7 @@ virtual ~MFMEbyedatFrame();
 bool IsParameterPresent(const string & name) const;
 
 virtual void SetAttributs(void * pt =NULL);
+
 virtual const char * GetTypeText()const {
 	if (GetFrameType() == MFM_EBY_EN_FRAME_TYPE) return  MFM_EBY_EN_FRAME_TYPE_TXT;
 	if (GetFrameType() == MFM_EBY_TS_FRAME_TYPE) return  MFM_EBY_TS_FRAME_TYPE_TXT;
@@ -85,7 +86,6 @@ int GetItemSizeFromStructure(int type=0) const{return sizeof (MFM_EbyedatItem);}
 int GetDefinedUnitBlockSize()const {return EBYEDAT_STD_UNIT_BLOCK_SIZE;};
 int GetDefinedHeaderSize() const;
 int GetDefinedFrameSize() const {return 0;};
-
 
 virtual void SetTimeStamp(uint64_t timestamp);
 virtual void SetEventNumber(uint32_t eventnumber);

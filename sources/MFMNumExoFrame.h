@@ -55,10 +55,8 @@ MFMNumExoFrame();
 MFMNumExoFrame(int unitBlock_size, int dataSource,
 	 		 int frameType, int revision, int frameSize,int headerSize);
 virtual ~MFMNumExoFrame();
-
-virtual void SetPointers(void * pt =NULL);
 virtual void SetAttributs(void * pt =NULL);
-void SetUserDataPointer() {pUserData_char = (char*) &(((MFM_numexo_frame*) pHeader)->Data);};
+void SetUserDataPointer();
 void SetTimeStampFromFrameData();
 void SetEventNumberFromFrameData();
 virtual void SetTimeStamp(uint64_t timestamp);

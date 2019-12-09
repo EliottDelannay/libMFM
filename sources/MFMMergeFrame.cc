@@ -22,7 +22,6 @@ MFMMergeFrame::MFMMergeFrame(int unitBlock_size, int dataSource, int frameType,
 	SetPointers();
 
 }
-
 //_______________________________________________________________________________
 MFMMergeFrame::MFMMergeFrame() {
 	/// Constructor of a empty frame
@@ -34,20 +33,6 @@ MFMMergeFrame::MFMMergeFrame() {
 MFMMergeFrame::~MFMMergeFrame() {
 	///destructor of MFMMergeFrame
 }
-
-//_______________________________________________________________________________
-void MFMMergeFrame::SetPointers(void * pt) {
-	/// Initialize pointers of frame\n
-	/// if pt==NULL initialization is with current value of main pointer of frame (pData)\n
-	/// else initialization is done with pData = pt\n
-	/// pData must be the reference;
-	MFMBasicFrame::SetPointers(pt);
-	SetTimeStampFromFrameData();
-	SetEventNumberFromFrameData();
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
-
-}
 //_______________________________________________________________________________
 void MFMMergeFrame::SetAttributs(void * pt) {
 	/// Initialize a set of attributs (frame size, endianess, type ...) and pointers of frame\n
@@ -56,6 +41,8 @@ void MFMMergeFrame::SetAttributs(void * pt) {
 	/// else initialization is done with pData = pt
 	SetPointers(pt);
 	MFMBasicFrame::SetAttributs(pt);
+	SetTimeStampFromFrameData();
+	SetEventNumberFromFrameData();
 	ResetAdd();
 	ResetReadInMem();
 }
@@ -89,7 +76,7 @@ void MFMMergeFrame::SetTimeStampFromFrameData() {
 }
 //_______________________________________________________________________________
 
-uint32_t MFMMergeFrame::GetDeltaTime() {
+uint32_t MFMMergeFrame::GetDeltaTime() const {
 	/// Compute time stamp and fill fTimeStamp attribut. return value of TimeStamp
 	uint32_t DeltaTime = 0;
 	uint32_t * deltatime = &(DeltaTime);
@@ -170,7 +157,6 @@ void MFMMergeFrame::AddFrame(MFMCommonFrame* frame) {
 				<< availablesize << "\n";
 	}
 }
-
 //_______________________________________________________________________________
 void MFMMergeFrame::ReadInFrame(MFMCommonFrame* frame) {
 	// Read inside frame in Merge frame and return data in "frame"
@@ -178,36 +164,6 @@ void MFMMergeFrame::ReadInFrame(MFMCommonFrame* frame) {
 	int readsize = frame->ReadInMem(&pCurrentPointerForRead);
 	if (readsize <= 0)
 		cout << "Error in MFMMergeFrame::ReadFrame , no more place ";
-}
-
-//____________________________________________________________________________
-string MFMMergeFrame::GetHeaderDisplay(char* infotext) const{
-	stringstream ss;
-	string display("");
-	display = ss.str();
-	int type = GetFrameType();
-	if (infotext == NULL) {
-
-		if (type == MFM_MERGE_TS_FRAME_TYPE) {
-			ss << MFMCommonFrame::GetHeaderDisplay(
-					(char*) "--Merge Frame on timestamp--");
-		} else {
-			ss << MFMCommonFrame::GetHeaderDisplay(
-					(char*) "--Merge Frame on enventnumber--");
-		}
-
-	} else
-		ss << MFMCommonFrame::GetHeaderDisplay(infotext);
-
-	if (type == MFM_MERGE_TS_FRAME_TYPE) {//do nothing
-		ss << "   TS = " << GetTimeStamp();
-	}
-	if (type == MFM_MERGE_EN_FRAME_TYPE) {
-		ss << "   EN = " << GetEventNumber();
-	}
-
-	display = ss.str();
-	return display;
 }
 //____________________________________________________________________________
 bool MFMMergeFrame::HasTimeStamp()const{ return (fFrameType == MFM_MERGE_TS_FRAME_TYPE);}

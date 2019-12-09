@@ -37,10 +37,8 @@ MFMNumExoFrame::~MFMNumExoFrame() {
 }
 
 //_______________________________________________________________________________
-void MFMNumExoFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMNumExoFrame::SetUserDataPointer() {
+	pUserData_char = (char*) &(((MFM_numexo_frame*) pHeader)->Data);
 }
 //_______________________________________________________________________________
 void MFMNumExoFrame::SetAttributs(void * pt) {
@@ -48,7 +46,6 @@ void MFMNumExoFrame::SetAttributs(void * pt) {
 	MFMBlobFrame::SetAttributs(pt);
 	SetTimeStampFromFrameData();
 	SetEventNumberFromFrameData();
-	pUserData_char = (char*) &(((MFM_numexo_frame*) pHeader)->Data);
 }
 //_______________________________________________________________________________
 

@@ -31,6 +31,10 @@ void MFMDiamantFrame::SetStatus(int i, uint16_t status) {
 	cout << "MFMDiamantFrame::DiaSetStatus Error of status index\n";
 }
 //_______________________________________________________________________________
+void MFMDiamantFrame::SetUserDataPointer(){
+pUserData_char = (char*) &(((MFM_dia_frame*) pHeader)->Data);
+}
+//_______________________________________________________________________________
 
 uint16_t MFMDiamantFrame::GetStatus(int i) {
 	/// Set Status (0,1 or 2)

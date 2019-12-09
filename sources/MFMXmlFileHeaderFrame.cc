@@ -32,65 +32,29 @@ MFMXmlFileHeaderFrame::~MFMXmlFileHeaderFrame() {
 	/// destructor of Exogam frame
 }
 //_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::SetPointers(void * pt) {
-	MFMBlobFrame::SetPointers(pt);
-	pHeader = (MFM_topcommon_header*) pData;
-	pData_char = (char*) pData;
+void MFMXmlFileHeaderFrame::SetUserDataPointer(){
+pUserData_char = (char*) &(((MFM_XmlFile_header_frame*) pHeader)->Data);
 }
 //_______________________________________________________________________________
 void MFMXmlFileHeaderFrame::SetAttributs(void * pt) {
 	SetPointers(pt);
 	MFMBlobFrame::SetAttributs(pt);
-	pUserData_char=pData_char+fHeaderSize;
-}
-//_______________________________________________________________________________
-
-uint64_t MFMXmlFileHeaderFrame::GetTimeStamp() {
-	/// do nothing and return 0;
-
-	return 0;
-}
-//_______________________________________________________________________________
-uint64_t MFMXmlFileHeaderFrame::GetTimeStampAttribut() {
-	/// Return attibut of time stamp
-	return 0;
 }
 
 //_______________________________________________________________________________
-
-uint32_t MFMXmlFileHeaderFrame::GetEventNumber() {
-	/// dp nothing and return 0
-	return 0;
-}
-
-//_______________________________________________________________________________
-uint32_t MFMXmlFileHeaderFrame::GetEventNumberAttribut() {
-	/// Return attibut of event number
-	return 0;
+char*  MFMXmlFileHeaderFrame::GetText()const{
+	return GetPointUserData();
 }
 //_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::SetTimeStamp(uint64_t timestamp) {
-	/// Set value of Time Stamp in frame
-
-}
-//_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::SetEventNumber(uint32_t eventnumber) {
-	/// Set Event Number of frame
-
-}
-//_______________________________________________________________________________
-void MFMXmlFileHeaderFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber){
+void MFMXmlFileHeaderFrame::FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber) {
 	// fill frame with example given in FillExampleOfText()
 	string text;
 	text =  FillExampleOfText() ;
 	int size = text.size();
-	cout << " size of xml text"<<size<<"\n";
-	SetBufferSize(size + MFM_BLOB_HEADER_SIZE );
-	strcpy((char*)(text.data()),(const char*)GetText());
-}
-//_______________________________________________________________________________
-char*  MFMXmlFileHeaderFrame::GetText(){
-return ((char*)  &(((MFM_XmlFile_header_frame*) pHeader)->Data));
+	int framesize = size +1+MFM_BLOB_HEADER_SIZE ;
+	SetBufferSize(framesize );
+	strcpy(GetText(),(const char*)(text.data()));
+	SetFrameSize(framesize); 
 }
 //_______________________________________________________________________________
 string MFMXmlFileHeaderFrame::FillExampleOfText() {

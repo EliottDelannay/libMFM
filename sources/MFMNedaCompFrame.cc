@@ -86,7 +86,10 @@ void  MFMNedaCompFrame::SetEventNumberFromFrameData() {
 		SwapInt32((uint32_t *) (eventNumber), 4);
 }
 
-
+//_______________________________________________________________________________
+void MFMNedaCompFrame::SetUserDataPointer() {
+	pUserData_char=(char*)&(((MFM_NedaComp_Frame*) pHeader)->NedaCompData);
+}
 //_______________________________________________________________________________
 void MFMNedaCompFrame::SetTimeStamp(uint64_t timestamp) {
 	// Set frame timestamp

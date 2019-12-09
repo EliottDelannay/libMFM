@@ -48,6 +48,7 @@ public :
  uint16_t  GetEnergy()const;
  void      SetTime(uint16_t time);
  uint16_t  GetTime()const;
+ void SetUserDataPointer();
 
  void      FillDataWithRamdomValue(uint64_t timestamp,uint32_t enventnumber);
  const char * GetTypeText()const {return MFM_BOX_DIAG_FRAME_TYPE_TXT;} 

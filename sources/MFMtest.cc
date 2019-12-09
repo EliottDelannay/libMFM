@@ -538,6 +538,7 @@ void PrintQuestion() {
 	cout << "  25  ReaScope Frame\n";
 	
 	cout << "  26  Xml Data Description Frame\n";
+	cout << "  27  Xml Data Header MFM Frame file\n";
 	cout << "  99  Mixte of all Frame\n";
 
 	cout << "\n";
@@ -669,7 +670,7 @@ void ReadUserFrame(MFMCommonFrame* commonframe) {
 	}
 	case MFM_MERGE_EN_FRAME_TYPE:
 	case MFM_MERGE_TS_FRAME_TYPE: {
-		fHeaderframe->ReadAttributsExtractFrame(fVerbose,fDumpsize, commonframe->GetPointHeader());
+		ReadMergeFrame(commonframe);
 		break;
 	}
 	case MFM_XML_DATA_DESCRIPTION_FRAME_TYPE: {
@@ -755,21 +756,12 @@ bool InfoCondition() {
 
 //_______________________________________________________________________________________________________________________
 void ReadMergeFrame(MFMCommonFrame* commonframe) {
-
 	fMergeframe->SetAttributs(commonframe->GetPointHeader());
 	int nbinsideframe = 0;
 	nbinsideframe = fMergeframe->GetNbItems();
 	fMergeframe->FillStat();
 	int framesize = fMergeframe->GetFrameSize();
-	if ((fVerbose > 1) && InfoCondition()) {
-		fMergeframe->HeaderDisplay();
-		if (fVerbose > 3) {
-			int dump = fDumpsize;
-			if (framesize < dump)
-				dump = framesize;
-			fMergeframe->DumpRaw(dump, 0);
-		}
-	}
+	fMergeframe->ExtractInfoFrame(fVerbose,fDumpsize);
 	fMergeframe->ResetReadInMem();
 	for (int i = 0; i < nbinsideframe; i++) {
 		fMergeframe->ReadInFrame(fInsideframe);
@@ -777,134 +769,7 @@ void ReadMergeFrame(MFMCommonFrame* commonframe) {
 		ReadUserFrame(fInsideframe);
 	}
 }
-/*
-//_______________________________________________________________________________________________________________________
-void ReadHelloFrame(MFMCommonFrame* commonframe) {
 
-	fHelloframe->SetAttributs(commonframe->GetPointHeader());
-	fHelloframe->FillStat();
-	int framesize = fHelloframe->GetFrameSize();
-
-	if ((fVerbose > 1) && InfoCondition()) {
-		fHelloframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fHelloframe->DumpRaw(dump, 0);
-	}
-}
-//_______________________________________________________________________________________________________________________
-void ReadOscilloFrame(MFMCommonFrame* commonframe) {
-	fOscilloframe->SetAttributs(commonframe->GetPointHeader());
-	fOscilloframe->FillStat();
-	int framesize = fOscilloframe->GetFrameSize();
-	if ((fVerbose > 3) && InfoCondition()) {
-		fOscilloframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fOscilloframe->DumpRaw(dump, 0);
-	}
-}
-//_______________________________________________________________________________________________________________________
-void ReadChimeraFrame(MFMCommonFrame* commonframe) {
-
-	fChimeraframe->SetAttributs(commonframe->GetPointHeader());
-	fChimeraframe->FillStat();
-	int framesize = fChimeraframe->GetFrameSize();
-	if ((fVerbose > 3) && InfoCondition()) {
-		fChimeraframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fChimeraframe->DumpRaw(dump, 0);
-	}
-}
-
-//_______________________________________________________________________________________________________________________
-void ReadXmlDataDescriptionFrame(MFMCommonFrame* commonframe) {
-	fDatadescriptionframe->SetAttributs(commonframe->GetPointHeader());
-	fDatadescriptionframe->FillStat();
-	int framesize = fDatadescriptionframe->GetFrameSize();
-
-	if ((fVerbose > 1) && InfoCondition()) {
-		fDatadescriptionframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fDatadescriptionframe->DumpRaw(dump, 0);
-	}
-
-}
-//_______________________________________________________________________________________________________________________
-void ReadXmlHeaderFrame(MFMCommonFrame* commonframe) {
-	fHeaderframe->SetAttributs(commonframe->GetPointHeader());
-	fHeaderframe->FillStat();
-	int framesize = fHeaderframe->GetFrameSize();
-	if ((fVerbose > 1) && InfoCondition()) {
-		fHeaderframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fHeaderframe->DumpRaw(dump, 0);
-	}
-
-}
-
-//_______________________________________________________________________________________________________________________
-void ReadNedaFrame(MFMCommonFrame* commonframe) {
-
-	fNedaframe->SetAttributs(commonframe->GetPointHeader());
-	fNedaframe->FillStat();
-	int framesize = fNedaframe->GetFrameSize();
-	if ((fVerbose > 1) && InfoCondition()) {
-		fNedaframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fNedaframe->DumpRaw(dump, 0);
-	}
-}
-//_______________________________________________________________________________________________________________________
-void ReadNedaCompFrame(MFMCommonFrame* commonframe) {
-
-	fNedaCompframe->SetAttributs(commonframe->GetPointHeader());
-	fNedaCompframe->FillStat();
-	int framesize = fNedaCompframe->GetFrameSize();
-	if ((fVerbose > 1) && InfoCondition()) {
-		fNedaCompframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fNedaCompframe->DumpRaw(dump, 0);
-	}
-
-}
-
-//_______________________________________________________________________________________________________________________
-void ReadReaScopeFrame(MFMCommonFrame* commonframe) {
-
-	fReaScopeframe->SetAttributs(commonframe->GetPointHeader());
-	fReaScopeframe->FillStat();
-	int framesize = fReaScopeframe->GetFrameSize();
-	if ((fVerbose > 1) && InfoCondition()) {
-		fReaScopeframe->HeaderDisplay();
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fReaScopeframe->DumpRaw(dump, 0);
-	}
-
-}
-*/
 //_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
@@ -1041,12 +906,16 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	case 26: {
 		fDatadescriptionframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_XML_DATA_DESCRIPTION_FRAME_TYPE);
 		break;
+	}
+			//_____________________ XmlDataDescriptionFrame frame______________________________________________________
+	case 27: {
+		fHeaderframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_XML_FILE_HEADER_FRAME_TYPE);
+		break;
 	}		//_____________________Merge of  Ebyedat in event number_____________________________________________________
 	case 99: {
 		int type;
 
 		fDatadescriptionframe->WriteRandomFrame(lun,1, fVerbose, fDumpsize,MFM_XML_DATA_DESCRIPTION_FRAME_TYPE);
- 
 		fCoboframe->WriteRandomFrame(lun, fNbFrames, fVerbose, fDumpsize, MFM_COBO_FRAME_TYPE);
 		fCoboframe->WriteRandomFrame(lun, fNbFrames, fVerbose, fDumpsize, MFM_COBOF_FRAME_TYPE);
 		fExoframe-> WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_EXO2_FRAME_TYPE);
@@ -1104,400 +973,24 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	}// end of swich
 
 }
-/*
-//_______________________________________________________________________________________________________________________
-void WriteXmlDataDescription(int flun, int nbframe) {
 
-}
-
-//_______________________________________________________________________________________________________________________
-void WriteNedaFrame(int flun, int fNbFrames) {
-
-	uint32_t unitBlock_size = 0;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 1;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	unitBlock_size = NEDA_STD_UNIT_BLOCK_SIZE;
-	itemsize = sizeof(MFM_Neda_Item);
-	nbitem = NEDA_NB_OF_ITEMS;
-	int verif;
-
-	headersize = NEDA_HEADERSIZE;
-
-	framesize = headersize + nbitem * itemsize + sizeof(MFM_Neda_EOF);
-	revision = 1;
-	fNedaframe->SetEndFrame(1);// introduce 1% of error in end frame.
-	// generation of MFM header
-	fNedaframe->MFM_make_header(unitBlock_size, 0, MFM_NEDA_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), (headersize
-					/ unitBlock_size), itemsize, nbitem);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = fNedaframe->GetTimeStampUs();
-		fEventNumber = i;
-		fNedaframe->SetAttributs();
-		fNedaframe->SetLocationId(1, 2);
-		fNedaframe->SetLeInterval(3);
-		fNedaframe->SetZcoInterval(4);
-		fNedaframe->SetTdcValue(5);
-		fNedaframe->SetSlowIntegral(6);
-		fNedaframe->SetFastIntegral(7);
-		fNedaframe->SetBitfield(8);
-		fNedaframe->SetAbsMax(9);
-		fNedaframe->FillEventWithRamdomConst(timestamp, fEventNumber);
-		fNedaframe->FillEndOfFrame();
-		fNedaframe->FillStat();
-		if (fVerbose > 1)
-			fNedaframe->HeaderDisplay((char*) "-- Header of Neda Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = " << fNedaframe->GetPointHeader() << "\n";
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fNedaframe->DumpRaw(dump, 0);
-
-		verif = write(flun, fNedaframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-
-}
-//_______________________________________________________________________________________________________________________
-void WriteNedaCompFrame(int flun, int fNbFrames) {
-
-	uint32_t unitBlock_size = NEDACOMP_STD_UNIT_BLOCK_SIZE;
-	uint32_t framesize = NEDACOMP_FRAMESIZE;
-	uint32_t revision = 1;
-	uint32_t headersize = NEDACOMP_HEADERSIZE;
-	uint64_t timestamp = 0;
-	int verif;
-
-	revision = 1;
-	// generation of MFM header
-	fNedaCompframe->MFM_make_header(unitBlock_size, 0, MFM_NEDACOMP_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), (headersize
-					/ unitBlock_size));
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = fNedaCompframe->GetTimeStampUs();
-		fEventNumber = i;
-
-		fNedaCompframe->SetLocationId(1, 112);
-
-		fNedaCompframe->FillEventWithRamdomConst(timestamp, fEventNumber);
-		fNedaCompframe->FillStat();
-		fNedaCompframe->SetAttributs();
-		if (fVerbose > 1)
-			fNedaCompframe->HeaderDisplay(
-					(char*) "-- Header of Neda Comp Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = " << fNedaCompframe->GetPointHeader()
-					<< "\n";
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fNedaCompframe->DumpRaw(dump, 0);
-
-		verif = write(flun, fNedaCompframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-
-}
-
-//_______________________________________________________________________________________________________________________
-void WriteDiamantFrame(int flun, int fNbFrames) {
-
-	uint32_t unitBlock_size = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-
-	unitBlock_size = NUMEXO_STD_UNIT_BLOCK_SIZE;
-	framesize = NUMEXO_FRAMESIZE;
-	revision = 1;
-
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-
-	fDiamantframe->MFM_make_header(unitBlock_size, 0, MFM_DIAMANT_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), true);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = fDiamantframe->GetTimeStampUs();
-
-		fEventNumber = i;
-		fDiamantframe->FillEventRandomConst(timestamp, fEventNumber);
-		fDiamantframe->FillStat();
-		fDiamantframe->SetAttributs();
-		if (fVerbose > 1)
-			fDiamantframe->HeaderDisplay(
-					(char*) "-- Header of Diamant Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = " << fDiamantframe->GetPointHeader()
-					<< "\n";
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fDiamantframe->DumpRaw(dump, 0);
-
-		verif = write(flun, fDiamantframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-
-}
-
-//_______________________________________________________________________________________________________________________
-void WriteReaScopeFrame(int flun, int fNbFrames) {
-
-	uint32_t unitBlock_size = 0;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-	headersize = REA_SCOPE_HEADERSIZE;
-	unitBlock_size = REA_SCOPE_STD_UNIT_BLOCK_SIZE;
-	framesize = sizeof(MFM_ReaScope_Frame);
-	revision = 1;
-        itemsize = sizeof(MFM_ReaScope_Item);
-        nbitem = REA_SCOPE_NB_OF_ITEMS;
-        
- 
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	fReaScopeframe->MFM_make_header(unitBlock_size, 0, MFM_REA_SCOPE_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), (headersize
-					/ unitBlock_size), itemsize, nbitem);
-   
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = i;
-		fEventNumber = i;
-		fReaScopeframe->FillEventWithRamdomConst(timestamp, fEventNumber);
-		fReaScopeframe->FillStat();
-		fReaScopeframe->SetAttributs();
-		if (fVerbose > 1)
-			fReaScopeframe->HeaderDisplay((char*) "-- Header of Rea Scope Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = " << fReaScopeframe->GetPointHeader() << "\n";
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fReaScopeframe->DumpRaw(dump, 0);
-
-		verif = write(flun, fReaScopeframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-		fEventNumber++;
-		timestamp = fEventNumber;
-	}
-}
-
-//_______________________________________________________________________________________________________________________
-void WriteOscilloFrame(int lun, int fNbFrames) {
-	int32_t unitBlock_size = 0;
-	uint32_t itemsize = 0;
-	uint32_t nbitem = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-
-	itemsize = sizeof(MFM_OscilloItem);
-	int datasize;
-	revision = 1;
-	unitBlock_size = OSCILLO_STD_UNIT_BLOCK_SIZE;
-	nbitem = 16384;// 16384 is usual size for numexo2
-	headersize = MFM_OSCILLO_HEADERSIZE;
-	framesize = headersize + nbitem * itemsize;
-	revision = 1;
-
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	fOscilloframe->MFM_make_header(unitBlock_size, 0, MFM_OSCI_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), (headersize
-					/ unitBlock_size), itemsize, nbitem);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = i;
-		fEventNumber = i;
-
-		fOscilloframe->FillEventWithRamp(1, 1);
-		fOscilloframe->FillStat();
-		fOscilloframe->SetAttributs();
-		if (fVerbose > 5)
-			cout << " pointheader = " << fOscilloframe->GetPointHeader()
-					<< "\n";
-		if (fVerbose > 1)
-			fOscilloframe->HeaderDisplay(
-					(char*) "-- Header of Oscillo Frame --");
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fOscilloframe->DumpRaw(dump, 0);
-
-		verif = write(lun, fOscilloframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-}
-
-//_______________________________________________________________________________________________________________________
-
-void WriteHelloFrame(int lun, int fNbFrames) {
-	int32_t unitBlock_size = 0;;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-
-	unitBlock_size = 1;
-	framesize = HEL_FRAMESIZE;
-	revision = 0;
-
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	fHelloframe->MFM_make_header(unitBlock_size, 0, MFM_HELLO_FRAME_TYPE,
-			revision, (int) (framesize / unitBlock_size), true);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = i;
-		fEventNumber = i;
-		fHelloframe->FillEventRandomConst(timestamp, fEventNumber);
-
-		framesize = fHelloframe->GetFrameSize();
-		fHelloframe->SetAttributs();
-		fHelloframe->FillStat();
-		if (fVerbose > 3)
-			fHelloframe->HeaderDisplay((char*) "-- Header Hello Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = " << fHelloframe->GetPointHeader() << "\n";
-
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fHelloframe->DumpRaw(dump, 0);
-
-		verif = write(lun, fHelloframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-}
-
-//_______________________________________________________________________________________________________________________
-void WriteXmlDataDescriptionFrame(int lun, int fNbFrames) {
-	int32_t unitBlock_size = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
-	uint32_t headersize = 0;
-	uint64_t timestamp = 0;
-	int verif;
-
-	unitBlock_size = 4;
-	framesize = MFM_BLOB_HEADER_SIZE;
-	revision = 0;
-
-	// generation of MFM header , in this case, MFM is same for all MFM frames
-	fDatadescriptionframe->MFM_make_header(unitBlock_size, 0,
-			MFM_XML_DATA_DESCRIPTION_FRAME_TYPE, revision, (int) (framesize
-					/ unitBlock_size), true);
-
-	// generation of fNbFrames frame
-	for (int i = 0; i < fNbFrames; i++) {
-		timestamp = i;
-		fEventNumber = i;
-		fDatadescriptionframe->FillEventRandomConst();
-
-		framesize = fDatadescriptionframe->GetFrameSize();
-		fDatadescriptionframe->SetAttributs();
-		fDatadescriptionframe->FillStat();
-		if (fVerbose > 3)
-			fDatadescriptionframe->HeaderDisplay(
-					(char*) "-- Header XML Data Description Frame --");
-		if (fVerbose > 5)
-			cout << " pointheader = "
-					<< fDatadescriptionframe->GetPointHeader() << "\n";
-
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fDatadescriptionframe->DumpRaw(dump, 0);
-
-		verif = write(lun, fDatadescriptionframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
-			Error.TreatError(2, 0, "Error of write");
-
-		fEventNumber++;
-		timestamp = fEventNumber;
-
-	}
-}
-*/
 //_______________________________________________________________________________________________________________________
 void WriteMergeFrame(int lun, int fNbFrames, int type, int fNbSubFrames) {
 	uint32_t eventnum;
-	int32_t unitBlock_size = 0;
-	uint32_t framesize = 0;
-	uint32_t revision = 0;
+	int32_t unitBlock_size ;
+	uint32_t mergeFramesize = 0;
+	uint32_t revision = 1;
 	uint32_t headersize = 0;
 	uint64_t timestamp = 0;
 	int verif;
         uint32_t nbitem = fNbSubFrames;
 	char info[64];
-
-	unitBlock_size = 2;
+	
 	fEventNumber = 0;
-
-	framesize = 0;
-	revision = 1;
+	mergeFramesize = 0;
 	bool cobotag = false;
 	int merge_type;
+	unitBlock_size= fMergeframe->GetDefinedUnitBlockSize();
 
 	MFMCommonFrame *insideframe[nbitem];
 
@@ -1534,64 +1027,58 @@ void WriteMergeFrame(int lun, int fNbFrames, int type, int fNbSubFrames) {
 		}
 	}
 	// generation of fNbFrames contents
+	
+
+	
 	for (int i = 0; i < fNbFrames; i++) {
 		fEventNumber++;
-		framesize = headersize;
+		mergeFramesize = headersize;
 		int framesizelocal;
+		uint64_t timestamp;
+		timestamp = fMergeframe->GetTimeStampUs();
+
 		for (int j = 0; j < nbitem; j++) {
 			if (cobotag) {
-				((MFMCoboFrame*) insideframe[j])->SetWantedFrameType(MFM_COBO_FRAME_TYPE);
-				((MFMCoboFrame*) insideframe[j])->GenerateAFrameExample( fCoboframe->GetTimeStampUs(), fEventNumber);
-				//((MFMCoboFrame*) insideframe[j])->GenerateACoboExample(type,
-					//	fEventNumber, nbitem % COBO_NB_ASAD);
+				((MFMCoboFrame*) insideframe[j])->SetWantedFrameType(type);
+				((MFMCoboFrame*) insideframe[j])->GenerateAFrameExample( timestamp++, fEventNumber);
+				((MFMCoboFrame*) insideframe[j])->SetAttributs();
 				fCoboframe->SetAttributs(insideframe[j]->GetPointHeader());
+				fCoboframe->SetWantedFrameType(type);
 				framesizelocal = fCoboframe->GetFrameSize();
 				fCoboframe->FillStat();
-			} else {((MFMEbyedatFrame*) insideframe[j])->SetWantedFrameType(MFM_EBY_EN_TS_FRAME_TYPE);
-				((MFMEbyedatFrame*) insideframe[j])->GenerateAFrameExample(((MFMEbyedatFrame*) insideframe[j])->GetTimeStampUs(), fEventNumber);
+			} else {
+			((MFMEbyedatFrame*) insideframe[j])->SetWantedFrameType(type);
+				((MFMEbyedatFrame*) insideframe[j])->GenerateAFrameExample(timestamp++,fEventNumber);
+				((MFMEbyedatFrame*) insideframe[j])->SetAttributs();
+				fEbyframe->SetWantedFrameType(type);
 				fEbyframe->SetAttributs(insideframe[j]->GetPointHeader());
 				framesizelocal = fEbyframe->GetFrameSize();
 				fEbyframe->FillStat();
 			}
-			framesize += insideframe[j]->GetFrameSize();
-			fInsideframe->SetAttributs(insideframe[j]->GetPointHeader());
+			mergeFramesize += insideframe[j]->GetFrameSize();
 			framesizelocal = fInsideframe->GetFrameSize();
 			fInsideframe->FillStat();
+			
 		}
-		cout << "-- Layered Frame (Merge Frame) -with " << nbitem
-				<< " inside frames , so have a look to inside frames first------\n";
+		cout << "-- Merge Frame -with " << nbitem
+				<< " inside frames , so begin to have a look to inside frames first------\n";
 		fMergeframe->MFM_make_header(unitBlock_size, 0, merge_type, revision,
-				(int) (framesize / unitBlock_size), (headersize
+				(int) (mergeFramesize / unitBlock_size), (headersize
 						/ unitBlock_size), 0, nbitem);
+		fMergeframe->SetTimeStamp(timestamp);
+		fMergeframe->SetEventNumber(fEventNumber);
 		fMergeframe->SetAttributs();
 		fMergeframe->ResetAdd();
 		for (int j = 0; j < nbitem; j++) {
 			int insframesize = insideframe[j]->GetFrameSize();
-			cout << " ---- inside frame ---- ";
+			cout << " ----> inside frame ---- ";
 			fMergeframe->AddFrame(insideframe[j]);
-			if (fVerbose > 1)
-				insideframe[j]->HeaderDisplay((char*) info);
-			int dump = fDumpsize;
-			if (insframesize < dump)
-				dump = insframesize;
-			if (fVerbose > 3)
-				insideframe[j]->DumpRaw(dump, 0);
-
+			insideframe[j]->ExtractInfoFrame(fVerbose, fDumpsize);
 		}
-		fMergeframe->SetEventNumber(fEventNumber);
-		fMergeframe->FillStat();
-		if (fVerbose > 1)
-			fMergeframe->HeaderDisplay((char*) "-- Header of  Merge Frame --");
+		fMergeframe->ExtractInfoFrame(fVerbose, fDumpsize);	
+		verif = write(lun, fMergeframe->GetPointHeader(), mergeFramesize);
 
-		int dump = fDumpsize;
-		if (framesize < dump)
-			dump = framesize;
-		if (fVerbose > 3)
-			fMergeframe->DumpRaw(dump, 0);
-
-		verif = write(lun, fMergeframe->GetPointHeader(), framesize);
-
-		if (verif != framesize)
+		if (verif != mergeFramesize)
 			Error.TreatError(2, 0, "Error of write");
 	}
 	for (int j = 0; j < nbitem; j++) {
