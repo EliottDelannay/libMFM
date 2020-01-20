@@ -259,25 +259,14 @@ void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t en
 void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
 	/// Fill frame items  of sinus values with pre-determined perios,
 */
-	
-	int nb_bits = 16;
-	float nbofperiodes = 1;
+
         int16_t board=110;
 	int i;
-        int e=timestamp;        
-        int t = 100*10^-9;
-        float t2 = 50*10^-6;
-
+        const float tau = 5000/10; //5 us
 	static int16_t channel = 0;
-	float P;
-	unsigned short uivalue;
-	float tempof;
-	float expo = 20;
-	P = 1.570796327 * 2;
+	unsigned short uivalue;	
         channel ++;
         channel = channel % REA_SCOPE_NB_CHANNELS;
-	int h;
-	h = pow(2, nb_bits) - 1;
         SetLocationId(channel,board);
 	if (nbitem > 0)
 		ReaScopeSetParameters(0, 1);	
@@ -286,6 +275,7 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
 	const int A =1234;
 	const int B=20;
         SetSetupScope(1950);
+
 	//Baseline
 	uivalue = B;
 	for (i = 0; i < nb_tB; i++) {		
@@ -298,11 +288,10 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
 		uivalue=step*j+B;
 		ReaScopeSetParameters(i, uivalue);
 	}        
+
 	//Exponential decrease
-	for (; i < nbitem; i++) {
-		//nbofperiodes = 1 + A * exp(-t/t2);
-		//tempof = (float) i / (nbitem / (nbofperiodes));
-		//uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+	for (int t=0; i < nbitem; i++, ++t) {          	 
+		uivalue = B + A * exp(-t/tau);
 		ReaScopeSetParameters(i, uivalue);
 	}
 	SetEventNumber(enventnumber);

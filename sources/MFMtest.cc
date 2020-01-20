@@ -917,7 +917,8 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
                   fReaScopeframe->ReaScopeGetParameters(i,&value);
 		  image1(i)=value;
 		}
-                image1.display_graph("Frame");
+		image1.print("frame data");
+                image1.display_graph("frame data");
 
 		break;
 	}
