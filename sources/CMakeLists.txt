@@ -64,7 +64,7 @@ else()
    message(WARNING "-- CMAKE_INSTALL_PREFIX not found ")
 endif()
 
-include_directories(${CMAKE_BINARY_DIR} /home/delannay/code.RockAMali/CImg/ )
+include_directories(${CMAKE_BINARY_DIR} ../../CImg )
 message("-- CMAKE_CXX_FLAGS_RELEASE =  ${CMAKE_CXX_FLAGS_RELEASE}")
 message("-- CMAKE_CXX_FLAGS_DEBUG =  ${CMAKE_CXX_FLAGS_DEBUG}")
 
