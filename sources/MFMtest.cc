@@ -904,20 +904,21 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
 		typedef uint16_t Tdata;
  		CImg<Tdata> image1;
-	//	CImgList<Tdata> images(1,10,1,1,1);
 
-		image1.print("image1 empty");
+		image1.print("image1 empty",false);
 		
 		int nbitem =  fReaScopeframe->GetNbItems();
 		image1.assign(nbitem,1,1,1, -99);
-		image1.print("image1 assign");
+		image1.print("image1 assign",false);
 
- 		for (unsigned int i=0; i<nbitem;++i){
-                uint16_t value;
-                fReaScopeframe->ReaScopeGetParameters(i,&value);
-		image1(i)=value;
+ 		for (unsigned int i=0; i<nbitem;++i)
+                {
+                  uint16_t value;
+                  fReaScopeframe->ReaScopeGetParameters(i,&value);
+		  image1(i)=value;
 		}
                 image1.display_graph("Frame");
+
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
