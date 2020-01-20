@@ -15,6 +15,8 @@ using namespace std;
 #include <cstdlib>
 #include <time.h>
 #include "MFMlib.in.h"
+#include "CImg.h"
+using namespace cimg_library;
 
 MFMCommonFrame * fFrame;
 MFMCoboFrame * fCoboframe;
@@ -900,6 +902,30 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
+		typedef float Tdata;
+ 		CImg<Tdata> image1;
+
+	/*	nb item =  fReaScopeframe-GetNbItem
+		for ( i-> nb item){
+		image-> fill (i,fReaScopeframe-GetParmeter(i,$value))
+		}
+		*/
+		image1.print("image1");
+		//image1.assign(20,1,1,1, 30);
+  	
+		//image1.display_graph("image 1");
+  
+		
+		//int nbitem =  fReaScopeframe.GetNbItem();
+	//	int value;
+//		MFMBasicFrame::GetNbItems(const);
+	/*	for ( unsigned int i=0;i<nbitem;++i){
+		image1.fill(i,fReaScopeframe-GetParameters(i,value));
+		image1.fill(i,MFMReaScopeFrame::ReaScopeGetParameters);
+		image1.fill(i,MFMBasicFrame.GetItem);
+		image1.display_graph("Frame");
+		}*/
+
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________

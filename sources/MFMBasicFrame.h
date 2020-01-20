@@ -51,6 +51,7 @@ virtual void MFM_fill_header(int unitBlock_size,
 				   int frameSize,int headerSize,
 			       int itemSize, int nItems);
 virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber,int nbitem ){fError.TreatError(2,0,"MFMBasicFrame:FillDataWithRamdomValue should never be here----------\n");};
+//virtual void FillDataWithPeakValue(uint64_t timestamp,uint32_t eventnumber,int nbitem ){fError.TreatError(2,0,"MFMBasicFrame:FillDataWithPeakValue should never be here----------\n");};
 virtual void GenerateAFrameExample(uint64_t timestamp,uint32_t eventnumber);
 
 virtual int  GetItemSizeFromStructure(int type=0) const{fError.TreatError(2,0,"MFMBasicFrame:GetItemSizeFromStructure should never be here----------\n");};

@@ -217,7 +217,7 @@ uint16_t MFMReaScopeFrame::GetCheckSum()const {
 }
 //_______________________________________________________________________________
 void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
-	/// Fill frame items  of sinus values with random perios,
+/*	/// Fill frame items  of sinus values with random perios,
 
 	
 	int nb_bits = 16;
@@ -252,6 +252,54 @@ void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t en
 	SetEventNumber(enventnumber);
 	SetTimeStamp(timestamp);
 	SetLocationId(1, 116);
+	SetCheckSum(66);
+
+}
+//_______________________________________________________________________________
+void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
+	/// Fill frame items  of sinus values with pre-determined perios,
+*/
+	
+	int nb_bits = 16;
+	float nbofperiodes = 1;
+        int16_t board=110;
+	int i;
+        int e=timestamp;        
+        int t = 100*10^-9;
+        float t2 = 50*10^-3;
+        int A;
+	static int16_t channel = 0;
+	float P;
+	unsigned short uivalue;
+	float tempof;
+	float expo = 20;
+	P = 1.570796327 * 2;
+        channel ++;
+        channel = channel % REA_SCOPE_NB_CHANNELS;
+	int h;
+	h = pow(2, nb_bits) - 1;
+        SetLocationId(channel,board);
+	if (nbitem > 0)
+		ReaScopeSetParameters(0, 1);	
+	
+        SetSetupScope(1950);
+	for (i = 1; i < nbitem/2; i++) {		
+		nbofperiodes = 1 + 2*i;
+		tempof = (float) i / (nbitem / (nbofperiodes));
+		uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+		ReaScopeSetParameters(i, uivalue);
+		A=nbofperiodes;
+	}
+
+	for (i = nbitem/2; i < nbitem; i++) {
+		nbofperiodes = 1 + A * exp(-t/t2);
+		tempof = (float) i / (nbitem / (nbofperiodes));
+		uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+		ReaScopeSetParameters(i, uivalue);
+	}
+	SetEventNumber(enventnumber);
+	SetTimeStamp(timestamp);
+	SetLocationId(1, 115);
 	SetCheckSum(66);
 
 }

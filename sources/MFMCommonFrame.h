@@ -205,7 +205,7 @@ MFMCommonFrame(int unitBlock_size, int dataSource,
 				   int frameSize,bool blob=false);
 virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber,int  nbitem){fError.TreatError(2,0,"MFMCommonFrame:FillDataWithRamdomValue should never be here----------\n");};
 virtual void FillDataWithRamdomValue(uint64_t timestamp,uint32_t eventnumber){fError.TreatError(2,0,"MFMCommonFrame:FillDataWithRamdomValue should never be here----------\n");}
-
+//virtual void FillDataWithPeakValue(uint64_t timestamp,uint32_t eventnumber,int nbitem ){fError.TreatError(2,0,"MFMBasicFrame:FillDataWithPeakValue should never be here----------\n");};
 
 virtual void GenerateAFrameExample(uint64_t timestamp,uint32_t eventnumber);
 virtual void WriteRandomFrame(int lun,int  nbframe,int verbose,int dumsize,int type);

@@ -64,7 +64,7 @@ else()
    message(WARNING "-- CMAKE_INSTALL_PREFIX not found ")
 endif()
 
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR} /home/delannay/code.RockAMali/CImg/ )
 message("-- CMAKE_CXX_FLAGS_RELEASE =  ${CMAKE_CXX_FLAGS_RELEASE}")
 message("-- CMAKE_CXX_FLAGS_DEBUG =  ${CMAKE_CXX_FLAGS_DEBUG}")
 
@@ -87,18 +87,24 @@ DataPar.h            MFMBlobFrame.h     MFMDiamantFrame.h   MFMNedaCompFrame.h  
 DataScalers.h        MFMBoxDiagFrame.h  MFMEbyedatFrame.h   MFMNedaFrame.h      MFMS3BaF2Frame.h   MFMVamosICFrame.h     MFMReaScopeFrame.h
 DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMS3eGUNFrame.h   MFMVamosPDFrame.h     MFMReaGenericFrame.h
 )
-	
 
+set (OPT_CIMG  -lpthread -Dcimg_use_vt100 -I../CImg -Wall -W -lm -ansi -pedantic -fno-tree-pre)
+set (OPT_XWINDOWS -I/usr/X11R6/include -Dcimg_use_xshm -Dcimg_use_xrandr -L/usr/X11R6/lib -lX11 -lXext -lXrandr -lm -lpthread)
+set (OPT  ${OPT_XWINDOWS} ${OPT_CIMG} -Dcimg_debug=2)
 
 add_library(MFMa STATIC ${SRCSlib} ${HEADERSlib})
 set_target_properties(MFMa PROPERTIES OUTPUT_NAME MFM)
+#target_compile_options(macible PUBLIC -Wall -W -ansi -pedantic -Dcimg_use_vt100 -lpthread -lm -fopenmp)
 target_link_libraries(MFMa)
 
 add_library(MFM SHARED    ${SRCSlib} ${HEADERSlib})
+#target_compile_options(macible PUBLIC -Wall -W -ansi -pedantic -Dcimg_use_vt100 -lpthread -lm -fopenmp)
 target_link_libraries(MFM  ${TinyXML_LIBRARIES})
 
 add_executable(MFMtest.exe MFMtest.cc ${HEADERSlib})
-target_link_libraries(MFMtest.exe MFMa ${TinyXML_LIBRARIES} )
+#target_compile_options(MFMtest.exe PUBLIC -Wall -W -ansi -pedantic -Dcimg_use_vt100 -lpthread -lm -fopenmp)
+target_compile_options(MFMtest.exe PUBLIC ${OPT})
+target_link_libraries(MFMtest.exe MFMa ${TinyXML_LIBRARIES} ${OPT_XWINDOWS} )
 
 #add_executable(MFMFileTest.exe $MFMFileTest.cc ${HEADERSexe})
 #target_link_libraries(MFMFileTest.exe  ${TinyXML_LIBRARIES} )

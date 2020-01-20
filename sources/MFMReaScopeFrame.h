@@ -101,6 +101,7 @@ class MFMReaScopeFrame : public MFMBasicFrame
   
   
    void FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem);
+  // void FillDataWithPeakValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem);
    string GetHeaderDisplay(char* infotext)const ;
    string DumpData(char mode='d', bool nozero=false)const;
    void InitStat() ;
