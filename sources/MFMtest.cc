@@ -925,8 +925,25 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//process data
 		int B = image1.min();
 		int A = image1.max() - B;
-		std::cout<< "Amplitude= " << A  <<std::endl<< "Baseline = " << B <<std::endl;
+		// finding the position of the maximum		
+		int Ai;
+		for (int i=0; image1(i)< A + B; i++)
+		{
+		   Ai= i+1;
+		} 		
+                
+		// find the position of half amplitude
+		int T = 0;
+		int Medium = A/2 + B;
+		int i=Ai;
+		while (image1(i) > Medium) 
+  		{
+		   i++; 
+		   T+=10;
+		}
 
+		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
+		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << i <<std::endl;
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
