@@ -902,6 +902,8 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
+
+		//get data 
 		typedef float Tdata;
  		CImg<Tdata> image1;
 
@@ -919,6 +921,11 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		}
 		image1.print("frame data");
                 image1.display_graph("frame data");
+
+		//process data
+		int B = image1.min();
+		int A = image1.max() - B;
+		std::cout<< "Amplitude= " << A  <<std::endl<< "Baseline = " << B <<std::endl;
 
 		break;
 	}
