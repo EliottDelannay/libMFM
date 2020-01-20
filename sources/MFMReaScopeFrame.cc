@@ -266,8 +266,8 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
 	int i;
         int e=timestamp;        
         int t = 100*10^-9;
-        float t2 = 50*10^-3;
-        int A;
+        float t2 = 50*10^-6;
+
 	static int16_t channel = 0;
 	float P;
 	unsigned short uivalue;
@@ -281,20 +281,28 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
         SetLocationId(channel,board);
 	if (nbitem > 0)
 		ReaScopeSetParameters(0, 1);	
-	
+	const int nb_tB = 1000/10; // 1us
+	const int nb_tA = 100/10 + nb_tB; //100 ns
+	const int A =1234;
+	const int B=20;
         SetSetupScope(1950);
-	for (i = 1; i < nbitem/2; i++) {		
-		nbofperiodes = 1 + 2*i;
-		tempof = (float) i / (nbitem / (nbofperiodes));
-		uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+	//Baseline
+	uivalue = B;
+	for (i = 0; i < nb_tB; i++) {		
 		ReaScopeSetParameters(i, uivalue);
-		A=nbofperiodes;
 	}
-
-	for (i = nbitem/2; i < nbitem; i++) {
-		nbofperiodes = 1 + A * exp(-t/t2);
-		tempof = (float) i / (nbitem / (nbofperiodes));
-		uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
+	
+        //Peak
+	const float step =(float)A/(nb_tA - nb_tB); 
+	for (int j=1; i < nb_tA; i++,++j) {		
+		uivalue=step*j+B;
+		ReaScopeSetParameters(i, uivalue);
+	}        
+	//Exponential decrease
+	for (; i < nbitem; i++) {
+		//nbofperiodes = 1 + A * exp(-t/t2);
+		//tempof = (float) i / (nbitem / (nbofperiodes));
+		//uivalue = (unsigned short) (h / 2 + h / 2 * sin((float) 2 * P * tempof));
 		ReaScopeSetParameters(i, uivalue);
 	}
 	SetEventNumber(enventnumber);
