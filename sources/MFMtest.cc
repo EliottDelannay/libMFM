@@ -902,7 +902,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
-		typedef uint16_t Tdata;
+		typedef float Tdata;
  		CImg<Tdata> image1;
 
 		image1.print("image1 empty",false);
@@ -911,7 +911,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		image1.assign(nbitem,1,1,1, -99);
 		image1.print("image1 assign",false);
 
- 		for (unsigned int i=0; i<nbitem;++i)
+ 		for (int i=0; i<nbitem;++i)
                 {
                   uint16_t value;
                   fReaScopeframe->ReaScopeGetParameters(i,&value);
