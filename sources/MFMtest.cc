@@ -910,22 +910,23 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		image-> fill (i,fReaScopeframe-GetParmeter(i,$value))
 		}
 		*/
-		image1.print("image1");
-		//image1.assign(20,1,1,1, 30);
+		image1.print("image1 empty");
+		image1.assign(12,1,1,1, -99);
   	
 		//image1.display_graph("image 1");
   
 		
-		//int nbitem =  fReaScopeframe.GetNbItem();
-	//	int value;
+		int nbitem =  fReaScopeframe->GetNbItems();
+                image1(0)=nbitem;
+		int value;
+                
 //		MFMBasicFrame::GetNbItems(const);
 	/*	for ( unsigned int i=0;i<nbitem;++i){
-		image1.fill(i,fReaScopeframe-GetParameters(i,value));
+		image1.fill(i,fReaScopeframe->GetParameters(i,value));
 		image1.fill(i,MFMReaScopeFrame::ReaScopeGetParameters);
 		image1.fill(i,MFMBasicFrame.GetItem);
-		image1.display_graph("Frame");
 		}*/
-
+                image1.display_graph("Frame");
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
