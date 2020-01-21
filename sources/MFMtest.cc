@@ -783,15 +783,36 @@ typedef float Tdata;
 //_______________________________________________________________________________________________________________________
 void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi) 
 {
-	//graph output
 	//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
 	CImg<Tdata> imageC;
 	imageC.assign(img.width(),1,1,3,0);
 	imageC.get_shared_channel(0)+=img;
 	imageC.get_shared_channel(1)+=Medium;
 	imageC.get_shared_channel(2)+=A+B;
+	//put x at baseline while amplitude is > treshold 
 	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
 	imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
+}
+
+//_______________________________________________________________________________________________________________________
+void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Medium) {
+		//find the min and max Amplitude
+		B = img.min();
+		A = img.max() - B;
+		// finding the position of the maximum Amplitude		
+		for (int i=0; img(i)< A + B; i++)
+		{
+		   Ai= i+1;
+		} 		           
+		// find the position of half amplitude and the time
+		T = 0;
+		Medium = A/2 + B;
+		Hi=Ai;
+		while (img(Hi) > Medium) 
+  		{
+		   Hi++; 
+		   T+=10;
+		}
 }
 
 //_______________________________________________________________________________________________________________________
@@ -881,7 +902,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		fVamosPDframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_VAMOSPD_FRAME_TYPE);
 		break;
 	}
-	//_____________________ Vamos PD  frame______________________________________________________
+		//_____________________ Vamos PD  frame______________________________________________________
 	case 17: {
 		fVamosTACframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_VAMOSTAC_FRAME_TYPE);
 		break;
@@ -924,8 +945,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
-
-		
+	
  		CImg<Tdata> image1;
 		image1.print("image1 empty",false);
 		if(true)
@@ -950,36 +970,24 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
 		image1.print("frame data");
                 image1.display_graph("frame data");
-int aa=12;
-int bb=21;
-std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
-hophop(aa,bb);
-std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
-		//process data
-		int B = image1.min();
-		int A = image1.max() - B;
-		// finding the position of the maximum Amplitude	
+		int aa=12;
+		int bb=21;
+		std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
+		hophop(aa,bb);
+		std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
+
+		int A;
+		int B; 
 		int Ai;
-		for (int i=0; image1(i)< A + B; i++)
-		{
-		   Ai= i+1;
-		} 		
-                
-		// find the position of half amplitude and the time
-		int T = 0;
-		int Medium = A/2 + B;
-		int Hi=Ai;
-		while (image1(Hi) > Medium) 
-  		{
-		   Hi++; 
-		   T+=10;
-		}
+		int Hi;
+		int T;
+		int Medium;
+		Process_Data(image1, A, B, Ai, Hi, T, Medium);
 
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 
-		hophop(aa,bb);
 		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
 		break;
 	}
