@@ -903,16 +903,14 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
 
-		//get data 
 		typedef float Tdata;
  		CImg<Tdata> image1;
-
 		image1.print("image1 empty",false);
-		
+		//construct the image with the numbers of items as width
 		int nbitem =  fReaScopeframe->GetNbItems();
 		image1.assign(nbitem,1,1,1, -99);
 		image1.print("image1 assign",false);
-
+		//fill the graph with the frame parameters
  		for (int i=0; i<nbitem;++i)
                 {
                   uint16_t value;
@@ -925,25 +923,39 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//process data
 		int B = image1.min();
 		int A = image1.max() - B;
-		// finding the position of the maximum		
+		// finding the position of the maximum Amplitude	
 		int Ai;
 		for (int i=0; image1(i)< A + B; i++)
 		{
 		   Ai= i+1;
 		} 		
                 
-		// find the position of half amplitude
+		// find the position of half amplitude and the time
 		int T = 0;
 		int Medium = A/2 + B;
-		int i=Ai;
-		while (image1(i) > Medium) 
+		int Hi=Ai;
+		while (image1(Hi) > Medium) 
   		{
-		   i++; 
+		   Hi++; 
 		   T+=10;
 		}
-
+		
+		//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
+		CImg<Tdata> imageC;
+		CImg<Tdata> imageR;
+		CImg<Tdata> imageG;
+		CImg<Tdata> imageB;
+		imageC.assign(nbitem,1,1,3,0);
+		imageC.get_shared_channel(0)+=image1;
+		imageC.get_shared_channel(1)+=Medium;
+		imageC.get_shared_channel(2)+=A+B;
+		cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
+		imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
+		//operation to have only the parts where the graph is beetwen max and half
+		Hi=Hi-Ai;
+		//print the data needed of the graph
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
-		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << i <<std::endl;
+		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
