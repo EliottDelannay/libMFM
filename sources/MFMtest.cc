@@ -771,12 +771,27 @@ void ReadMergeFrame(MFMCommonFrame* commonframe) {
 		ReadUserFrame(fInsideframe);
 	}
 }
-
+//_______________________________________________________________________________________________________________________
 void hophop(int a, int &b)
 {
   std::cout<< __FILE__ << "//" << __func__ << "(): print hop"<<std::endl;
   a+=12;
   b-=21;
+}
+//_______________________________________________________________________________________________________________________
+typedef float Tdata;
+//_______________________________________________________________________________________________________________________
+void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi) 
+{
+	//graph output
+	//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
+	CImg<Tdata> imageC;
+	imageC.assign(img.width(),1,1,3,0);
+	imageC.get_shared_channel(0)+=img;
+	imageC.get_shared_channel(1)+=Medium;
+	imageC.get_shared_channel(2)+=A+B;
+	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
+	imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
 }
 
 //_______________________________________________________________________________________________________________________
@@ -910,7 +925,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	case 25: {
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
 
-		typedef float Tdata;
+		
  		CImg<Tdata> image1;
 		image1.print("image1 empty",false);
 		if(true)
@@ -964,17 +979,8 @@ std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 
-hophop(aa,bb);
-		//graph output
-		//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
-		CImg<Tdata> imageC;
-		imageC.assign(image1.width(),1,1,3,0);
-		imageC.get_shared_channel(0)+=image1;
-		imageC.get_shared_channel(1)+=Medium;
-		imageC.get_shared_channel(2)+=A+B;
-		cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
-
-		imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
+		hophop(aa,bb);
+		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
