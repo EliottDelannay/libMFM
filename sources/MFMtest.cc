@@ -953,7 +953,40 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
 		//operation to have only the parts where the graph is beetwen max and half
 		Hi=Hi-Ai;
-		//print the data needed of the graph
+
+		//test on .cimg
+		CImg<Tdata> img;
+		img.load("Data_PAC_1.cimg");
+		img.display_graph("trame image");
+		img.print("data");
+		int width = img.width();
+		std::cout<< "Width : "  << width <<std::endl;
+		 B = img.min();
+		 A = img.max() - B;	
+		 Ai;
+		for (int i=0; img(i)< A + B; i++)
+		{
+		   Ai= i+1;
+		} 		             
+		 T = 0;
+		 Medium = A/2 + B;
+		 Hi=Ai;
+		while (img(Hi) > Medium) 
+  		{
+		   Hi++; 
+		   T+=10;
+		}	
+		CImg<Tdata> imageC1;
+		imageC1.assign(width,1,1,3,0);
+		imageC1.get_shared_channel(0)+=img;
+		imageC1.get_shared_channel(1)+=Medium;
+		imageC1.get_shared_channel(2)+=A+B;
+		cimg_for_inX(imageC1,Ai,Hi,i) imageC1(i,0,0,2)=B;
+		imageC1.display_graph("red = signal, green = threshold, blue = max and half height positions");
+		Hi=Hi-Ai;
+		// end test
+
+
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 		break;
