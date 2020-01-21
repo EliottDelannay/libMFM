@@ -772,6 +772,13 @@ void ReadMergeFrame(MFMCommonFrame* commonframe) {
 	}
 }
 
+void hophop(int a, int &b)
+{
+  std::cout<< __FILE__ << "//" << __func__ << "(): print hop"<<std::endl;
+  a+=12;
+  b-=21;
+}
+
 //_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
@@ -928,7 +935,11 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
 		image1.print("frame data");
                 image1.display_graph("frame data");
-
+int aa=12;
+int bb=21;
+std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
+hophop(aa,bb);
+std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
 		//process data
 		int B = image1.min();
 		int A = image1.max() - B;
@@ -948,9 +959,12 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		   Hi++; 
 		   T+=10;
 		}
+
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
+
+hophop(aa,bb);
 		//graph output
 		//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
 		CImg<Tdata> imageC;

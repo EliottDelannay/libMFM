@@ -259,10 +259,8 @@ void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t en
 void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
 	/// Fill frame items  of sinus values with pre-determined perios,
 */
-
         int16_t board=110;
 	int i;
-        const float tau = 5000/10; //5 us
 	static int16_t channel = 0;
 	unsigned short uivalue;	
         channel ++;
@@ -270,8 +268,10 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
         SetLocationId(channel,board);
 	if (nbitem > 0)
 		ReaScopeSetParameters(0, 1);	
-	const int nb_tB = 1000/10; // 1us
+	//Signal Parameters
+	const int nb_tB = 10000/10; // 10us
 	const int nb_tA = 100/10 + nb_tB; //100 ns
+	const float tau = 5000/10; //5 us
 	const int A =1234;
 	const int B=20;
         SetSetupScope(1950);
