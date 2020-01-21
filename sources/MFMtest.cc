@@ -906,17 +906,26 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		typedef float Tdata;
  		CImg<Tdata> image1;
 		image1.print("image1 empty",false);
+		if(true)
+		{//get data from frame
 		//construct the image with the numbers of items as width
 		int nbitem =  fReaScopeframe->GetNbItems();
 		image1.assign(nbitem,1,1,1, -99);
 		image1.print("image1 assign",false);
 		//fill the graph with the frame parameters
- 		for (int i=0; i<nbitem;++i)
+ 		//for (int i=0; i<nbitem;++i)
+		cimg_forX(image1,i)
                 {
                   uint16_t value;
                   fReaScopeframe->ReaScopeGetParameters(i,&value);
 		  image1(i)=value;
 		}
+		}//frame
+		else
+		{//get data from file
+			image1.load("Data_PAC_1.cimg");
+		}//frame
+
 		image1.print("frame data");
                 image1.display_graph("frame data");
 
@@ -939,56 +948,19 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		   Hi++; 
 		   T+=10;
 		}
-		
+		//text output
+		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
+		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
+		//graph output
 		//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
 		CImg<Tdata> imageC;
-		CImg<Tdata> imageR;
-		CImg<Tdata> imageG;
-		CImg<Tdata> imageB;
-		imageC.assign(nbitem,1,1,3,0);
+		imageC.assign(image1.width(),1,1,3,0);
 		imageC.get_shared_channel(0)+=image1;
 		imageC.get_shared_channel(1)+=Medium;
 		imageC.get_shared_channel(2)+=A+B;
 		cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
+
 		imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
-		//operation to have only the parts where the graph is beetwen max and half
-		Hi=Hi-Ai;
-
-		//test on .cimg
-		CImg<Tdata> img;
-		img.load("Data_PAC_1.cimg");
-		img.display_graph("trame image");
-		img.print("data");
-		int width = img.width();
-		std::cout<< "Width : "  << width <<std::endl;
-		 B = img.min();
-		 A = img.max() - B;	
-		 Ai;
-		for (int i=0; img(i)< A + B; i++)
-		{
-		   Ai= i+1;
-		} 		             
-		 T = 0;
-		 Medium = A/2 + B;
-		 Hi=Ai;
-		while (img(Hi) > Medium) 
-  		{
-		   Hi++; 
-		   T+=10;
-		}	
-		CImg<Tdata> imageC1;
-		imageC1.assign(width,1,1,3,0);
-		imageC1.get_shared_channel(0)+=img;
-		imageC1.get_shared_channel(1)+=Medium;
-		imageC1.get_shared_channel(2)+=A+B;
-		cimg_for_inX(imageC1,Ai,Hi,i) imageC1(i,0,0,2)=B;
-		imageC1.display_graph("red = signal, green = threshold, blue = max and half height positions");
-		Hi=Hi-Ai;
-		// end test
-
-
-		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
-		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
