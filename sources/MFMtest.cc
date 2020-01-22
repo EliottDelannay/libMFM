@@ -805,7 +805,7 @@ void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi)
  * \param Ai[out] = position max amplitude
  * \param Hi[out] = time at half amplitude
  * \param T[out] = Time between Max and half amplitude
- * \param Medium[out] = treshold of halt amplitude
+ * \param Medium[out] = treshold of half amplitude
  *
  * \code
  *   AnExampleOfUse
@@ -1013,7 +1013,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		}//frame
 
 		image1.print("frame data");
-          //      image1.display_graph("frame data");
+                image1.display_graph("frame data");
 
 		int A, B, Ai, Hi, T, Medium;
 		Process_Data(image1, A, B, Ai, Hi, T, Medium);
@@ -1022,10 +1022,10 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 
-		//Display_Parameter(image1, A, B, Medium, Ai, Hi);	
+		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
 
 		CImg<Tdata> trapeze(image1.width(),1,1,1, B);
-                int k=20;int m=100;float alpha=0.987;
+                int k=200;int m=50;float alpha=0.998;
 		trapezoidal_filter(image1, trapeze, k,m,alpha);
 		Display_Signals(image1, trapeze, 2*k + m + 2); 
 
