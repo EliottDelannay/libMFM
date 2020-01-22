@@ -792,9 +792,27 @@ void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi)
 	//put x at baseline while amplitude is > treshold 
 	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
 	imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
-}
+}//Display_Parameter
 
 //_______________________________________________________________________________________________________________________
+//! process exponential decrease data
+/** 
+ * signal processing for a decreasing exponential curve:
+ * measure both amplitude and half time
+ * \param img[in] = signal
+ * \param A[out] = amplitude
+ * \param B[out] = Baseline
+ * \param Ai[out] = position max amplitude
+ * \param Hi[out] = time at half amplitude
+ * \param T[out] = Time between Max and half amplitude
+ * \param Medium[out] = treshold of halt amplitude
+ *
+ * \code
+ *   AnExampleOfUse
+ * \endcode
+ *
+ * \see AnOtherFunctionOrAvariable
+**/
 void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Medium) {
 		//find the min and max Amplitude
 		B = img.min();
@@ -813,8 +831,34 @@ void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int
 		   Hi++; 
 		   T+=10;
 		}
-}
+}//Process_Data
 
+//_______________________________________________________________________________________________________________________
+int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, float alpha) {
+		//create a filter
+		int decalage = 2*k + m + 2;
+		cimg_for_inX(s,decalage, s.width()-1,n)
+		  s(n)=2*s(n-1)-s(n-2) + e(n-1)\
+		      -alpha*e(n-2) \
+			   -e(n-(k+1)) \
+			        +alpha*e(n-(k+2)) \
+				     -e(n-(k+m+1)) \
+					  +alpha*e(n-(k+m+2)) \
+						+e(n-(2*k+m+1)) \
+						     -alpha*e(n-(2*k+m+2));
+		
+}//trapezoidal_filter
+
+//_______________________________________________________________________________________________________________________
+void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [low] add title as function variable
+{
+	CImg<Tdata> imageC;
+	imageC.assign(imgR.width(),1,1,3,0);
+	imageC.get_shared_channel(0)+=imgR;
+	imageC.get_shared_channel(1)+=imgG;
+	cimg_for_inX(imageC,decalage,imageC.width(),i) imageC(i,0,0,2)=imgR.max();
+	imageC.display_graph("red = signal, green = filter");
+}//Display_Signals
 //_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
@@ -969,26 +1013,22 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		}//frame
 
 		image1.print("frame data");
-                image1.display_graph("frame data");
-		int aa=12;
-		int bb=21;
-		std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
-		hophop(aa,bb);
-		std::cout<< "aa=" << aa  <<", bb=" << bb <<std::endl;
+          //      image1.display_graph("frame data");
 
-		int A;
-		int B; 
-		int Ai;
-		int Hi;
-		int T;
-		int Medium;
+		int A, B, Ai, Hi, T, Medium;
 		Process_Data(image1, A, B, Ai, Hi, T, Medium);
 
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 
-		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
+		//Display_Parameter(image1, A, B, Medium, Ai, Hi);	
+
+		CImg<Tdata> trapeze(image1.width(),1,1,1, B);
+                int k=20;int m=100;float alpha=0.987;
+		trapezoidal_filter(image1, trapeze, k,m,alpha);
+		Display_Signals(image1, trapeze, 2*k + m + 2); 
+
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
