@@ -273,7 +273,7 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
 	const int nb_tA = 100/10 + nb_tB; //100 ns
 	const float tau = 5000/10; //5 us
 	const int A =1234;
-	const int B=120;
+	const int B=20;
         SetSetupScope(1950);
 
 	//Baseline
