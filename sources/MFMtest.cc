@@ -784,17 +784,19 @@ void hophop(int a, int &b)
 //_______________________________________________________________________________________________________________________
 typedef float Tdata;
 //_______________________________________________________________________________________________________________________
-void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi) 
+void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi, int Ti) 
 {
 	//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
 	CImg<Tdata> imageC;
-	imageC.assign(img.width(),1,1,3,0);
+	imageC.assign(img.width(),1,1,4,0);
 	imageC.get_shared_channel(0)+=img;
 	imageC.get_shared_channel(1)+=Medium;
 	imageC.get_shared_channel(2)+=A+B;
+	imageC.get_shared_channel(3)+=A+B;
 	//put x at baseline while amplitude is > treshold 
 	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
-	imageC.display_graph("red = signal, green = threshold, blue = max and half height positions");
+	cimg_for_inX(imageC,Ti,Ai,i) imageC(i,0,0,3)=B;
+	imageC.display_graph("red = signal, green = threshold, blue = max and 36.8% height positions, yellow = trigger and max");
 }//Display_Parameter
 
 //_______________________________________________________________________________________________________________________
@@ -808,7 +810,7 @@ void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi)
  * \param Ai[out] = position max amplitude
  * \param Hi[out] = time at half amplitude
  * \param T[out] = Time between Max and half amplitude
- * \param Medium[out] = treshold of half amplitude
+ * \param Medium[out] = treshold of 36.8% amplitude
  *
  * \code
  *   AnExampleOfUse
@@ -816,10 +818,15 @@ void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi)
  *
  * \see AnOtherFunctionOrAvariable
 **/
-void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Medium) {
+void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Ti, int &Medium) {
 		//find the min and max Amplitude
 		B = img.min();
 		A = img.max() - B;
+		//finding the trigger position
+		for (int i=0;img(i)== B; i++)
+		{
+		  Ti=i;
+		}
 		// finding the position of the maximum Amplitude		
 		for (int i=0; img(i)< A + B; i++)
 		{
@@ -827,13 +834,15 @@ void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int
 		} 		           
 		// find the position of half amplitude and the time
 		T = 0;
-		Medium = A/2 + B;
+		Medium = A*0.368 + B;
 		Hi=Ai;
 		while (img(Hi) > Medium) 
   		{
 		   Hi++; 
 		   T+=10;
 		}
+		
+
 }//Process_Data
 
 //_______________________________________________________________________________________________________________________
@@ -1077,9 +1086,9 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
-		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
-
-		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
+		std::cout<< "Trigger start= " << Ti  <<std::endl;
+		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;		
+		Display_Parameter(image1, A, B, Medium, Ai, Hi, Ti);	
 		
 		CImg<Tdata> trapeze(image1.width(),1,1,1, B);
 		int k, m;
