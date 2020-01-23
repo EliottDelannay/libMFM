@@ -849,9 +849,16 @@ int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, float alpha)
 		
 }//trapezoidal_filter
 
+/**
+ \page pageSchema Schema du signal
+ * 
+ * \image html Signal_details.png "explanation of the signal"
+ *
+**/
 //_______________________________________________________________________________________________________________________
 void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [low] add title as function variable
 {
+
 	CImg<Tdata> imageC;
 	imageC.assign(imgR.width(),1,1,3,0);
 	imageC.get_shared_channel(0)+=imgR;
