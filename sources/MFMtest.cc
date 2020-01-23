@@ -1041,10 +1041,10 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	}
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
-		//create curve
+		//save curve
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
 
-		//transfer to CImg or load from .cimg file
+		//transfer to CImg (or load from .cimg file)
  		CImg<Tdata> image1;
 		image1.print("image1 empty",false);
 		if(true)
@@ -1070,8 +1070,10 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
                 image1.display_graph("frame data");
 
 		//caracteristic measurements (Amplitude)
-		int A, B, Ai, Hi, T, Medium;
-		Process_Data(image1, A, B, Ai, Hi, T, Medium);
+		int A, B, Ai, Hi, T, Ti, Medium;
+		Process_Data(image1, A, B, Ai, Hi, T, Ti, Medium);
+
+		//! \todo [high] add to process data trigger position (Ti)
 
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
@@ -1085,6 +1087,9 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		Read_Paramaters(k, m, alpha);
 		trapezoidal_filter(image1, trapeze, k,m,alpha);
 		Display_Signals(image1, trapeze, 2*k + m + 2); 
+
+		//! \todo [medium] energy mesurement
+		//Calculation_Energy(...)
 
 		break;
 	}
