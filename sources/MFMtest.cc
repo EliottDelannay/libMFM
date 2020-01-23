@@ -17,6 +17,9 @@ using namespace std;
 #include "MFMlib.in.h"
 #include "CImg.h"
 using namespace cimg_library;
+#include <string>
+#include <netcdfcpp.h>
+#include "struct_parameter_NetCDF.h"
 
 MFMCommonFrame * fFrame;
 MFMCoboFrame * fCoboframe;
@@ -834,7 +837,7 @@ void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int
 }//Process_Data
 
 //_______________________________________________________________________________________________________________________
-int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, float alpha) {
+int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, double alpha) {
 		//create a filter
 		int decalage = 2*k + m + 2;
 		cimg_for_inX(s,decalage, s.width()-1,n)
@@ -866,6 +869,49 @@ void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [
 	cimg_for_inX(imageC,decalage,imageC.width(),i) imageC(i,0,0,2)=imgR.max();
 	imageC.display_graph("red = signal, green = filter");
 }//Display_Signals
+
+//_______________________________________________________________________________________________________________________
+int Read_Paramaters (int &k, int &m, double &alpha)
+{
+  ///file name
+  string fi="parameters.nc";//=cimg_option("-p","parameters.nc","comment");
+
+  ///parameter class
+  CParameterNetCDF fp;
+  //open file
+  int error=fp.loadFile((char *)fi.c_str());
+  if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
+
+  float process; string process_name="trapezoid";
+  //load process variable
+  error=fp.loadVar(process,&process_name);
+  if(error){cerr<<"loadVar return "<< error <<endl;return error;}
+  std::cout<<process_name<<"="<<process<<std::endl;
+  ///k
+  string attribute_name="k";
+  if (error = fp.loadAttribute(attribute_name,k)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<k<<std::endl;
+
+  ///m
+  attribute_name="m";
+  if (error = fp.loadAttribute(attribute_name,m)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<m<<std::endl;
+
+  ///alpha
+  attribute_name="alpha";
+  if (error = fp.loadAttribute(attribute_name,alpha)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<alpha<<std::endl;
+} //Read_Paramater
+
 //_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
@@ -995,8 +1041,10 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	}
 		//_____________________ ReaScope frame______________________________________________________
 	case 25: {
+		//create curve
 		fReaScopeframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_REA_SCOPE_FRAME_TYPE);
-	
+
+		//transfer to CImg or load from .cimg file
  		CImg<Tdata> image1;
 		image1.print("image1 empty",false);
 		if(true)
@@ -1004,11 +1052,10 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		//construct the image with the numbers of items as width
 		int nbitem =  fReaScopeframe->GetNbItems();
 		image1.assign(nbitem,1,1,1, -99);
-		image1.print("image1 assign",false);
-		//fill the graph with the frame parameters
+		image1.print("image1 assign",false);	
  		//for (int i=0; i<nbitem;++i)
 		cimg_forX(image1,i)
-                {
+                {//fill the graph with the frame parameters
                   uint16_t value;
                   fReaScopeframe->ReaScopeGetParameters(i,&value);
 		  image1(i)=value;
@@ -1022,6 +1069,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		image1.print("frame data");
                 image1.display_graph("frame data");
 
+		//caracteristic measurements (Amplitude)
 		int A, B, Ai, Hi, T, Medium;
 		Process_Data(image1, A, B, Ai, Hi, T, Medium);
 
@@ -1030,9 +1078,11 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;
 
 		Display_Parameter(image1, A, B, Medium, Ai, Hi);	
-
+		
 		CImg<Tdata> trapeze(image1.width(),1,1,1, B);
-                int k=200;int m=50;float alpha=0.998;
+		int k, m;
+		double alpha;
+		Read_Paramaters(k, m, alpha);
 		trapezoidal_filter(image1, trapeze, k,m,alpha);
 		Display_Signals(image1, trapeze, 2*k + m + 2); 
 

@@ -64,7 +64,7 @@ else()
    message(WARNING "-- CMAKE_INSTALL_PREFIX not found ")
 endif()
 
-include_directories(${CMAKE_BINARY_DIR} ../../CImg )
+include_directories(${CMAKE_BINARY_DIR} ../../CImg ../../NetCDF/include ../../NetCDF/lib ../../NetCDF.Tool)
 message("-- CMAKE_CXX_FLAGS_RELEASE =  ${CMAKE_CXX_FLAGS_RELEASE}")
 message("-- CMAKE_CXX_FLAGS_DEBUG =  ${CMAKE_CXX_FLAGS_DEBUG}")
 
@@ -90,7 +90,8 @@ DataScal.h           MFMChimeraFrame.h  MFMExogamFrame.h    MFMS3eGUNFrame.h   M
 
 set (OPT_CIMG  -lpthread -Dcimg_use_vt100 -I../CImg -Wall -W -lm -ansi -pedantic -fno-tree-pre)
 set (OPT_XWINDOWS -I/usr/X11R6/include -Dcimg_use_xshm -Dcimg_use_xrandr -L/usr/X11R6/lib -lX11 -lXext -lXrandr -lm -lpthread)
-set (OPT  ${OPT_XWINDOWS} ${OPT_CIMG} -Dcimg_debug=2)
+set (OPT_NETCDF -I../../NetCDF/include/ -lnetcdf_c++ -L../../NetCDF/lib/ -lnetcdf)
+set (OPT  ${OPT_XWINDOWS} ${OPT_CIMG} ${OPT_NETCDF}-Dcimg_debug=2)
 
 add_library(MFMa STATIC ${SRCSlib} ${HEADERSlib})
 set_target_properties(MFMa PROPERTIES OUTPUT_NAME MFM)
@@ -104,7 +105,7 @@ target_link_libraries(MFM  ${TinyXML_LIBRARIES})
 add_executable(MFMtest.exe MFMtest.cc ${HEADERSlib})
 #target_compile_options(MFMtest.exe PUBLIC -Wall -W -ansi -pedantic -Dcimg_use_vt100 -lpthread -lm -fopenmp)
 target_compile_options(MFMtest.exe PUBLIC ${OPT})
-target_link_libraries(MFMtest.exe MFMa ${TinyXML_LIBRARIES} ${OPT_XWINDOWS} )
+target_link_libraries(MFMtest.exe MFMa ${TinyXML_LIBRARIES} ${OPT_XWINDOWS} ${OPT_NETCDF})
 
 #add_executable(MFMFileTest.exe $MFMFileTest.cc ${HEADERSexe})
 #target_link_libraries(MFMFileTest.exe  ${TinyXML_LIBRARIES} )

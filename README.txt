@@ -61,9 +61,11 @@ Usage
  
  
            
+# example
 
- 
-         
+make
+ncgen ../sources/parameters.cdl -o parameters.nc && ./MFMtest.exe -w -n=1 -fo=25 -d=112
+        
 
 
 
