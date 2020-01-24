@@ -880,6 +880,19 @@ void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [
 }//Display_Signals
 
 //_______________________________________________________________________________________________________________________
+void Display_Trapeze_Paramaters(CImg<Tdata> imgT, int Ti, double q, int n)
+{
+
+	CImg<Tdata> imageC;
+	imageC.assign(imgT.width(),1,1,5,0);
+	imageC.get_shared_channel(0)+=imgT;
+	cimg_for_inX(imageC,Ti-n,Ti,i) imageC(i,0,0,1)=imgT.max();
+	cimg_for_inX(imageC,Ti,Ti+q,i) imageC(i,0,0,2)=imgT.max();
+	cimg_for_inX(imageC,Ti+q,Ti+q+n,i) imageC(i,0,0,3)=imgT.max();
+	cimg_for_inX(imageC,Ti+q+n,imageC.width(),i) imageC(i,0,0,4)=imgT.max();
+	imageC.display_graph("red = Filter, green = Baseline, Blue = peak, yellow = flat top, purple = end peak");
+}//Display_Trapeze_Paramaters
+//_______________________________________________________________________________________________________________________
 int Read_Paramaters (int &k, int &m, double &alpha)
 {
   ///file name
@@ -1152,6 +1165,9 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
   		float E;
 		E=Calculation_Energy(trapeze, Ti, n, q);
 		std::cout<< "E= " << E  <<std::endl;
+
+  		Display_Trapeze_Paramaters(trapeze,Ti,n,q);
+
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
