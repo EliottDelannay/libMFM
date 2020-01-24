@@ -922,6 +922,53 @@ int Read_Paramaters (int &k, int &m, double &alpha)
 } //Read_Paramater
 
 //_______________________________________________________________________________________________________________________
+int Read_Energy_Paramaters (int &n, double &q)
+{
+  ///file name
+  string fi="parameters.nc";//=cimg_option("-p","parameters.nc","comment");
+
+  ///parameter class
+  CParameterNetCDF fp;
+  //open file
+  int error=fp.loadFile((char *)fi.c_str());
+  if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
+
+  float process; string process_name="Energy";
+  //load process variable
+  error=fp.loadVar(process,&process_name);
+  if(error){cerr<<"loadVar return "<< error <<endl;return error;}
+  std::cout<<process_name<<"="<<process<<std::endl;
+  ///k
+  string attribute_name="n";
+  if (error = fp.loadAttribute(attribute_name,k)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<k<<std::endl;
+
+  ///m
+  attribute_name="q";
+  if (error = fp.loadAttribute(attribute_name,m)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<m<<std::endl;
+} //Read_Energy_Paramater
+
+//_______________________________________________________________________________________________________________________
+float Calculation_Energy(trapeze, Ti, n, q)
+{
+  int base=0;
+  cimg_for_inX(trapeze,Ti-n, Ti,i) base+=trapeze(i);
+  int peak=0;
+  cimg_for_inX(trapeze,Ti+q, Ti+q+n,x) peak+=trapeze(x);
+
+  int E;
+  E=(peak-base)/(i+x)
+  
+}//Calculation_Energy
+
+//_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
 	switch (format) {
@@ -1082,8 +1129,6 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		int A, B, Ai, Hi, T, Ti, Medium;
 		Process_Data(image1, A, B, Ai, Hi, T, Ti, Medium);
 
-		//! \todo [high] add to process data trigger position (Ti)
-
 		//text output
 		std::cout<< "Amplitude= " << A  <<std::endl<< "Time = " << T << "ns" <<std::endl;
 		std::cout<< "Trigger start= " << Ti  <<std::endl;
@@ -1098,8 +1143,8 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		Display_Signals(image1, trapeze, 2*k + m + 2); 
 
 		//! \todo [medium] energy mesurement
-		//Calculation_Energy(...)
-
+		E=Calculation_Energy(trapeze, Ti, n, q);
+		std::cout<< "E= " << E  <<std::endl;
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________
