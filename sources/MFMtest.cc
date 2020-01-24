@@ -933,39 +933,41 @@ int Read_Energy_Paramaters (int &n, double &q)
   int error=fp.loadFile((char *)fi.c_str());
   if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
 
-  float process; string process_name="Energy";
+  float process; string process_name="energy";
   //load process variable
   error=fp.loadVar(process,&process_name);
   if(error){cerr<<"loadVar return "<< error <<endl;return error;}
   std::cout<<process_name<<"="<<process<<std::endl;
-  ///k
+  ///n 
   string attribute_name="n";
-  if (error = fp.loadAttribute(attribute_name,k)!=0){
+  if (error = fp.loadAttribute(attribute_name,n)!=0){
     std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     return error;
   }
-  std::cout<<"  "<<attribute_name<<"="<<k<<std::endl;
+  std::cout<<"  "<<attribute_name<<"="<<n<<std::endl;
 
-  ///m
+  ///q computing delay
   attribute_name="q";
-  if (error = fp.loadAttribute(attribute_name,m)!=0){
+  if (error = fp.loadAttribute(attribute_name,q)!=0){
     std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
     return error;
   }
-  std::cout<<"  "<<attribute_name<<"="<<m<<std::endl;
+  std::cout<<"  "<<attribute_name<<"="<<q<<std::endl;
 } //Read_Energy_Paramater
 
 //_______________________________________________________________________________________________________________________
-float Calculation_Energy(trapeze, Ti, n, q)
+float Calculation_Energy(CImg<Tdata> trapeze, int Ti, int n, double q)
 {
+  //sum of the n baseline value
   int base=0;
   cimg_for_inX(trapeze,Ti-n, Ti,i) base+=trapeze(i);
+  //sum of the n peak value
   int peak=0;
-  cimg_for_inX(trapeze,Ti+q, Ti+q+n,x) peak+=trapeze(x);
-
-  int E;
-  E=(peak-base)/(i+x)
-  
+  cimg_for_inX(trapeze,Ti+q, Ti+q+n,i) peak+=trapeze(i);
+  //print both sum and return the energy 
+  std::cout<<"base="<<base<<std::endl;
+  std::cout<<"peak="<<peak<<std::endl;
+  return (peak-base)/n;
 }//Calculation_Energy
 
 //_______________________________________________________________________________________________________________________
@@ -1037,7 +1039,7 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 	}
 		//_____________________ Hello frame______________________________________________________
 	case 13: {
-		;fHelloframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_HELLO_FRAME_TYPE);
+		fHelloframe->WriteRandomFrame(lun,fNbFrames, fVerbose, fDumpsize,MFM_HELLO_FRAME_TYPE);
 		break;
 	}
 		//_____________________ Box Diagnostic frame______________________________________________________
@@ -1135,14 +1137,19 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		std::cout<< "Index of the maximum = " << Ai <<std::endl  <<"Index of the half amplitude = " << Hi <<std::endl;		
 		Display_Parameter(image1, A, B, Medium, Ai, Hi, Ti);	
 		
+		//read the paramaters from files, create and display the trapezoidal filter
 		CImg<Tdata> trapeze(image1.width(),1,1,1, B);
 		int k, m;
 		double alpha;
 		Read_Paramaters(k, m, alpha);
 		trapezoidal_filter(image1, trapeze, k,m,alpha);
 		Display_Signals(image1, trapeze, 2*k + m + 2); 
-
-		//! \todo [medium] energy mesurement
+		
+		//read the paramaters from file and calcule the energy
+		int n;
+		double q;
+		Read_Energy_Paramaters(n, q);
+  		float E;
 		E=Calculation_Energy(trapeze, Ti, n, q);
 		std::cout<< "E= " << E  <<std::endl;
 		break;

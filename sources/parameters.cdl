@@ -28,11 +28,13 @@ variables:
   int energy;
     energy:long_name="energy measurement (activated if >0)";
     energy:n= 123;
-
+    energy:q= 20;
+    energy:q_long_name= "Q computing delay";
+    
 //data value
 data:
 //trapezoid filter
   trapezoid=1;
-  energy=0;
+  energy=1;
 }
 
