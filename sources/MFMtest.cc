@@ -775,123 +775,9 @@ void ReadMergeFrame(MFMCommonFrame* commonframe) {
 	}
 }
 //_______________________________________________________________________________________________________________________
-void hophop(int a, int &b)
-{
-  std::cout<< __FILE__ << "//" << __func__ << "(): print hop"<<std::endl;
-  a+=12;
-  b-=21;
-}
-//_______________________________________________________________________________________________________________________
+
 typedef float Tdata;
-//_______________________________________________________________________________________________________________________
-void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi, int Ti) 
-{
-	//create a image with 3 graphs (red the frame, green the half amplitude, blue the time between the max and the medium)
-	CImg<Tdata> imageC;
-	imageC.assign(img.width(),1,1,4,0);
-	imageC.get_shared_channel(0)+=img;
-	imageC.get_shared_channel(1)+=Medium;
-	imageC.get_shared_channel(2)+=A+B;
-	imageC.get_shared_channel(3)+=A+B;
-	//put x at baseline while amplitude is > treshold 
-	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
-	cimg_for_inX(imageC,Ti,Ai,i) imageC(i,0,0,3)=B;
-	imageC.display_graph("red = signal, green = threshold, blue = max and 36.8% height positions, yellow = trigger and max");
-}//Display_Parameter
 
-//_______________________________________________________________________________________________________________________
-//! process exponential decrease data
-/** 
- * signal processing for a decreasing exponential curve:
- * measure both amplitude and half time
- * \param img[in] = signal
- * \param A[out] = amplitude
- * \param B[out] = Baseline
- * \param Ai[out] = position max amplitude
- * \param Hi[out] = time at half amplitude
- * \param T[out] = Time between Max and half amplitude
- * \param Medium[out] = treshold of 36.8% amplitude
- *
- * \code
- *   AnExampleOfUse
- * \endcode
- *
- * \see AnOtherFunctionOrAvariable
-**/
-void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Ti, int &Medium) {
-		//find the min and max Amplitude
-		B = img.min();
-		A = img.max() - B;
-		//finding the trigger position
-		for (int i=0;img(i)== B; i++)
-		{
-		  Ti=i;
-		}
-		// finding the position of the maximum Amplitude		
-		for (int i=0; img(i)< A + B; i++)
-		{
-		   Ai= i+1;
-		} 		           
-		// find the position of half amplitude and the time
-		T = 0;
-		Medium = A*0.368 + B;
-		Hi=Ai;
-		while (img(Hi) > Medium) 
-  		{
-		   Hi++; 
-		   T+=10;
-		}
-		
-
-}//Process_Data
-
-//_______________________________________________________________________________________________________________________
-int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, double alpha) {
-		//create a filter
-		int decalage = 2*k + m + 2;
-		cimg_for_inX(s,decalage, s.width()-1,n)
-		  s(n)=2*s(n-1)-s(n-2) + e(n-1)\
-		      -alpha*e(n-2) \
-			   -e(n-(k+1)) \
-			        +alpha*e(n-(k+2)) \
-				     -e(n-(k+m+1)) \
-					  +alpha*e(n-(k+m+2)) \
-						+e(n-(2*k+m+1)) \
-						     -alpha*e(n-(2*k+m+2));
-		
-}//trapezoidal_filter
-
-/**
- \page pageSchema Schema du signal
- * 
- * \image html Signal_details.png "explanation of the signal"
- *
-**/
-//_______________________________________________________________________________________________________________________
-void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [low] add title as function variable
-{
-
-	CImg<Tdata> imageC;
-	imageC.assign(imgR.width(),1,1,3,0);
-	imageC.get_shared_channel(0)+=imgR;
-	imageC.get_shared_channel(1)+=imgG;
-	cimg_for_inX(imageC,decalage,imageC.width(),i) imageC(i,0,0,2)=imgR.max();
-	imageC.display_graph("red = signal, green = filter");
-}//Display_Signals
-
-//_______________________________________________________________________________________________________________________
-void Display_Trapeze_Paramaters(CImg<Tdata> imgT, int Ti, double q, int n)
-{
-
-	CImg<Tdata> imageC;
-	imageC.assign(imgT.width(),1,1,5,0);
-	imageC.get_shared_channel(0)+=imgT;
-	cimg_for_inX(imageC,Ti-n,Ti,i) imageC(i,0,0,1)=imgT.max();
-	cimg_for_inX(imageC,Ti,Ti+q,i) imageC(i,0,0,2)=imgT.max();
-	cimg_for_inX(imageC,Ti+q,Ti+q+n,i) imageC(i,0,0,3)=imgT.max();
-	cimg_for_inX(imageC,Ti+q+n,imageC.width(),i) imageC(i,0,0,4)=imgT.max();
-	imageC.display_graph("red = Filter, green = Baseline, Blue = peak, yellow = flat top, purple = end peak");
-}//Display_Trapeze_Paramaters
 //_______________________________________________________________________________________________________________________
 int Read_Paramaters (int &k, int &m, double &alpha)
 {
@@ -969,6 +855,50 @@ int Read_Energy_Paramaters (int &n, double &q)
 } //Read_Energy_Paramater
 
 //_______________________________________________________________________________________________________________________
+//! process exponential decrease data
+/** 
+ * signal processing for a decreasing exponential curve:
+ * measure both amplitude and 36.8% time
+ * \param img[in] = signal
+ * \param A[out] = amplitude
+ * \param B[out] = Baseline
+ * \param Ai[out] = position max amplitude
+ * \param Hi[out] = time at half amplitude
+ * \param T[out] = Time between Max and 36.8% amplitude
+ * \param Medium[out] = treshold of 36.8% amplitude
+ *
+ * \code
+ *   AnExampleOfUse
+ * \endcode
+ *
+ * \see AnOtherFunctionOrAvariable
+**/
+void Process_Data (CImg<Tdata> img, int &A, int &B, int &Ai, int &Hi, int &T,int &Ti, int &Medium) {
+		//find the min and max Amplitude
+		B = img.min();
+		A = img.max() - B;
+		//finding the trigger position
+		for (int i=0;img(i)== B; i++)
+		{
+		  Ti=i;
+		}
+		// finding the position of the maximum Amplitude		
+		for (int i=0; img(i)< A + B; i++)
+		{
+		   Ai= i+1;
+		} 		           
+		// find the position of 36.8% amplitude and the time
+		T = 0;
+		Medium = A*0.368 + B;
+		Hi=Ai;
+		while (img(Hi) > Medium) 
+  		{
+		   Hi++; 
+		   T+=10;
+		}
+}//Process_Data
+
+//_______________________________________________________________________________________________________________________
 float Calculation_Energy(CImg<Tdata> trapeze, int Ti, int n, double q)
 {
   //sum of the n baseline value
@@ -982,6 +912,101 @@ float Calculation_Energy(CImg<Tdata> trapeze, int Ti, int n, double q)
   std::cout<<"peak="<<peak<<std::endl;
   return (peak-base)/n;
 }//Calculation_Energy
+
+//_______________________________________________________________________________________________________________________
+int trapezoidal_filter(CImg<Tdata> e, CImg<Tdata> &s, int k, int m, double alpha) {
+		//create a filter
+		int decalage = 2*k + m + 2;
+		cimg_for_inX(s,decalage, s.width()-1,n)
+		  s(n)=2*s(n-1)-s(n-2) + e(n-1)\
+		      -alpha*e(n-2) \
+			   -e(n-(k+1)) \
+			        +alpha*e(n-(k+2)) \
+				     -e(n-(k+m+1)) \
+					  +alpha*e(n-(k+m+2)) \
+						+e(n-(2*k+m+1)) \
+						     -alpha*e(n-(2*k+m+2));
+		
+}//trapezoidal_filter
+
+/**
+ \page pageSchema Schema du signal
+ * 
+ * \image html Signal_details.png "explanation of the signal"
+ *
+**/
+
+//_______________________________________________________________________________________________________________________
+int Calcul_Ti(CImg<Tdata> e, int Tm, float threshold,double fraction, double alpha) {
+		
+		CImg<Tdata> s(e.width());
+		int delay = (3*Tm)/2;
+		//Discri simple
+		s(0)=0;
+		cimg_for_inX(s,1,s.width(),n) s(n)=e(n)-alpha*e(n-1);
+		//Discri treshold		
+		CImg<Tdata> imageDCF(s.width(),1,1,1, 0);
+		cimg_for_inX(imageDCF,delay,s.width(),n) imageDCF(n)=s(n-delay)-fraction*s(n);
+
+		//display the graph
+		CImg<Tdata> imageC;
+		imageC.assign(s.width(),1,1,4, 0);
+		imageC.get_shared_channel(0)+=s;
+		imageC.get_shared_channel(1)+=imageDCF;
+		imageC.get_shared_channel(2)+=threshold;
+		imageC.get_shared_channel(3)+=e/e.max()*imageDCF.max();		
+		imageC.display_graph("red = discri simple, green = dCFD, blue = threshold, yellow = graph");
+		
+		//find the position of the trigger
+		int Ti;
+		for (int i=0;s(i) < threshold; i++)
+		{
+		  Ti=i+1;
+		}
+		return Ti;
+}//Calcul_Ti
+
+//_______________________________________________________________________________________________________________________
+void Display_Signals(CImg<Tdata> imgR,CImg<Tdata> imgG, int decalage)//! \todo [low] add title as function variable
+{
+
+	CImg<Tdata> imageC;
+	imageC.assign(imgR.width(),1,1,3,0);
+	imageC.get_shared_channel(0)+=imgR;
+	imageC.get_shared_channel(1)+=imgG;
+	cimg_for_inX(imageC,decalage,imageC.width(),i) imageC(i,0,0,2)=imgR.max();
+	imageC.display_graph("red = signal, green = filter");
+}//Display_Signals
+
+//_______________________________________________________________________________________________________________________
+void Display_Parameter(CImg<Tdata> img,int A, int B, int Medium, int Ai, int Hi, int Ti) 
+{
+	//create a image with 3 graphs (red the frame, green the 36.8% amplitude, blue the time between the max and the medium)
+	CImg<Tdata> imageC;
+	imageC.assign(img.width(),1,1,4,0);
+	imageC.get_shared_channel(0)+=img;
+	imageC.get_shared_channel(1)+=Medium;
+	imageC.get_shared_channel(2)+=A+B;
+	imageC.get_shared_channel(3)+=A+B;
+	//put x at baseline while amplitude is > treshold 
+	cimg_for_inX(imageC,Ai,Hi,i) imageC(i,0,0,2)=B;
+	cimg_for_inX(imageC,Ti,Ai,i) imageC(i,0,0,3)=B;
+	imageC.display_graph("red = signal, green = threshold, blue = max and 36.8% height positions, yellow = trigger and max");
+}//Display_Parameter
+
+//_______________________________________________________________________________________________________________________
+void Display_Trapeze_Paramaters(CImg<Tdata> imgT, int Ti, double q, int n)
+{
+
+	CImg<Tdata> imageC;
+	imageC.assign(imgT.width(),1,1,5,0);
+	imageC.get_shared_channel(0)+=imgT;
+	cimg_for_inX(imageC,Ti-n,Ti,i) imageC(i,0,0,1)=imgT.max();
+	cimg_for_inX(imageC,Ti,Ti+q,i) imageC(i,0,0,2)=imgT.max();
+	cimg_for_inX(imageC,Ti+q,Ti+q+n,i) imageC(i,0,0,3)=imgT.max();
+	cimg_for_inX(imageC,Ti+q+n,imageC.width(),i) imageC(i,0,0,4)=imgT.max();
+	imageC.display_graph("red = Filter, green = Baseline, Blue = peak, yellow = flat top, purple = end peak");
+}//Display_Trapeze_Paramaters
 
 //_______________________________________________________________________________________________________________________
 void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
@@ -1160,7 +1185,8 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 		
 		//read the paramaters from file and calcule the energy
 		int n;
-		double q;
+		float threshold;
+		double q, fraction;
 		Read_Energy_Paramaters(n, q);
   		float E;
 		E=Calculation_Energy(trapeze, Ti, n, q);
@@ -1168,6 +1194,8 @@ void WriteUserFrame(int lun, int format, int fNbFrames, int fNbSubFrames) {
 
   		Display_Trapeze_Paramaters(trapeze,Ti,n,q);
 
+		Ti=Calcul_Ti(image1, Ai-Ti, threshold, fraction, alpha);
+		std::cout<< "Trigger start= " << Ti  <<std::endl;
 		break;
 	}
 		//_____________________ XmlDataDescriptionFrame frame______________________________________________________

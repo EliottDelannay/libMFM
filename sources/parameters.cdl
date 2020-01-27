@@ -11,6 +11,21 @@ dimensions:
 
 //variable declaration and attributes
 variables:
+//graph
+  int graph;
+     graph:long_name="signal graph (activated if >0)";
+     graph:nb_tB_long_name="baseline time";
+     graph:nb_tB= 1000; // 10us,  10000/10
+     graph:nb_tA_long_name="peak time"; 
+     graph:nb_tA= 1010; //100 ns, 100/10 + nb_tB
+     graph:tau_long_name="decrease";
+     graph:tau= 500; //5 us, 5000/10
+     graph:A_long_name="Amplitude";
+     graph:A= 1234;
+     graph:B_long_name="Baseline";
+     graph:B= 20;
+     graph:SetSetupScope= 1950;
+
 //trapezoid filter
   int trapezoid;
     trapezoid:long_name="trapezoid filter (activated if >0)";
@@ -27,9 +42,11 @@ variables:
 //energy
   int energy;
     energy:long_name="energy measurement (activated if >0)";
-    energy:n= 123;
-    energy:q= 20;
+    energy:n= 209;
+    energy:q= 42;
     energy:q_long_name= "Q computing delay";
+    energy:threshold=12;
+    energy:fraction=0.2;
     
 //data value
 data:
