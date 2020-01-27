@@ -15,6 +15,9 @@ using namespace std;
 
 #include "MFMReaScopeFrame.h"
 
+#include <netcdfcpp.h>
+#include "struct_parameter_NetCDF.h"
+
 //_______________________________________________________________________________
 MFMReaScopeFrame::MFMReaScopeFrame(int unitBlock_size, int dataSource, int frameType,
 		int revision, int frameSize, int headerSize, int itemSize, int nItems) {
@@ -215,6 +218,71 @@ uint16_t MFMReaScopeFrame::GetCheckSum()const {
 			SwapInt16((uint16_t *) (pchecksum));
 	return checksum;
 }
+
+//_______________________________________________________________________________
+int Get_Graph_Parameters(int &nb_tB, int &nb_tA, double &tau, int A, int B, int SetSetupScope){
+  ///file name
+  string fi="parameters.nc";//=cimg_option("-p","parameters.nc","comment");
+
+  ///parameter class
+  CParameterNetCDF fp;
+  //open file
+  int error=fp.loadFile((char *)fi.c_str());
+  if(error){std::cerr<<"loadFile return "<< error <<std::endl;return error;}
+
+  float process; string process_name="graph";
+  //load process variable
+  error=fp.loadVar(process,&process_name);
+  if(error){cerr<<"loadVar return "<< error <<endl;return error;}
+  std::cout<<process_name<<"="<<process<<std::endl;
+  ///nb_tB
+  string attribute_name="nb_tB";
+  if (error = fp.loadAttribute(attribute_name,nb_tB)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<nb_tB<<std::endl;
+
+  ///nb_tA
+  attribute_name="nb_tA";
+  if (error = fp.loadAttribute(attribute_name,nb_tA)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<nb_tA<<std::endl;
+
+  ///tau
+  attribute_name="tau";
+  if (error = fp.loadAttribute(attribute_name,tau)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<tau<<std::endl;
+  ///A
+  attribute_name="A";
+  if (error = fp.loadAttribute(attribute_name,A)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<A<<std::endl;	
+	 
+  ///B
+  attribute_name="B";
+  if (error = fp.loadAttribute(attribute_name,B)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<B<<std::endl; 
+
+  ///SetSetupScope
+  attribute_name="SetSetupScope";
+  if (error = fp.loadAttribute(attribute_name,SetSetupScope)!=0){
+    std::cerr<< "Error while loading "<<process_name<<":"<<attribute_name<<" attribute"<<std::endl;
+    return error;
+  }
+  std::cout<<"  "<<attribute_name<<"="<<SetSetupScope<<std::endl;
+}//Get_Graph_Parameters
+
 //_______________________________________________________________________________
 void MFMReaScopeFrame::FillDataWithRamdomValue(  uint64_t timestamp, uint32_t enventnumber,int nbitem) {
 /*	/// Fill frame items  of sinus values with random perios,
@@ -275,6 +343,7 @@ void MFMReaScopeFrame::FillDataWithPeakValue(  uint64_t timestamp, uint32_t enve
 	const int A =1234;
 	const int B=20;
         SetSetupScope(1950);
+  //      Get_Graph_parameters(int &nb_tB, int &nb_tA, double &tau, int, A, int B, int SetSetupScope)
 
 	//Baseline
 	uivalue = B;
